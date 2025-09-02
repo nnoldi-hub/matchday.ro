@@ -1,0 +1,16 @@
+
+==================================================
+DATA: 2025-09-01 12:22:29
+NUME: Test User
+EMAIL: test@example.com
+MESAJ:
+Acesta este un mesaj de test pentru formularul de contact.
+==================================================
+
+==================================================
+DATA: 2025-09-01 12:24:02
+NUME: Nyikora Noldi
+EMAIL: conectica.it.ro@gmail.com
+MESAJ:
+Salutare
+==================================================

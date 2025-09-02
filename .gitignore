@@ -1,0 +1,52 @@
+# Configurații locale
+config/config.local.php
+.env
+
+# Cache și fișiere temporare
+data/cache/*
+!data/cache/.gitkeep
+data/backups/*
+!data/backups/.gitkeep
+temp/
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# Uploads user
+assets/uploads/*
+!assets/uploads/.gitkeep
+
+# IDE și editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies (dacă folosești Composer)
+vendor/
+composer.lock
+
+# Security sensitive
+private_keys/
+certificates/
+
+# Database dumps
+*.sql
+*.db
+
+# Large files
+*.zip
+*.tar.gz
+*.rar
+
+# Local development
+local_config.php
+test_*.php
+debug_*.php

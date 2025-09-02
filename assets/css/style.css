@@ -1,0 +1,374 @@
+/* MatchDay.ro - stil */
+:root{
+  --brand:#71acbb;
+  --brand-dark:#0B132B;
+  --accent:#F5E663;  /* galben pai */
+  --accent-ink:#1F1F1F;
+  --bg:#F8FAFD;
+  --ink:#0B132B;
+}
+*{box-sizing:border-box}
+body{font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg)}
+.hero{background: linear-gradient(180deg, rgba(245,230,99,0.20), transparent 65%);padding: 3.5rem 0 1rem;}
+.brand-badge{display:inline-flex;align-items:center;gap:.5rem;background:#fff;border:1px solid rgba(14,77,146,.12);padding:.5rem 1rem;border-radius:999px;box-shadow: 0 6px 18px rgba(14,77,146,.08);}
+.badge-accent{background:var(--accent); color:var(--accent-ink); padding:.25rem .6rem; border-radius:.5rem; font-weight:600;}
+.navbar{
+  background: #71acbb !important;
+  background: var(--brand) !important;
+}
+.navbar .navbar-brand {color: #fff !important}
+.navbar .nav-link {color: rgba(255,255,255,0.85) !important}
+.navbar .nav-link:hover {color: #fff !important}
+.navbar .navbar-toggler {border-color: rgba(255,255,255,0.3) !important}
+.navbar .navbar-toggler-icon {filter: invert(1)}
+.card-article{transition:transform .15s ease, box-shadow .15s ease;border:none;border-radius:1rem}
+.card-article:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(14,77,146,.15)}
+.card-article .cover{height:180px;object-fit:cover;border-top-left-radius:1rem;border-top-right-radius:1rem}
+.meta{color:#5c6b8a}
+.btn-brand{background:var(--brand);color:#fff;border-radius:.75rem}
+.btn-brand:hover{filter:brightness(.95);color:#fff}
+.btn-accent{background:var(--accent);color:var(--accent-ink);border-radius:.75rem}
+.btn-accent:hover{filter:brightness(.95);color:var(--accent-ink)}
+.tag{display:inline-block;background:#FFF9CF;color:#5d4a00;border:1px solid #FFE97A;padding:.2rem .6rem;border-radius:999px;font-size:.8rem;margin-right:.25rem}
+article.post-content img{max-width:100%;height:auto;border-radius:.75rem}
+article.post-content blockquote{border-left:4px solid var(--brand);padding-left:1rem;margin-left:0;color:#2b3a55;background:#f0f6ff;border-radius:.25rem}
+.small-muted{color:#6b7b99}
+.admin-card{max-width:880px;margin:2rem auto}
+.searchbar{background:#fff;border:1px solid #e6ecff;border-radius:1rem;padding:.5rem .75rem}
+.pagination .page-link{border-radius:.5rem}
+footer .brand-band{display:inline-flex;align-items:center;gap:.5rem;background:#FFF4A6;padding:.25rem .6rem;border-radius:.5rem}
+
+/* Hero Carousel Styles */
+.hero-slide {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-slide::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--brand) 0%, #5a67d8 100%);
+  opacity: 0.1;
+  z-index: 1;
+}
+
+.carousel-control-prev, .carousel-control-next {
+  width: 50px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 50px;
+  margin: auto 15px;
+}
+
+.carousel-control-prev:hover, .carousel-control-next:hover {
+  background: rgba(0,0,0,0.5);
+}
+
+.carousel-indicators {
+  margin-bottom: 15px;
+}
+
+.carousel-indicators [data-bs-target] {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.5);
+  border: 0;
+}
+
+.carousel-indicators .active {
+  background-color: white;
+}
+
+@media (max-width: 768px) {
+  .hero-slide {
+    height: 300px !important;
+  }
+  
+  .hero-slide .h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* ===== SOCIAL MEDIA & INTERACTIONS ===== */
+
+/* Social Share Buttons */
+.social-share-buttons .btn {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.btn-facebook {
+  background-color: #1877f2;
+  border-color: #1877f2;
+  color: white;
+}
+
+.btn-facebook:hover {
+  background-color: #166fe5;
+  border-color: #166fe5;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-twitter {
+  background-color: #1da1f2;
+  border-color: #1da1f2;
+  color: white;
+}
+
+.btn-twitter:hover {
+  background-color: #0d95e8;
+  border-color: #0d95e8;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-whatsapp {
+  background-color: #25d366;
+  border-color: #25d366;
+  color: white;
+}
+
+.btn-whatsapp:hover {
+  background-color: #128c7e;
+  border-color: #128c7e;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-telegram {
+  background-color: #0088cc;
+  border-color: #0088cc;
+  color: white;
+}
+
+.btn-telegram:hover {
+  background-color: #0077b5;
+  border-color: #0077b5;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Poll Styles */
+.poll-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+}
+
+.poll-question {
+  color: #0B132B;
+}
+
+.poll-options .form-check {
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.poll-options .form-check:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.poll-options .form-check-input:checked + .form-check-label {
+  font-weight: 600;
+  color: #0066cc;
+}
+
+.poll-option-result {
+  transition: all 0.3s ease;
+}
+
+.poll-option-result:hover {
+  transform: translateX(5px);
+}
+
+.poll-option-result .progress {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.poll-option-result .progress-bar {
+  transition: width 1s ease-in-out;
+  border-radius: 10px;
+}
+
+/* Comments System */
+.comment-item {
+  transition: all 0.3s ease;
+  padding: 1rem 0;
+}
+
+.comment-item:hover {
+  background-color: rgba(0, 123, 255, 0.02);
+  border-radius: 8px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.comment-avatar .avatar-placeholder {
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.comment-content {
+  position: relative;
+}
+
+.comment-text {
+  line-height: 1.6;
+  color: #495057;
+}
+
+.comment-text a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.comment-text a:hover {
+  text-decoration: underline;
+}
+
+.comment-actions .btn {
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.comment-actions .btn:hover {
+  transform: scale(1.1);
+}
+
+.comment-reply {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.reply-avatar .avatar-placeholder {
+  font-size: 0.9rem;
+}
+
+/* Social Embeds */
+.youtube-embed,
+.twitter-embed,
+.instagram-embed {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.youtube-embed iframe {
+  border-radius: 8px;
+}
+
+/* Like System */
+.btn[data-like-article] {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn[data-like-article]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn[data-like-article]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn[data-like-article]:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Newsletter Signup */
+.newsletter-signup {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 2rem;
+  color: white;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.newsletter-signup .form-control {
+  border-radius: 25px;
+  border: none;
+  padding: 0.75rem 1.25rem;
+}
+
+.newsletter-signup .btn {
+  border-radius: 25px;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  border: 2px solid white;
+  background: transparent;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.newsletter-signup .btn:hover {
+  background: white;
+  color: #667eea;
+  transform: translateY(-2px);
+}
+
+/* Notification Animations */
+.alert {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design pentru Social Features */
+@media (max-width: 768px) {
+  .social-share-buttons .btn-group-vertical {
+    gap: 0.5rem !important;
+  }
+  
+  .poll-container {
+    padding: 1.5rem !important;
+  }
+  
+  .comment-item {
+    padding: 0.75rem 0;
+  }
+  
+  .comment-item:hover {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .youtube-embed,
+  .twitter-embed,
+  .instagram-embed {
+    margin: 0.75rem 0;
+    padding: 0.75rem;
+  }
+}

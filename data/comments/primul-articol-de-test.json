@@ -1,0 +1,21 @@
+[
+    {
+        "name": "Nyikora Noldi",
+        "message": "HYT",
+        "date": "2025-09-01 12:44",
+        "ip": "837ec5754f503cfaaee0929fd48974e7",
+        "user_agent": "a3f57bbe21c4e30379228ad7788f224d",
+        "timestamp": 1756719892,
+        "approved": false
+    },
+    {
+        "name": "David Nyikora",
+        "message": "fOARTE",
+        "date": "2025-09-01 13:17",
+        "ip": "837ec5754f503cfaaee0929fd48974e7",
+        "user_agent": "a3f57bbe21c4e30379228ad7788f224d",
+        "timestamp": 1756721867,
+        "approved": true,
+        "approved_at": 1756721929
+    }
+]

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Creare Sondaje - Debug Hostico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test Creare Sondaje - Debug Hostico</h1>
+    
+    <div class="debug-section">
+        <h2>1. Test Creare Sondaj</h2>
+        <form id="testPollForm">
+            <div class="form-group">
+                <label for="pollId">ID Sondaj:</label>
+                <input type="text" id="pollId" name="pollId" value="test-hostico-<?php echo date('Y-m-d-H-i-s'); ?>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="question">Întrebarea:</label>
+                <input type="text" id="question" name="question" value="Test sondaj pe Hostico - funcționează?" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Descriere:</label>
+                <textarea id="description" name="description">Acest sondaj este creat pentru a testa funcționalitatea pe serverul Hostico.</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Opțiuni:</label>
+                <input type="text" name="option1" value="Da, funcționează perfect" required>
+                <input type="text" name="option2" value="Nu, există probleme" required>
+                <input type="text" name="option3" value="Parțial funcțional" required>
+            </div>
+            
+            <button type="submit">Creează Sondaj de Test</button>
+        </form>
+        
+        <div id="createResult"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>2. Test Încărcare Sondaje Active</h2>
+        <button onclick="loadActivePolls()">Încarcă Sondaje Active</button>
+        <div id="loadResult"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>3. Informații Debug</h2>
+        <button onclick="runDebugScript()">Rulează Script Debug</button>
+        <div id="debugResult"></div>
+    </div>
+
+    <script>
+        // Test creare sondaj
+        document.getElementById('testPollForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {
+                action: 'create_poll',
+                poll_id: formData.get('pollId'),
+                question: formData.get('question'),
+                description: formData.get('description'),
+                options: [
+                    formData.get('option1'),
+                    formData.get('option2'),
+                    formData.get('option3')
+                ],
+                active: true
+            };
+            
+            try {
+                const response = await fetch('polls-manager.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                const result = await response.json();
+                
+                const resultDiv = document.getElementById('createResult');
+                if (result.success) {
+                    resultDiv.innerHTML = `<div class="result success">
+                        <strong>SUCCESS:</strong> ${result.message}<br>
+                        <strong>Poll ID:</strong> ${result.poll_id}
+                    </div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">
+                        <strong>ERROR:</strong> ${result.error || result.message}
+                    </div>`;
+                }
+                
+            } catch (error) {
+                document.getElementById('createResult').innerHTML = `
+                    <div class="result error">
+                        <strong>FETCH ERROR:</strong> ${error.message}
+                    </div>`;
+            }
+        });
+        
+        // Test încărcare sondaje
+        async function loadActivePolls() {
+            try {
+                const response = await fetch('polls_api.php?action=get_active_polls');
+                const result = await response.json();
+                
+                const resultDiv = document.getElementById('loadResult');
+                if (result.success) {
+                    let html = '<div class="result success"><strong>Sondaje active găsite:</strong><br>';
+                    if (result.polls && result.polls.length > 0) {
+                        result.polls.forEach(poll => {
+                            html += `- ${poll.question} (ID: ${poll.id}, Active: ${poll.active})<br>`;
+                        });
+                    } else {
+                        html += 'Nu există sondaje active.';
+                    }
+                    html += '</div>';
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">
+                        <strong>ERROR:</strong> ${result.error || 'Eroare necunoscută'}
+                    </div>`;
+                }
+            } catch (error) {
+                document.getElementById('loadResult').innerHTML = `
+                    <div class="result error">
+                        <strong>FETCH ERROR:</strong> ${error.message}
+                    </div>`;
+            }
+        }
+        
+        // Debug script
+        async function runDebugScript() {
+            try {
+                const response = await fetch('debug-polls.php');
+                const result = await response.text();
+                
+                document.getElementById('debugResult').innerHTML = `
+                    <div class="result success">
+                        <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto;">
+${result}
+                        </pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('debugResult').innerHTML = `
+                    <div class="result error">
+                        <strong>DEBUG ERROR:</strong> ${error.message}
+                    </div>`;
+            }
+        }
+    </script>
+</body>
+</html>

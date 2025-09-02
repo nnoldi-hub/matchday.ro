@@ -1,0 +1,15 @@
+# Permite accesul la fișierele JSON din directorul data
+<Files "*.json">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Blochează accesul la alte tipuri de fișiere
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Setează permisiuni pentru directoare
+Options -Indexes
+DirectoryIndex index.php index.html

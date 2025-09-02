@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .shield { fill:#0E4D92; }
+      .ball { fill:#F5E663; stroke:#0E4D92; stroke-width:16px; }
+      .text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size:72px; fill:#0E4D92; }
+    </style>
+  </defs>
+  <path class="shield" d="M256 16c80 56 160 56 240 56v160c0 144-96 256-240 320C112 488 16 376 16 232V72c80 0 160 0 240-56z"/>
+  <circle class="ball" cx="256" cy="232" r="100"/>
+  <text class="text" x="50%" y="480" text-anchor="middle">MATCHDAY.RO</text>
+</svg>
