@@ -172,7 +172,7 @@ include(__DIR__ . '/includes/header.php');
               </span>
             </div>
             <h2 class="h6 mb-2">
-              <a href="posts/<?= urlencode($file) ?>" class="text-decoration-none stretched-link">
+              <a href="/posts/<?= urlencode($file) ?>" class="text-decoration-none stretched-link">
                 <?= htmlspecialchars($title) ?>
               </a>
             </h2>

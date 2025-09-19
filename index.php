@@ -208,7 +208,7 @@ if (isset($_GET['created'])) {
                     <?php endif; ?>
                     
                     <h2 class="h3 mb-2 fw-bold">
-                      <a href="<?= htmlspecialchars($item['file']) ?>" class="text-white text-decoration-none">
+                      <a href="/<?= htmlspecialchars($item['file']) ?>" class="text-white text-decoration-none">
                         <?= htmlspecialchars($item['title']) ?>
                       </a>
                     </h2>
@@ -374,7 +374,7 @@ if (isset($_GET['created'])) {
       <?php foreach ($displayItems as $index => $item): ?>
         <div class="col-12 col-md-6 col-lg-4">
           <article class="card card-article h-100" itemscope itemtype="https://schema.org/Article">
-            <a href="<?php echo Security::sanitizeInput($item['file']); ?>" 
+            <a href="/<?php echo Security::sanitizeInput($item['file']); ?>" 
                class="text-decoration-none text-reset" 
                aria-label="Citește: <?php echo Security::sanitizeInput($item['title']); ?>">
                
