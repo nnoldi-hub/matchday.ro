@@ -260,7 +260,7 @@ if (isset($_GET['created'])) {
         foreach ($categories as $key => $category): 
         ?>
         <div class="col-6 col-md-4 col-lg-2">
-          <a href="category.php?cat=<?= urlencode($key) ?>" class="text-decoration-none">
+          <a href="/category.php?cat=<?= urlencode($key) ?>" class="text-decoration-none">
             <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.2s ease">
               <div class="card-body text-center p-3" onmouseover="this.parentElement.style.transform='translateY(-2px)'" onmouseout="this.parentElement.style.transform='translateY(0)'">
                 <div class="d-flex align-items-center justify-content-center mb-2" 

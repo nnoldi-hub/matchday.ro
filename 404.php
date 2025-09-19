@@ -84,7 +84,7 @@ include(__DIR__ . '/includes/header.php');
             foreach ($categories as $slug => $info): 
             ?>
             <div class="col-md-4 col-sm-6">
-              <a href="category.php?cat=<?= $slug ?>" 
+              <a href="/category.php?cat=<?= $slug ?>" 
                  class="btn btn-outline-<?= $info['color'] ?> w-100 d-flex align-items-center">
                 <i class="<?= $info['icon'] ?> me-2"></i>
                 <?= $info['name'] ?>

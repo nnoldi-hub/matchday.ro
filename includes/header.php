@@ -86,7 +86,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
                 foreach ($categories as $key => $category):
                 ?>
                 <li>
-                  <a class="dropdown-item d-flex align-items-center" href="<?php echo $admin ? '../category.php?cat=' . urlencode($key) : './category.php?cat=' . urlencode($key); ?>">
+                  <a class="dropdown-item d-flex align-items-center" href="/category.php?cat=<?= urlencode($key) ?>">
                     <i class="<?= $category['icon'] ?> me-2" style="color: <?= $category['color'] ?>"></i>
                     <?= htmlspecialchars($category['name']) ?>
                   </a>
