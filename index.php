@@ -216,7 +216,6 @@ if (isset($_GET['created'])) {
                       <i class="<?= $category['icon'] ?> me-1"></i><?= $category['name'] ?>
                     </span>
                     <?php endif; ?>
-                    
                     <h2 class="h3 mb-2 fw-bold">
                         <?= htmlspecialchars($item['title']) ?>
                     </h2>
@@ -225,7 +224,6 @@ if (isset($_GET['created'])) {
                       <?= htmlspecialchars(mb_substr($item['excerpt'], 0, 120)) ?>...
                     </p>
                     <?php endif; ?>
-                    <a href="/<?= htmlspecialchars($item['file']) ?>" class="btn btn-accent btn-sm mb-2">Citește articolul</a>
                     <div class="d-flex align-items-center gap-3 small">
                       <span><i class="far fa-calendar me-1"></i><?= date('d.m.Y', strtotime($item['date'])) ?></span>
                       <?php if (isset($item['word_count']) && $item['word_count'] > 0): ?>
@@ -233,6 +231,9 @@ if (isset($_GET['created'])) {
                       <?php endif; ?>
                     </div>
                   </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end justify-content-end">
+                  <a href="/<?= htmlspecialchars($item['file']) ?>" class="btn btn-accent btn-lg mb-4">Citește articolul</a>
                 </div>
               </div>
             </div>
