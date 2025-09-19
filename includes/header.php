@@ -14,7 +14,7 @@ $seo = new SEOManager();
 if (!isset($pageTitle)) $pageTitle = SITE_NAME;
 if (!isset($pageDescription)) $pageDescription = SITE_TAGLINE;
 if (!isset($pageKeywords)) $pageKeywords = ['fotbal', 'romania', 'sport', 'meciuri', 'transferuri'];
-if (!isset($pageImage)) $pageImage = $assetBase . 'assets/images/logo.png';
+if (!isset($pageImage)) $pageImage = '/assets/images/logo.png';
 if (!isset($pageType)) $pageType = 'website';
 
 $seo->setTitle($pageTitle, $pageTitle !== SITE_NAME)
@@ -41,16 +41,16 @@ if (isset($articleTags)) $seo->setTags($articleTags);
     <?php echo $seo->render(); ?>
     
     <!-- Bootstrap CSS Local -->
-    <link href="<?= BASE_URL ?>/assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link href="<?= BASE_URL ?>/assets/css/style.css" rel="stylesheet">
+  <link href="/assets/css/style.css" rel="stylesheet">
     
     <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo $assetBase ?>assets/images/favicon.ico">
-    <link rel="icon" type="image/svg+xml" href="<?php echo $assetBase ?>assets/images/favicon.svg">
-    <link rel="apple-touch-icon" href="<?php echo $assetBase ?>assets/images/logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/images/logo.png">
     
     <!-- RSS Feed -->
     <link rel="alternate" type="application/rss+xml" title="<?php echo SITE_NAME; ?> RSS" href="<?php echo $base ?>rss.php">
@@ -69,7 +69,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
       <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2" href="<?php echo $admin ? '../index.php' : './index.php'; ?>">
-          <img src="<?php echo $assetBase ?>assets/images/logo.png" width="36" height="36" alt="logo" />
+          <img src="/assets/images/logo.png" width="36" height="36" alt="logo" />
           <span class="fw-bold"><?php echo SITE_NAME; ?></span>
           <span class="badge-accent ms-2 d-none d-lg-inline">Fiecare meci are o poveste. Noi o scriem. ⚽</span>        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
