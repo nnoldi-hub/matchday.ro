@@ -218,9 +218,7 @@ if (isset($_GET['created'])) {
                     <?php endif; ?>
                     
                     <h2 class="h3 mb-2 fw-bold">
-                      <a href="/<?= htmlspecialchars($item['file']) ?>" class="text-white text-decoration-none">
                         <?= htmlspecialchars($item['title']) ?>
-                      </a>
                     </h2>
                     <?php if (!empty($item['excerpt'])): ?>
                     <p class="mb-3 opacity-75">
