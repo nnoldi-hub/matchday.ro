@@ -12,13 +12,13 @@ if (empty($categorySlug) || !isset($categories[$categorySlug])) {
     // SEO for 404
     $pageTitle = '404 - Categoria nu a fost găsită';
     $pageDescription = 'Categoria căutată nu există. Explorează celelalte categorii de pe MatchDay.ro.';
-    $breadcrumbs = [
-        ['name' => 'Acasă', 'url' => './index.php'],
-        ['name' => '404 - Categoria nu a fost găsită']
-    ];
+  $breadcrumbs = [
+    ['name' => 'Acasă', 'url' => '/index.php'],
+    ['name' => '404 - Categoria nu a fost găsită']
+  ];
     
     include(__DIR__ . '/includes/header.php');
-    echo '<div class="container my-5"><h1>Categoria nu a fost găsită</h1><a href="index.php">Înapoi la jurnal</a></div>';
+  echo '<div class="container my-5"><h1>Categoria nu a fost găsită</h1><a href="/index.php">Înapoi la jurnal</a></div>';
     include(__DIR__ . '/includes/footer.php');
     exit;
 }
@@ -57,9 +57,9 @@ $pageType = 'website';
 
 // Breadcrumbs
 $breadcrumbs = [
-    ['name' => 'Acasă', 'url' => './index.php'],
-    ['name' => 'Categorii', 'url' => './index.php#categorii'],
-    ['name' => $currentCategory['name']]
+  ['name' => 'Acasă', 'url' => '/index.php'],
+  ['name' => 'Categorii', 'url' => '/index.php#categorii'],
+  ['name' => $currentCategory['name']]
 ];
 
 // Get posts from this category
@@ -117,7 +117,7 @@ include(__DIR__ . '/includes/header.php');
         </div>
         <div class="d-flex align-items-center gap-3 text-muted">
           <span><i class="fas fa-newspaper me-1"></i><?= $total ?> articole</span>
-          <a href="index.php" class="text-decoration-none">← Înapoi la toate articolele</a>
+          <a href="/index.php" class="text-decoration-none">← Înapoi la toate articolele</a>
         </div>
       </div>
       <div class="col-lg-4 text-lg-end">
@@ -136,7 +136,7 @@ include(__DIR__ . '/includes/header.php');
       <i class="<?= $currentCategory['icon'] ?> fa-3x mb-3 opacity-50"></i>
       <h3 class="h5">Nu sunt articole în această categorie încă</h3>
       <p class="text-muted">Primul articol va apărea aici în curând!</p>
-      <a href="index.php" class="btn btn-brand">Vezi toate articolele</a>
+  <a href="/index.php" class="btn btn-brand">Vezi toate articolele</a>
     </div>
   <?php else: ?>
     <div class="row g-4">

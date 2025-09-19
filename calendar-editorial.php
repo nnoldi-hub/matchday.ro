@@ -211,7 +211,7 @@ $calendar = generateEditorialCalendar();
         <div class="col-12">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.php"><i class="fas fa-home"></i> Acasă</a></li>
+                    <li class="breadcrumb-item"><a href="/index.php"><i class="fas fa-home"></i> Acasă</a></li>
                     <li class="breadcrumb-item active">Calendar Editorial</li>
                 </ol>
             </nav>

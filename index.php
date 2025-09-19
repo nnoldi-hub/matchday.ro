@@ -152,7 +152,7 @@ if (isset($_GET['created'])) {
           <i class="fas fa-search me-1"></i> Caută
         </button>
         <?php if ($q): ?>
-          <a href="index.php" class="btn btn-outline-secondary" title="Șterge căutarea">
+      <a href="/index.php" class="btn btn-outline-secondary" title="Șterge căutarea">
             <i class="fas fa-times"></i>
           </a>
         <?php endif; ?>
@@ -351,7 +351,7 @@ if (isset($_GET['created'])) {
         <div class="alert alert-info text-center">
           <h4>Nu am găsit articole</h4>
           <?php if ($q): ?>
-            <p>Nu există articole pentru căutarea ta. <a href="index.php">Vezi toate articolele</a></p>
+            <p>Nu există articole pentru căutarea ta. <a href="/index.php">Vezi toate articolele</a></p>
           <?php else: ?>
             <p>Nu există încă articole publicate. <a href="admin/login.php">Scrie primul articol!</a></p>
           <?php endif; ?>

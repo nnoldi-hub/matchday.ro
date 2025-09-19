@@ -98,7 +98,7 @@ include(__DIR__ . '/includes/header.php');
         </div>
         
         <div class="text-center mt-5">
-          <a href="index.php" class="btn btn-primary btn-lg">
+          <a href="/index.php" class="btn btn-primary btn-lg">
             <i class="fas fa-newspaper me-2"></i>
             Citește articolele
           </a>
