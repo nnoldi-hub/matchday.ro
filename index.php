@@ -222,13 +222,12 @@ if (isset($_GET['created'])) {
                         <?= htmlspecialchars($item['title']) ?>
                       </a>
                     </h2>
-                    
                     <?php if (!empty($item['excerpt'])): ?>
                     <p class="mb-3 opacity-75">
                       <?= htmlspecialchars(mb_substr($item['excerpt'], 0, 120)) ?>...
                     </p>
                     <?php endif; ?>
-                    
+                    <a href="/<?= htmlspecialchars($item['file']) ?>" class="btn btn-accent btn-sm mb-2">Citește articolul</a>
                     <div class="d-flex align-items-center gap-3 small">
                       <span><i class="far fa-calendar me-1"></i><?= date('d.m.Y', strtotime($item['date'])) ?></span>
                       <?php if (isset($item['word_count']) && $item['word_count'] > 0): ?>
