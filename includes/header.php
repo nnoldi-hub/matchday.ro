@@ -93,7 +93,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
                 </li>
                 <?php endforeach; ?>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="<?php echo $admin ? '../index.php' : './index.php'; ?>">Toate articolele</a></li>
+                <li><a class="dropdown-item" href="/index.php">Toate articolele</a></li>
               </ul>
             </li>
             <li class="nav-item"><a class="nav-link" href="<?php echo $admin ? '../despre.php' : './despre.php'; ?>">Despre</a></li>
