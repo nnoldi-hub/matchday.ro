@@ -204,7 +204,6 @@ if (isset($_GET['created'])) {
                style="object-fit: cover; opacity: 0.3;"
                alt="<?= htmlspecialchars($item['title']) ?>">
           <?php endif; ?>
-          
           <div class="position-absolute w-100 h-100 d-flex align-items-end" 
                style="background: linear-gradient(transparent, rgba(0,0,0,0.7));">
             <div class="container">
@@ -232,12 +231,12 @@ if (isset($_GET['created'])) {
                     </div>
                   </div>
                 </div>
-                <div class="col-md-4 d-flex align-items-end justify-content-end">
-                  <a href="/<?= htmlspecialchars($item['file']) ?>" class="btn btn-accent btn-lg mb-4">Citește articolul</a>
-                </div>
               </div>
             </div>
           </div>
+        </div>
+        <div style="position:absolute; bottom:32px; right:32px; z-index:999; pointer-events:auto;">
+          <a href="/<?= htmlspecialchars($item['file']) ?>" class="btn btn-accent btn-lg">Citește articolul</a>
         </div>
       </div>
       <?php endforeach; ?>
