@@ -15,102 +15,111 @@ $breadcrumbs = [
 include(__DIR__ . '/includes/header.php'); 
 
 // Cache key for posts
+
 $cacheKey = 'posts_list_' . ($_GET['q'] ?? '') . '_' . ($_GET['page'] ?? 1);
 $ignoreCache = isset($_GET['nocache']) && $_GET['nocache'] == '1';
 $cachedResult = (CACHE_ENABLED && !$ignoreCache) ? Cache::get($cacheKey, CACHE_TTL) : null;
 
 if ($cachedResult === null) {
-    $perPage = POSTS_PER_PAGE;
-    $q = isset($_GET['q']) ? Security::sanitizeInput(trim($_GET['q'])) : '';
-    $page = max(1, intval($_GET['page'] ?? 1));
-    
-    $postsDir = __DIR__ . '/posts';
-    if (!is_dir($postsDir)) {
-        mkdir($postsDir, 0755, true);
+  // DEBUG: afișează câte fișiere .html găsește și ce categorii citește
+  echo '<div style="background:#ffe;padding:1rem;margin-bottom:1rem;border:1px solid #fc0;color:#333;font-size:0.95rem">';
+  echo '<strong>DEBUG posts/:</strong> ' . count($files) . ' fișiere găsite.<br>';
+  foreach ($files as $file) {
+    $path = $postsDir . '/' . $file;
+    $html = is_readable($path) ? file_get_contents($path) : '';
+    $cat = '';
+    if (preg_match('/<!--\s*david-meta:(.*?)-->/', $html, $matches)) {
+      $jsonMeta = json_decode(trim($matches[1]), true);
+      $cat = $jsonMeta['category'] ?? '';
     }
-    
-    $files = array_values(array_filter(scandir($postsDir), function($f) {
-        return substr($f, -5) === '.html' && $f !== 'index.html';
-    }));
-    
-    $items = [];
-    foreach ($files as $file) {
-        try {
-            $path = $postsDir . '/' . $file;
-            if (!is_readable($path)) continue;
-            
-            $html = file_get_contents($path);
-            if ($html === false) continue;
-            
-            // Default metadata
-            $meta = [
-                'title' => pathinfo($file, PATHINFO_FILENAME),
-                'date' => date('Y-m-d', filemtime($path)),
-                'excerpt' => '',
-                'cover' => '',
-                'tags' => [],
-                'slug' => pathinfo($file, PATHINFO_FILENAME)
-            ];
-            
-            // Extract embedded metadata
-            if (preg_match('/<!--\s*david-meta:(.*?)-->/', $html, $matches)) {
-                $jsonMeta = json_decode(trim($matches[1]), true);
-                if (is_array($jsonMeta)) {
-                    $meta = array_merge($meta, $jsonMeta);
-                }
-            }
-            
-            $meta['file'] = 'posts/' . $file;
-            $meta['filesize'] = filesize($path);
-            $items[] = $meta;
-            
-        } catch (Exception $e) {
-            error_log("Error processing post $file: " . $e->getMessage());
-            continue;
+    echo htmlspecialchars($file) . ' &rarr; <b>' . htmlspecialchars($cat) . '</b><br>';
+  }
+  echo '</div>';
+  $perPage = POSTS_PER_PAGE;
+  $q = isset($_GET['q']) ? Security::sanitizeInput(trim($_GET['q'])) : '';
+  $page = max(1, intval($_GET['page'] ?? 1));
+  $postsDir = __DIR__ . '/posts';
+  if (!is_dir($postsDir)) {
+    mkdir($postsDir, 0755, true);
+  }
+  $files = array_values(array_filter(scandir($postsDir), function($f) {
+    return substr($f, -5) === '.html' && $f !== 'index.html';
+  }));
+  $items = [];
+  foreach ($files as $file) {
+    try {
+      $path = $postsDir . '/' . $file;
+      if (!is_readable($path)) continue;
+      $html = file_get_contents($path);
+      if ($html === false) continue;
+      $meta = [
+        'title' => pathinfo($file, PATHINFO_FILENAME),
+        'date' => date('Y-m-d', filemtime($path)),
+        'excerpt' => '',
+        'cover' => '',
+        'tags' => [],
+        'slug' => pathinfo($file, PATHINFO_FILENAME)
+      ];
+      if (preg_match('/<!--\s*david-meta:(.*?)-->/', $html, $matches)) {
+        $jsonMeta = json_decode(trim($matches[1]), true);
+        if (is_array($jsonMeta)) {
+          $meta = array_merge($meta, $jsonMeta);
         }
+      }
+      $meta['file'] = 'posts/' . $file;
+      $meta['filesize'] = filesize($path);
+      $items[] = $meta;
+    } catch (Exception $e) {
+      error_log("Error processing post $file: " . $e->getMessage());
+      continue;
     }
-    
-    // Search functionality
-    if ($q !== '') {
-        $items = array_values(array_filter($items, function($item) use ($q) {
-            $searchText = mb_strtolower(implode(' ', [
-                $item['title'] ?? '',
-                $item['excerpt'] ?? '',
-                implode(' ', $item['tags'] ?? [])
-            ]));
-            return mb_strpos($searchText, mb_strtolower($q)) !== false;
-        }));
+  }
+  // Calculează număr articole pe categorii
+  $categoriesCfg = require(__DIR__ . '/config/categories.php');
+  $categoryCounts = array_fill_keys(array_keys($categoriesCfg), 0);
+  foreach ($items as $it) {
+    if (!empty($it['category']) && isset($categoryCounts[$it['category']])) {
+      $categoryCounts[$it['category']]++;
     }
-    
-    // Sort by date (newest first)
-    usort($items, function($a, $b) {
-        return strtotime($b['date']) <=> strtotime($a['date']);
-    });
-    
-    $total = count($items);
-    $pages = max(1, ceil($total / $perPage));
-    $offset = ($page - 1) * $perPage;
-    $itemsPage = array_slice($items, $offset, $perPage);
-    
-    $result = [
-        'items' => $itemsPage,
-        'total' => $total,
-        'pages' => $pages,
-        'current_page' => $page,
-        'search_query' => $q
-    ];
-    
-    // Cache the result
-    if (CACHE_ENABLED) {
-        Cache::set($cacheKey, $result, CACHE_TTL);
-    }
+  }
+  // Search functionality
+  if ($q !== '') {
+    $items = array_values(array_filter($items, function($item) use ($q) {
+      $searchText = mb_strtolower(implode(' ', [
+        $item['title'] ?? '',
+        $item['excerpt'] ?? '',
+        implode(' ', $item['tags'] ?? [])
+      ]));
+      return mb_strpos($searchText, mb_strtolower($q)) !== false;
+    }));
+  }
+  // Sort by date (newest first)
+  usort($items, function($a, $b) {
+    return strtotime($b['date']) <=> strtotime($a['date']);
+  });
+  $total = count($items);
+  $pages = max(1, ceil($total / $perPage));
+  $offset = ($page - 1) * $perPage;
+  $itemsPage = array_slice($items, $offset, $perPage);
+  $result = [
+    'items' => $itemsPage,
+    'total' => $total,
+    'pages' => $pages,
+    'current_page' => $page,
+    'search_query' => $q,
+    'category_counts' => $categoryCounts,
+  ];
+  if (CACHE_ENABLED) {
+    Cache::set($cacheKey, $result, CACHE_TTL);
+  }
 } else {
-    $result = $cachedResult;
-    $itemsPage = $result['items'];
-    $total = $result['total'];
-    $pages = $result['pages'];
-    $page = $result['current_page'];
-    $q = $result['search_query'];
+  $result = $cachedResult;
+  $itemsPage = $result['items'];
+  $total = $result['total'];
+  $pages = $result['pages'];
+  $page = $result['current_page'];
+  $q = $result['search_query'];
+  $categoryCounts = $result['category_counts'] ?? [];
 }
 
 // Success message
@@ -270,16 +279,7 @@ if (isset($_GET['created'])) {
                 </div>
                 <h6 class="mb-1 small fw-bold"><?= htmlspecialchars($category['name']) ?></h6>
                 <div class="small text-muted">
-                  <?php
-                  // Count posts in this category
-                  $categoryCount = 0;
-                  if (isset($items)) {
-                    foreach ($items as $item) {
-                      if (($item['category'] ?? '') === $key) $categoryCount++;
-                    }
-                  }
-                  echo $categoryCount . ' articole';
-                  ?>
+                  <?= ($categoryCounts[$key] ?? 0) . ' articole' ?>
                 </div>
               </div>
             </div>
