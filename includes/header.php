@@ -68,7 +68,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
   <?php endif; ?>
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
       <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="<?php echo $admin ? '../index.php' : './index.php'; ?>">
+  <a class="navbar-brand d-flex align-items-center gap-2" href="/index.php">
           <img src="/assets/images/logo.png" width="36" height="36" alt="logo" />
           <span class="fw-bold"><?php echo SITE_NAME; ?></span>
           <span class="badge-accent ms-2 d-none d-lg-inline">Fiecare meci are o poveste. Noi o scriem. ⚽</span>        </a>
@@ -77,7 +77,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
         </button>
         <div class="collapse navbar-collapse" id="nav">
           <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
-            <li class="nav-item"><a class="nav-link" href="<?php echo $admin ? '../index.php' : './index.php'; ?>">Jurnal</a></li>
+            <li class="nav-item"><a class="nav-link" href="/index.php">Jurnal</a></li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Categorii</a>
               <ul class="dropdown-menu">
