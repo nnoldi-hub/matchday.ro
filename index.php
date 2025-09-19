@@ -16,7 +16,8 @@ include(__DIR__ . '/includes/header.php');
 
 // Cache key for posts
 $cacheKey = 'posts_list_' . ($_GET['q'] ?? '') . '_' . ($_GET['page'] ?? 1);
-$cachedResult = CACHE_ENABLED ? Cache::get($cacheKey, CACHE_TTL) : null;
+$ignoreCache = isset($_GET['nocache']) && $_GET['nocache'] == '1';
+$cachedResult = (CACHE_ENABLED && !$ignoreCache) ? Cache::get($cacheKey, CACHE_TTL) : null;
 
 if ($cachedResult === null) {
     $perPage = POSTS_PER_PAGE;
