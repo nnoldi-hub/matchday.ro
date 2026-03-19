@@ -1,6 +1,12 @@
 <?php
 // Categories configuration for MatchDay.ro
 return [
+    'champions-league' => [
+        'name' => 'Champions League',
+        'description' => 'Știri și analize din Liga Campionilor',
+        'color' => '#1a237e',
+        'icon' => 'fas fa-trophy'
+    ],
     'meciuri' => [
         'name' => 'Meciuri',
         'description' => 'Analize și rapoarte de la meciurile importante',
