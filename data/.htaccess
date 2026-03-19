@@ -1,15 +1,21 @@
-# Permite accesul la fișierele JSON din directorul data
-<Files "*.json">
-    Order allow,deny
-    Allow from all
-</Files>
+# SECURITATE: Blochează accesul direct la toate fișierele
+# JSON, DB, TXT și alte date sensibile
 
-# Blochează accesul la alte tipuri de fișiere
-<FilesMatch "^\.">
-    Order allow,deny
+# Deny all by default
+Order deny,allow
+Deny from all
+
+# Block directory listing
+Options -Indexes
+
+# Extra protection for sensitive files
+<FilesMatch "\.(json|db|sqlite|txt|log|bak)$">
+    Order deny,allow
     Deny from all
 </FilesMatch>
 
-# Setează permisiuni pentru directoare
-Options -Indexes
-DirectoryIndex index.php index.html
+# Block hidden files
+<FilesMatch "^\.">
+    Order deny,allow
+    Deny from all
+</FilesMatch>

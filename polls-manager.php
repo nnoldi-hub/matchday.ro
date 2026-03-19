@@ -1,20 +1,30 @@
 <?php
+require_once(__DIR__ . '/config/config.php');
+
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+// Removed insecure: Access-Control-Allow-Origin: *
 
-// Pentru debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Nu afișa erorile pe ecran, doar în log
-
-function logDebug($message) {
-    error_log("[polls-manager] " . $message);
+// Check authentication - REQUIRED for all poll management
+if (empty($_SESSION['david_logged'])) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Acces interzis. Autentifică-te mai întâi.']);
+    exit;
 }
 
-logDebug("Script accessed by IP: " . $_SERVER['REMOTE_ADDR']);
-logDebug("Request method: " . $_SERVER['REQUEST_METHOD']);
-logDebug("POST data: " . json_encode($_POST));
+// Verify CSRF token
+$csrfToken = $_POST['csrf_token'] ?? '';
+if (!Security::validateCSRFToken($csrfToken)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Token CSRF invalid. Reîncarcă pagina.']);
+    exit;
+}
+
+// Debug logging function
+function logDebug($message) {
+    if (defined('DEBUG_MODE') && DEBUG_MODE) {
+        error_log("[polls-manager] " . $message);
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';

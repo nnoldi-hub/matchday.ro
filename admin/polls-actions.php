@@ -1,6 +1,8 @@
 <?php
 require_once(__DIR__ . '/../config/config.php');
 
+header('Content-Type: application/json');
+
 // Check if user is logged in
 if (empty($_SESSION['david_logged'])) {
     http_response_code(403);
@@ -10,6 +12,14 @@ if (empty($_SESSION['david_logged'])) {
 
 // Get JSON input
 $input = json_decode(file_get_contents('php://input'), true);
+
+// Verify CSRF token
+$csrfToken = $input['csrf_token'] ?? '';
+if (!Security::validateCSRFToken($csrfToken)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Token CSRF invalid. Reîncarcă pagina.']);
+    exit;
+}
 $action = $input['action'] ?? '';
 
 $pollsDir = __DIR__ . '/../data/polls';

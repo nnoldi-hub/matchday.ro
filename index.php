@@ -21,20 +21,6 @@ $ignoreCache = isset($_GET['nocache']) && $_GET['nocache'] == '1';
 $cachedResult = (CACHE_ENABLED && !$ignoreCache) ? Cache::get($cacheKey, CACHE_TTL) : null;
 
 if ($cachedResult === null) {
-  // DEBUG: afișează câte fișiere .html găsește și ce categorii citește
-  echo '<div style="background:#ffe;padding:1rem;margin-bottom:1rem;border:1px solid #fc0;color:#333;font-size:0.95rem">';
-  echo '<strong>DEBUG posts/:</strong> ' . count($files) . ' fișiere găsite.<br>';
-  foreach ($files as $file) {
-    $path = $postsDir . '/' . $file;
-    $html = is_readable($path) ? file_get_contents($path) : '';
-    $cat = '';
-    if (preg_match('/<!--\s*david-meta:(.*?)-->/', $html, $matches)) {
-      $jsonMeta = json_decode(trim($matches[1]), true);
-      $cat = $jsonMeta['category'] ?? '';
-    }
-    echo htmlspecialchars($file) . ' &rarr; <b>' . htmlspecialchars($cat) . '</b><br>';
-  }
-  echo '</div>';
   $perPage = POSTS_PER_PAGE;
   $q = isset($_GET['q']) ? Security::sanitizeInput(trim($_GET['q'])) : '';
   $page = max(1, intval($_GET['page'] ?? 1));

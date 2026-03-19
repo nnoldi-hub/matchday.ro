@@ -37,6 +37,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#71acbb">
     <meta name="msapplication-TileColor" content="#71acbb">
+    <meta name="csrf-token" content="<?php echo Security::generateCSRFToken(); ?>">
     
     <?php echo $seo->render(); ?>
     

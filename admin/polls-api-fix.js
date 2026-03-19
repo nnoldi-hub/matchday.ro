@@ -1,8 +1,17 @@
 // Global configuration pentru admin polls
 const POLLS_API_URL = '../polls-manager.php';
 
+// Get CSRF token from meta tag
+function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
 // Override pentru toate fetch-urile către polls-actions.php
 function pollsApiCall(data) {
+    // Add CSRF token to all requests
+    data.csrf_token = getCsrfToken();
+    
     return fetch(POLLS_API_URL, {
         method: 'POST',
         headers: {
