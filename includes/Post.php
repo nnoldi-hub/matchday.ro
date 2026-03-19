@@ -287,15 +287,14 @@ class Post {
     public static function search(string $query, int $limit = 20): array {
         $searchTerm = "%$query%";
         return Database::fetchAll(
-            "SELECT id, title, slug, excerpt, cover_image, category_slug, published_at,
+            "SELECT id, title, slug, excerpt, cover_image, category_slug, published_at, status, views,
                     CASE 
                         WHEN title LIKE :exact THEN 3
                         WHEN title LIKE :term THEN 2
                         ELSE 1
                     END as relevance
              FROM posts 
-             WHERE status = 'published' 
-               AND (title LIKE :term2 OR content LIKE :term3 OR excerpt LIKE :term4)
+             WHERE (title LIKE :term2 OR content LIKE :term3 OR excerpt LIKE :term4)
              ORDER BY relevance DESC, published_at DESC
              LIMIT :limit",
             [
@@ -307,5 +306,48 @@ class Post {
                 'limit' => $limit
             ]
         );
+    }
+    
+    /**
+     * Count all posts (for admin)
+     */
+    public static function countAll(?string $status = null): int {
+        if ($status) {
+            return (int) Database::fetchValue(
+                "SELECT COUNT(*) FROM posts WHERE status = :status",
+                ['status' => $status]
+            );
+        }
+        return (int) Database::fetchValue("SELECT COUNT(*) FROM posts");
+    }
+    
+    /**
+     * Publish post
+     */
+    public static function publish(int $id): bool {
+        return Database::execute(
+            "UPDATE posts SET status = 'published', published_at = COALESCE(published_at, CURRENT_TIMESTAMP), updated_at = CURRENT_TIMESTAMP WHERE id = :id",
+            ['id' => $id]
+        ) > 0;
+    }
+    
+    /**
+     * Unpublish post (set to draft)
+     */
+    public static function unpublish(int $id): bool {
+        return Database::execute(
+            "UPDATE posts SET status = 'draft', updated_at = CURRENT_TIMESTAMP WHERE id = :id",
+            ['id' => $id]
+        ) > 0;
+    }
+    
+    /**
+     * Archive post
+     */
+    public static function archive(int $id): bool {
+        return Database::execute(
+            "UPDATE posts SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = :id",
+            ['id' => $id]
+        ) > 0;
     }
 }

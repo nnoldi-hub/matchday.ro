@@ -1,48 +1,36 @@
 <?php
-// Admin dashboard
+/**
+ * Admin Dashboard
+ * MatchDay.ro
+ */
 session_start();
 require_once(__DIR__ . '/../config/config.php');
+require_once(__DIR__ . '/../config/database.php');
+require_once(__DIR__ . '/../includes/Post.php');
+require_once(__DIR__ . '/../includes/Poll.php');
+require_once(__DIR__ . '/../includes/Comment.php');
 
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
     exit; 
 }
 
-// Get stats
-$postsDir = __DIR__ . '/../posts';
-$files = array_values(array_filter(scandir($postsDir), fn($f) => substr($f, -5) === '.html'));
-$totalPosts = count($files);
-
-$commentsDir = __DIR__ . '/../data/comments';
-$totalComments = 0;
-if (is_dir($commentsDir)) {
-    $commentFiles = array_filter(scandir($commentsDir), fn($f) => substr($f, -5) === '.json' && !str_starts_with($f, 'recent_'));
-    foreach ($commentFiles as $cf) {
-        $comments = json_decode(file_get_contents($commentsDir . '/' . $cf), true) ?: [];
-        $totalComments += count($comments);
-    }
-}
-
-$pollsDir = __DIR__ . '/../data/polls';
-$totalPolls = 0;
-$activePolls = 0;
-if (is_dir($pollsDir)) {
-    $pollFiles = array_filter(scandir($pollsDir), fn($f) => substr($f, -5) === '.json');
-    foreach ($pollFiles as $pf) {
-        $poll = json_decode(file_get_contents($pollsDir . '/' . $pf), true);
-        if ($poll) {
-            $totalPolls++;
-            if ($poll['active'] ?? false) {
-                $activePolls++;
-            }
-        }
-    }
-}
+// Get stats from database
+$totalPosts = Post::countAll();
+$publishedPosts = Post::countAll('published');
+$draftPosts = Post::countAll('draft');
+$totalComments = Comment::countAll();
+$pendingComments = Comment::countPending();
+$totalPolls = Database::fetchValue("SELECT COUNT(*) FROM polls");
+$activePolls = Database::fetchValue("SELECT COUNT(*) FROM polls WHERE active = 1");
 
 $diskUsage = 0;
 if (function_exists('disk_free_space')) {
-    $diskUsage = disk_free_space(__DIR__ . '/../') / (1024 * 1024 * 1024); // GB
+    $diskUsage = disk_free_space(__DIR__ . '/../') / (1024 * 1024 * 1024);
 }
+
+// Get recent posts from database
+$recentPosts = Post::getLatest(10);
 
 include(__DIR__ . '/../includes/header.php');
 ?>
@@ -55,6 +43,9 @@ include(__DIR__ . '/../includes/header.php');
         <div class="d-flex gap-2">
           <a href="new-post.php" class="btn btn-accent">
             <i class="fas fa-plus me-1"></i>Articol nou
+          </a>
+          <a href="posts.php" class="btn btn-outline-primary">
+            <i class="fas fa-newspaper me-1"></i>Articole
           </a>
           <a href="polls.php" class="btn btn-primary">
             <i class="fas fa-poll me-1"></i>Sondaje
@@ -72,18 +63,20 @@ include(__DIR__ . '/../includes/header.php');
   <div class="row g-3 mb-4">
     <div class="col-md-3">
       <div class="card text-center">
-        <div class="card-body">
-          <h3 class="h2 text-primary"><?php echo $totalPosts; ?></h3>
-          <p class="text-muted mb-0">Articole</p>
-        </div>
+        <a href="posts.php" class="text-decoration-none">
+          <div class="card-body">
+            <h3 class="h2 text-primary"><?= $totalPosts ?></h3>
+            <p class="text-muted mb-0">Articole (<?= $publishedPosts ?> publicate)</p>
+          </div>
+        </a>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-center">
         <a href="comments.php" class="text-decoration-none">
           <div class="card-body">
-            <h3 class="h2 text-success"><?php echo $totalComments; ?></h3>
-            <p class="text-muted mb-0">Comentarii</p>
+            <h3 class="h2 text-success"><?= $totalComments ?></h3>
+            <p class="text-muted mb-0">Comentarii<?= $pendingComments > 0 ? " ($pendingComments pending)" : '' ?></p>
           </div>
         </a>
       </div>
@@ -92,7 +85,7 @@ include(__DIR__ . '/../includes/header.php');
       <div class="card text-center">
         <a href="polls.php" class="text-decoration-none">
           <div class="card-body">
-            <h3 class="h2 text-warning"><?php echo $activePolls; ?>/<?php echo $totalPolls; ?></h3>
+            <h3 class="h2 text-warning"><?= $activePolls ?>/<?= $totalPolls ?></h3>
             <p class="text-muted mb-0">Sondaje active</p>
           </div>
         </a>
@@ -101,7 +94,7 @@ include(__DIR__ . '/../includes/header.php');
     <div class="col-md-3">
       <div class="card text-center">
         <div class="card-body">
-          <h3 class="h2 text-info"><?php echo number_format($diskUsage, 1); ?>GB</h3>
+          <h3 class="h2 text-info"><?= number_format($diskUsage, 1) ?>GB</h3>
           <p class="text-muted mb-0">Spațiu liber</p>
         </div>
       </div>
@@ -110,11 +103,12 @@ include(__DIR__ . '/../includes/header.php');
 
   <!-- Recent Posts -->
   <div class="card">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0">Articole recente</h5>
+      <a href="posts.php" class="btn btn-sm btn-outline-primary">Vezi toate</a>
     </div>
     <div class="card-body">
-      <?php if (empty($files)): ?>
+      <?php if (empty($recentPosts)): ?>
         <p class="text-muted">Nu există articole încă.</p>
       <?php else: ?>
         <div class="table-responsive">
@@ -122,39 +116,45 @@ include(__DIR__ . '/../includes/header.php');
             <thead>
               <tr>
                 <th>Titlu</th>
+                <th>Categorie</th>
+                <th>Status</th>
                 <th>Data</th>
-                <th>Dimensiune</th>
                 <th>Acțiuni</th>
               </tr>
             </thead>
             <tbody>
-              <?php
-              $recentFiles = array_slice($files, -10);
-              foreach (array_reverse($recentFiles) as $file):
-                $path = $postsDir . '/' . $file;
-                $size = filesize($path);
-                $html = file_get_contents($path);
-                $title = pathinfo($file, PATHINFO_FILENAME);
-                
-                if (preg_match('/<!--\s*david-meta:(.*?)-->/', $html, $m)) {
-                  $meta = json_decode(trim($m[1]), true);
-                  if (isset($meta['title'])) $title = $meta['title'];
-                }
-              ?>
+              <?php foreach ($recentPosts as $post): ?>
               <tr>
                 <td>
-                  <strong><?php echo Security::sanitizeInput($title); ?></strong>
-                  <br><small class="text-muted"><?php echo $file; ?></small>
-                </td>
-                <td><?php echo date('d.m.Y H:i', filemtime($path)); ?></td>
-                <td><?php echo number_format($size / 1024, 1); ?> KB</td>
-                <td>
-                  <a href="../posts/<?php echo urlencode($file); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
-                    Vezi
+                  <a href="edit-post.php?id=<?= $post['id'] ?>" class="text-decoration-none fw-medium">
+                    <?= htmlspecialchars($post['title']) ?>
                   </a>
-                  <button class="btn btn-sm btn-outline-danger" onclick="deletePost('<?php echo Security::sanitizeInput($file); ?>')">
-                    Șterge
-                  </button>
+                </td>
+                <td>
+                  <span class="badge bg-secondary"><?= htmlspecialchars($post['category_slug'] ?? '-') ?></span>
+                </td>
+                <td>
+                  <?php
+                  $statusClass = match($post['status'] ?? 'draft') {
+                      'published' => 'success',
+                      'draft' => 'warning',
+                      default => 'secondary'
+                  };
+                  ?>
+                  <span class="badge bg-<?= $statusClass ?>"><?= $post['status'] ?? 'draft' ?></span>
+                </td>
+                <td><?= date('d.m.Y H:i', strtotime($post['published_at'] ?? $post['created_at'])) ?></td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <a href="edit-post.php?id=<?= $post['id'] ?>" class="btn btn-outline-primary">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <?php if ($post['status'] === 'published'): ?>
+                    <a href="../post.php?slug=<?= urlencode($post['slug']) ?>" class="btn btn-outline-success" target="_blank">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <?php endif; ?>
+                  </div>
                 </td>
               </tr>
               <?php endforeach; ?>
@@ -200,32 +200,6 @@ include(__DIR__ . '/../includes/header.php');
 </div>
 
 <script>
-function deletePost(filename) {
-  if (confirm('Sigur vrei să ștergi acest articol? Acțiunea nu poate fi anulată!')) {
-    const formData = new FormData();
-    formData.append('action', 'delete_post');
-    formData.append('filename', filename);
-    
-    fetch('actions.php', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert(data.message);
-        // Reîncarcă pagina pentru a actualiza lista
-        window.location.reload();
-      } else {
-        alert('Eroare: ' + (data.error || 'Eroare necunoscută'));
-      }
-    })
-    .catch(() => {
-      alert('Eroare de conexiune. Încearcă din nou.');
-    });
-  }
-}
-
 function clearCache() {
   if (confirm('Sigur vrei să golești cache-ul?')) {
     const formData = new FormData();
