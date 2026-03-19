@@ -1,0 +1,1 @@
+console.log('MatchDay.ro ready');

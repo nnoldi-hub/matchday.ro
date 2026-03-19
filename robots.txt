@@ -1,0 +1,64 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://matchday.ro/sitemap.php
+
+# Permite accesul la toate resursele publice
+Allow: /assets/
+Allow: /posts/
+Allow: /*.css
+Allow: /*.js
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.gif
+Allow: /*.svg
+Allow: /*.ico
+Allow: /*.webp
+
+# Blochează accesul la directoarele administrative și fișierele de configurare
+Disallow: /admin/
+Disallow: /config/
+Disallow: /data/
+Disallow: /includes/
+Disallow: /.git/
+Disallow: /.vscode/
+Disallow: /.htaccess
+Disallow: /composer.json
+Disallow: /composer.lock
+Disallow: /README.md
+Disallow: /*.log
+
+# Blochează accesul la fișiere PHP utilitare
+Disallow: /send_contact.php
+Disallow: /comments_api.php
+
+# Permite accesul pentru motoarele de căutare specifice
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# Blochează roboții rău intenționați
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+# Setări pentru crawl delay
+Crawl-delay: 1
+
+# Informații de contact pentru administratorul site-ului
+# Contact: contact@matchday.ro

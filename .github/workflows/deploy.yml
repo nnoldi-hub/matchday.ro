@@ -1,0 +1,107 @@
+name: 🚀 Deploy MatchDay.ro to Hostico
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: json, fileinfo, filter, curl
+        
+    - name: 🔧 Prepare deployment files
+      run: |
+        # Creează directoarele necesare dacă nu există
+        mkdir -p data/cache data/backups/polls data/comments
+        
+        # Setează permisiuni corecte pentru fișierele de deployment
+        find . -type f -name "*.php" -exec chmod 644 {} \;
+        find . -type f -name "*.js" -exec chmod 644 {} \;
+        find . -type f -name "*.css" -exec chmod 644 {} \;
+        find . -type f -name "*.json" -exec chmod 644 {} \;
+        
+        # Creează .htaccess pentru directorul data dacă nu există
+        if [ ! -f data/.htaccess ]; then
+          echo "Options -Indexes" > data/.htaccess
+        fi
+        
+    - name: 🚀 Deploy to Hostico via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.HOSTICO_FTP_SERVER }}
+        username: ${{ secrets.HOSTICO_FTP_USERNAME }}  
+        password: ${{ secrets.HOSTICO_FTP_PASSWORD }}
+        local-dir: ./
+        server-dir: ./public_html/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.vscode/**
+          **/.idea/**
+          .github/
+          README-GITHUB.md
+          deploy-hostico.sh
+          *.md
+          .gitignore
+          debug-*.php
+          test-*.html
+          
+    - name: 🧹 Post-deployment cleanup
+      uses: appleboy/ssh-action@v1.0.0
+      if: ${{ secrets.HOSTICO_SSH_HOST }}
+      with:
+        host: ${{ secrets.HOSTICO_SSH_HOST }}
+        username: ${{ secrets.HOSTICO_SSH_USERNAME }}
+        password: ${{ secrets.HOSTICO_SSH_PASSWORD }}
+        port: ${{ secrets.HOSTICO_SSH_PORT || '22' }}
+        script: |
+          cd public_html/
+          
+          # Setează permisiuni corecte
+          find . -type d -exec chmod 755 {} \;
+          find . -type f -exec chmod 644 {} \;
+          
+          # Permisiuni speciale pentru directoarele de date
+          chmod 755 data/
+          chmod 755 data/polls/
+          chmod 755 data/cache/
+          chmod 755 data/backups/
+          chmod 755 assets/uploads/
+          
+          # Clear cache după deployment
+          rm -f data/cache/*.cache
+          
+          # Verifică că fișierele importante există
+          if [ ! -f config/config.php ]; then
+            echo "⚠️  WARNING: config.php not found! Please configure manually."
+          fi
+          
+          echo "✅ MatchDay.ro deployed successfully!"
+          echo "🌐 Site available at: https://matchday.ro"
+          
+    - name: 📊 Deployment Summary
+      run: |
+        echo "## 🎉 Deployment Completed Successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📋 Deployment Details:" >> $GITHUB_STEP_SUMMARY
+        echo "- **Site:** [MatchDay.ro](https://matchday.ro)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### ✅ Actions Completed:" >> $GITHUB_STEP_SUMMARY
+        echo "- Files uploaded to Hostico" >> $GITHUB_STEP_SUMMARY
+        echo "- Permissions set correctly" >> $GITHUB_STEP_SUMMARY
+        echo "- Cache cleared" >> $GITHUB_STEP_SUMMARY
+        echo "- Site is live and ready!" >> $GITHUB_STEP_SUMMARY

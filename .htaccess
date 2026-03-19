@@ -1,0 +1,142 @@
+# MatchDay.ro - SEO Optimization & Security Configuration
+Options -Indexes
+DirectoryIndex index.php
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    
+    # Content Security Policy (basic)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com cdnjs.cloudflare.com; font-src 'self' fonts.gstatic.com cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self';"
+</IfModule>
+
+# Hide sensitive files
+<Files "*.json">
+    Require all denied
+</Files>
+
+<Files "*.log">
+    Require all denied
+</Files>
+
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+# Block access to sensitive directories
+<Files "config/*">
+    Require all denied
+</Files>
+
+<Files "data/*">
+    Require all denied
+</Files>
+
+<Files "includes/*">
+    Require all denied
+</Files>
+
+# Performance optimizations - Browser Caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType text/html "access plus 5 minutes"
+    ExpiresByType text/plain "access plus 1 month"
+    ExpiresByType application/json "access plus 1 hour"
+    ExpiresByType application/xml "access plus 1 hour"
+    ExpiresByType text/xml "access plus 1 hour"
+    ExpiresDefault "access plus 2 days"
+</IfModule>
+
+# Gzip Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# SEO Friendly URL Rewriting
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # SEO Friendly URLs - Article Rewrites
+    # Redirecționează /articol/slug la /posts/YYYY-MM-DD-slug.html
+    RewriteRule ^articol/([a-z0-9\-]+)/?$ /posts/$1.html [L]
+    
+    # Alternative: găsește articolul după slug indiferent de dată
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^articol/([a-z0-9\-]+)/?$ /posts/2025-09-01-$1.html [L]
+    
+    # Category URLs - SEO friendly
+    RewriteRule ^categorie/([a-z]+)/?$ /category.php?cat=$1 [L,QSA]
+    
+    # Redirect old category.php URLs to friendly format
+    RewriteCond %{THE_REQUEST} \s/category\.php\?cat=([a-z]+) [NC]
+    RewriteRule ^ /categorie/%1? [R=301,L]
+    
+    # XML Sitemap
+    RewriteRule ^sitemap\.xml$ /sitemap.php [L]
+    
+    # Force HTTPS (uncomment for production)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # Force WWW removal (uncomment for production with domain)
+    # RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+    # RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+    
+    # Remove trailing slashes from files
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{THE_REQUEST} \s(.+?)/+(\?\S*)?\s [NC]
+    RewriteRule ^(.+?)/+$ /$1 [R=301,L]
+</IfModule>
+
+# File Upload Security
+<FilesMatch "\.(php|php3|php4|php5|phtml)$">
+    <IfModule mod_dir.c>
+        DirectoryIndex disabled
+    </IfModule>
+</FilesMatch>
+
+# Block access to composer and git files
+<FilesMatch "(composer\.(json|lock)|\.git.*|README\.md)">
+    Require all denied
+</FilesMatch>
+
+# Custom Error Pages
+ErrorDocument 404 /404.php
+# ErrorDocument 403 /403.php
+# ErrorDocument 500 /500.php
+
+# Remove Server Signature for security
+ServerSignature Off
+
+# Custom MIME types
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+    AddType image/webp .webp
+    AddType application/font-woff2 .woff2
+</IfModule>

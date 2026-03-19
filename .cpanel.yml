@@ -1,0 +1,16 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/opnwyzqa/public_html/
+    - /bin/cp -R * $DEPLOYPATH
+    - /bin/cp -R .htaccess $DEPLOYPATH 2>/dev/null || true
+    - find $DEPLOYPATH -name "*.php" -exec chmod 644 {} \;
+    - find $DEPLOYPATH -name "*.js" -exec chmod 644 {} \;
+    - find $DEPLOYPATH -name "*.css" -exec chmod 644 {} \;
+    - find $DEPLOYPATH -name "*.json" -exec chmod 644 {} \;
+    - chmod 755 $DEPLOYPATH/data/
+    - chmod 755 $DEPLOYPATH/data/polls/
+    - chmod 755 $DEPLOYPATH/data/cache/
+    - chmod 755 $DEPLOYPATH/data/backups/
+    - chmod 755 $DEPLOYPATH/assets/uploads/
+    - echo "MatchDay.ro deployed successfully!"
