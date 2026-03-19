@@ -18,6 +18,9 @@ echo "==============================================\n\n";
 require_once(__DIR__ . '/config/config.php');
 require_once(__DIR__ . '/config/database.php');
 
+// Initialize database connection first (sets isMySQL flag)
+Database::getInstance();
+
 // Detect database type
 $isMySQL = Database::isMySQL();
 $dbType = $isMySQL ? 'MySQL' : 'SQLite';
