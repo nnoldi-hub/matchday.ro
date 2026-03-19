@@ -1,0 +1,41 @@
+{
+  "id": "golgeter-ucl-2026",
+  "question": "Cine va fi golgheterul Champions League 2025-26?",
+  "description": "Alege jucătorul care va câștiga gheata de aur în UCL",
+  "options": [
+    {
+      "id": "mbappe",
+      "text": "Kylian Mbappé (Real Madrid) - 13 goluri",
+      "votes": 0
+    },
+    {
+      "id": "kane",
+      "text": "Harry Kane (Bayern) - 10 goluri",
+      "votes": 0
+    },
+    {
+      "id": "alvarez",
+      "text": "Julián Álvarez (Atlético) - 8 goluri",
+      "votes": 0
+    },
+    {
+      "id": "yamal",
+      "text": "Lamine Yamal (Barcelona) - 7 goluri",
+      "votes": 0
+    },
+    {
+      "id": "salah",
+      "text": "Mohamed Salah (Liverpool) - 6 goluri",
+      "votes": 0
+    },
+    {
+      "id": "alt_jucator",
+      "text": "Alt jucător",
+      "votes": 0
+    }
+  ],
+  "total_votes": 0,
+  "active": true,
+  "created_at": "2026-03-19",
+  "voted_ips": []
+}

@@ -1,0 +1,41 @@
+{
+  "id": "castigatoare-ucl-2026",
+  "question": "Cine va câștiga Champions League 2025-26?",
+  "description": "Alege echipa care crezi că va ridica trofeul cu urechi mari",
+  "options": [
+    {
+      "id": "arsenal",
+      "text": "Arsenal (8V, 0Î, 24 pct)",
+      "votes": 0
+    },
+    {
+      "id": "bayern",
+      "text": "Bayern München (7V, 1Î, 21 pct)",
+      "votes": 0
+    },
+    {
+      "id": "real_madrid",
+      "text": "Real Madrid (deținătoarea)",
+      "votes": 0
+    },
+    {
+      "id": "barcelona",
+      "text": "Barcelona",
+      "votes": 0
+    },
+    {
+      "id": "liverpool",
+      "text": "Liverpool",
+      "votes": 0
+    },
+    {
+      "id": "alta_echipa",
+      "text": "Altă echipă (PSG, Inter, Atlético)",
+      "votes": 0
+    }
+  ],
+  "total_votes": 0,
+  "active": true,
+  "created_at": "2026-03-19",
+  "voted_ips": []
+}
