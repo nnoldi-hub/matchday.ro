@@ -12,16 +12,16 @@
 - Securitate solidă (CSRF, XSS, Argon2id, rate limiting)
 - Design responsiv și curat
 - Sondaje și comentarii interactive
-- Structură simplă PHP
+- **Bază de date MySQL** pe Hostico (SQLite local)
+- **Admin modern**: dashboard, CRUD articole, editor formatare
+- Structură MVC cu modele (Post, Poll, Comment)
 
-### ❌ Probleme identificate:
-- DEBUG activ în producție
-- Articole stocate în fișiere HTML → greu de gestionat
-- Nu poți edita articole existente
-- Fără bază de date → scanare fișiere la fiecare request
-- Single admin (doar parola, fără username)
-- Fișierele JSON expuse public
-- Fără analytics/statistici
+### ❌ Probleme rămase:
+- Fără Media Library (browse imagini)
+- Fără CRUD categorii
+- Single admin (fără multi-user)
+- Comentarii - moderare limitată
+- Fără analytics/statistici avansate
 
 ---
 
@@ -58,29 +58,29 @@
 | 2.11 | Refactor comments_api.php | ✅ DONE | Folosește Comment model |
 | 2.12 | Creat post.php | ✅ DONE | Afișare articol individual |
 | 2.13 | **Suport MySQL Hostico** | ✅ DONE | opnwyzqa_matchday |
-| 2.14 | Testare completă | ⬜ TODO | |
-| 2.15 | Deploy pe Hostico | ⬜ TODO | Setează parola MySQL |
+| 2.14 | Migrare date pe Hostico | ✅ DONE | 10 posts, 4 polls, 7 categorii |
+| 2.15 | Deploy și testare | ✅ DONE | Site live cu MySQL |
 
 ---
 
 ## 🎯 FAZA 3: Admin Panel Complet
 **Durată estimată:** 3-4 zile  
-**Status:** ⬜ Neînceput
+**Status:** 🔄 În progres
 
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
-| 3.1 | Dashboard cu statistici | ⬜ TODO | Vizualizări, articole, comentarii |
-| 3.2 | Lista articole cu paginare | ⬜ TODO | Sort, filter, search |
-| 3.3 | Editor articole (TinyMCE) | ⬜ TODO | WYSIWYG complet |
-| 3.4 | Editare articole existente | ⬜ TODO | |
-| 3.5 | Media Library | ⬜ TODO | Upload, browse, delete |
-| 3.6 | CRUD Categorii din admin | ⬜ TODO | |
-| 3.7 | Sistem multi-user | ⬜ TODO | Admin/Editor roles |
-| 3.8 | Dashboard comentarii | ⬜ TODO | Bulk approve/delete |
-| 3.9 | Editor sondaje îmbunătățit | ⬜ TODO | |
-| 3.10 | Pagină setări site | ⬜ TODO | Configurare din admin |
-| 3.11 | Testare completă | ⬜ TODO | |
-| 3.12 | Deploy | ⬜ TODO | |
+| 3.1 | Dashboard refactorizat | ✅ DONE | Folosește DB, statistici live |
+| 3.2 | Lista articole cu paginare | ✅ DONE | admin/posts.php - CRUD complet |
+| 3.3 | Editor articole cu formatare | ✅ DONE | Toolbar HTML integrat |
+| 3.4 | Editare articole existente | ✅ DONE | admin/edit-post.php |
+| 3.5 | Save articole în DB | ✅ DONE | admin/save-post.php refactorizat |
+| 3.6 | Media Library | ⬜ TODO | Upload, browse, delete |
+| 3.7 | CRUD Categorii din admin | ⬜ TODO | |
+| 3.8 | Sistem multi-user | ⬜ TODO | Admin/Editor roles |
+| 3.9 | Dashboard comentarii | ⬜ TODO | Bulk approve/delete |
+| 3.10 | Editor sondaje îmbunătățit | ⬜ TODO | |
+| 3.11 | Pagină setări site | ⬜ TODO | Configurare din admin |
+| 3.12 | Deploy Faza 3 | ⬜ TODO | git pull pe Hostico |
 
 ---
 
