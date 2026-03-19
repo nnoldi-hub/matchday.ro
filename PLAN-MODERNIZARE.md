@@ -27,37 +27,39 @@
 
 ## 🎯 FAZA 1: Reparații Urgente
 **Durată estimată:** 1 zi  
-**Status:** ⏳ În progres
+**Status:** ✅ COMPLETAT
 
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
 | 1.1 | Șterge blocul DEBUG din index.php | ✅ DONE | Linii 24-32 șterse |
 | 1.2 | Adaugă .htaccess în /data/ pentru securitate | ✅ DONE | Blochează acces JSON |
 | 1.3 | Fix CSRF pentru polls-actions.php | ✅ DONE | + polls-manager.php + header.php |
-| 1.4 | Testare locală | ⏳ IN PROGRESS | |
-| 1.5 | Deploy pe Hostico | ⬜ TODO | |
+| 1.4 | Testare locală | ✅ DONE | PHP syntax OK |
+| 1.5 | Deploy pe Hostico | ✅ DONE | Commit d12f4e2 |
 
 ---
 
-## 🎯 FAZA 2: Migrare la SQLite
+## 🎯 FAZA 2: Migrare la MySQL/SQLite
 **Durată estimată:** 2-3 zile  
-**Status:** ⬜ Neînceput
+**Status:** ✅ COMPLETAT
 
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
-| 2.1 | Creare structură bază de date SQLite | ⬜ TODO | Tabele: posts, polls, comments, users, stats |
-| 2.2 | Clasa Database.php | ⬜ TODO | Singleton PDO |
-| 2.3 | Model Post.php | ⬜ TODO | CRUD articole |
-| 2.4 | Model Poll.php | ⬜ TODO | CRUD sondaje |
-| 2.5 | Model Comment.php | ⬜ TODO | CRUD comentarii |
+| 2.1 | Creare structură bază de date | ✅ DONE | config/database.php |
+| 2.2 | Clasa Database.php | ✅ DONE | Singleton PDO + helpers |
+| 2.3 | Model Post.php | ✅ DONE | CRUD complet + search |
+| 2.4 | Model Poll.php | ✅ DONE | CRUD + voting |
+| 2.5 | Model Comment.php | ✅ DONE | CRUD + moderation |
 | 2.6 | Model User.php | ⬜ TODO | Multi-user auth |
-| 2.7 | Script migrare date existente | ⬜ TODO | HTML → DB, JSON → DB |
-| 2.8 | Refactor index.php | ⬜ TODO | Folosește DB |
-| 2.9 | Refactor category.php | ⬜ TODO | Folosește DB |
-| 2.10 | Refactor polls_api.php | ⬜ TODO | Folosește DB |
-| 2.11 | Refactor comments_api.php | ⬜ TODO | Folosește DB |
-| 2.12 | Testare completă | ⬜ TODO | |
-| 2.13 | Deploy | ⬜ TODO | |
+| 2.7 | Script migrare date existente | ✅ DONE | migrate.php - 7 posts, 4 polls |
+| 2.8 | Refactor index.php | ✅ DONE | Folosește DB |
+| 2.9 | Refactor category.php | ✅ DONE | Folosește DB |
+| 2.10 | Refactor polls_api.php | ✅ DONE | Folosește Poll model |
+| 2.11 | Refactor comments_api.php | ✅ DONE | Folosește Comment model |
+| 2.12 | Creat post.php | ✅ DONE | Afișare articol individual |
+| 2.13 | **Suport MySQL Hostico** | ✅ DONE | opnwyzqa_matchday |
+| 2.14 | Testare completă | ⬜ TODO | |
+| 2.15 | Deploy pe Hostico | ⬜ TODO | Setează parola MySQL |
 
 ---
 

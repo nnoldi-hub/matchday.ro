@@ -1,5 +1,7 @@
 <?php
 require_once(__DIR__ . '/config/config.php');
+require_once(__DIR__ . '/config/database.php');
+require_once(__DIR__ . '/includes/Post.php');
 
 // Get category from URL
 $categorySlug = $_GET['cat'] ?? '';
@@ -62,41 +64,20 @@ $breadcrumbs = [
   ['name' => $currentCategory['name']]
 ];
 
-// Get posts from this category
-$postsDir = __DIR__ . '/posts';
-$files = [];
-
-if (is_dir($postsDir)) {
-    $allFiles = array_filter(scandir($postsDir), function($f) { 
-        return pathinfo($f, PATHINFO_EXTENSION) === 'html'; 
-    });
-    
-    // Filter by category
-    foreach ($allFiles as $file) {
-        $path = $postsDir . '/' . $file;
-        if (file_exists($path)) {
-            $html = file_get_contents($path);
-            if (preg_match('/<!--\s*david-meta:(.*?)-->/', $html, $m)) {
-                $meta = json_decode(trim($m[1]), true);
-                if (isset($meta['category']) && $meta['category'] === $categorySlug) {
-                    $files[] = $file;
-                }
-            }
-        }
-    }
-    
-    // Sort by date (newest first)
-    usort($files, function($a, $b) use ($postsDir) {
-        return filemtime($postsDir . '/' . $b) - filemtime($postsDir . '/' . $a);
-    });
-}
-
-// Pagination
+// Get posts from this category using database
 $page = max(1, intval($_GET['page'] ?? 1));
 $perPage = POSTS_PER_PAGE;
-$offset = ($page - 1) * $perPage;
-$total = count($files);
-$pagedFiles = array_slice($files, $offset, $perPage);
+$posts = Post::getPublished($page, $perPage, $categorySlug, null);
+$total = Post::countPublished($categorySlug, null);
+
+// Format posts for template
+foreach ($posts as &$post) {
+    $post['date'] = $post['published_at'] ?? $post['created_at'];
+    $post['file'] = 'post.php?slug=' . $post['slug'];
+    $post['tags'] = !empty($post['tags']) ? explode(',', $post['tags']) : [];
+    $post['cover'] = $post['cover_image'] ?? '';
+}
+unset($post);
 
 include(__DIR__ . '/includes/header.php');
 ?>
@@ -131,7 +112,7 @@ include(__DIR__ . '/includes/header.php');
 </div>
 
 <div class="container my-4">
-  <?php if (empty($pagedFiles)): ?>
+  <?php if (empty($posts)): ?>
     <div class="text-center py-5">
       <i class="<?= $currentCategory['icon'] ?> fa-3x mb-3 opacity-50"></i>
       <h3 class="h5">Nu sunt articole în această categorie încă</h3>
@@ -140,30 +121,11 @@ include(__DIR__ . '/includes/header.php');
     </div>
   <?php else: ?>
     <div class="row g-4">
-      <?php foreach ($pagedFiles as $file):
-        $path = $postsDir . '/' . $file;
-        $html = file_get_contents($path);
-        $title = pathinfo($file, PATHINFO_FILENAME);
-        $date = '';
-        $excerpt = '';
-        $cover = '';
-        $tags = [];
-        
-        if (preg_match('/<!--\s*david-meta:(.*?)-->/', $html, $m)) {
-          $meta = json_decode(trim($m[1]), true);
-          if ($meta) {
-            $title = $meta['title'] ?? $title;
-            $date = $meta['date'] ?? '';
-            $excerpt = $meta['excerpt'] ?? '';
-            $cover = $meta['cover'] ?? '';
-            $tags = $meta['tags'] ?? [];
-          }
-        }
-      ?>
+      <?php foreach ($posts as $post): ?>
       <div class="col-md-6 col-lg-4">
         <article class="card card-article h-100 border-0 shadow-sm">
-          <?php if ($cover): ?>
-          <img src="<?= htmlspecialchars($cover) ?>" class="cover" alt="<?= htmlspecialchars($title) ?>" loading="lazy">
+          <?php if (!empty($post['cover'])): ?>
+          <img src="<?= htmlspecialchars($post['cover']) ?>" class="cover" alt="<?= htmlspecialchars($post['title']) ?>" loading="lazy">
           <?php endif; ?>
           <div class="card-body d-flex flex-column">
             <div class="mb-2">
@@ -172,23 +134,23 @@ include(__DIR__ . '/includes/header.php');
               </span>
             </div>
             <h2 class="h6 mb-2">
-              <a href="/posts/<?= urlencode($file) ?>" class="text-decoration-none stretched-link">
-                <?= htmlspecialchars($title) ?>
+              <a href="/<?= htmlspecialchars($post['file']) ?>" class="text-decoration-none stretched-link">
+                <?= htmlspecialchars($post['title']) ?>
               </a>
             </h2>
-            <?php if ($excerpt): ?>
-            <p class="text-muted small mb-2"><?= htmlspecialchars($excerpt) ?></p>
+            <?php if (!empty($post['excerpt'])): ?>
+            <p class="text-muted small mb-2"><?= htmlspecialchars($post['excerpt']) ?></p>
             <?php endif; ?>
             <div class="mt-auto">
               <div class="meta small">
-                <?php if ($date): ?>
-                <i class="far fa-calendar me-1"></i><?= date('d.m.Y', strtotime($date)) ?>
+                <?php if (!empty($post['date'])): ?>
+                <i class="far fa-calendar me-1"></i><?= date('d.m.Y', strtotime($post['date'])) ?>
                 <?php endif; ?>
               </div>
-              <?php if ($tags): ?>
+              <?php if (!empty($post['tags'])): ?>
               <div class="mt-2">
-                <?php foreach (array_slice($tags, 0, 3) as $tag): ?>
-                <span class="tag"><?= htmlspecialchars($tag) ?></span>
+                <?php foreach (array_slice($post['tags'], 0, 3) as $tag): ?>
+                <span class="tag"><?= htmlspecialchars(trim($tag)) ?></span>
                 <?php endforeach; ?>
               </div>
               <?php endif; ?>

@@ -1,5 +1,8 @@
 <?php 
 require_once(__DIR__ . '/config/config.php');
+require_once(__DIR__ . '/config/database.php');
+require_once(__DIR__ . '/includes/Post.php');
+require_once(__DIR__ . '/includes/Poll.php');
 
 // SEO Configuration for homepage
 $pageTitle = SITE_NAME . ' - Jurnalul meciurilor și transferurilor';
@@ -24,69 +27,28 @@ if ($cachedResult === null) {
   $perPage = POSTS_PER_PAGE;
   $q = isset($_GET['q']) ? Security::sanitizeInput(trim($_GET['q'])) : '';
   $page = max(1, intval($_GET['page'] ?? 1));
-  $postsDir = __DIR__ . '/posts';
-  if (!is_dir($postsDir)) {
-    mkdir($postsDir, 0755, true);
-  }
-  $files = array_values(array_filter(scandir($postsDir), function($f) {
-    return substr($f, -5) === '.html' && $f !== 'index.html';
-  }));
-  $items = [];
-  foreach ($files as $file) {
-    try {
-      $path = $postsDir . '/' . $file;
-      if (!is_readable($path)) continue;
-      $html = file_get_contents($path);
-      if ($html === false) continue;
-      $meta = [
-        'title' => pathinfo($file, PATHINFO_FILENAME),
-        'date' => date('Y-m-d', filemtime($path)),
-        'excerpt' => '',
-        'cover' => '',
-        'tags' => [],
-        'slug' => pathinfo($file, PATHINFO_FILENAME)
-      ];
-      if (preg_match('/<!--\s*david-meta:(.*?)-->/', $html, $matches)) {
-        $jsonMeta = json_decode(trim($matches[1]), true);
-        if (is_array($jsonMeta)) {
-          $meta = array_merge($meta, $jsonMeta);
-        }
-      }
-      $meta['file'] = 'posts/' . $file;
-      $meta['filesize'] = filesize($path);
-      $items[] = $meta;
-    } catch (Exception $e) {
-      error_log("Error processing post $file: " . $e->getMessage());
-      continue;
-    }
-  }
-  // Calculează număr articole pe categorii
-  $categoriesCfg = require(__DIR__ . '/config/categories.php');
-  $categoryCounts = array_fill_keys(array_keys($categoriesCfg), 0);
-  foreach ($items as $it) {
-    if (!empty($it['category']) && isset($categoryCounts[$it['category']])) {
-      $categoryCounts[$it['category']]++;
-    }
-  }
-  // Search functionality
-  if ($q !== '') {
-    $items = array_values(array_filter($items, function($item) use ($q) {
-      $searchText = mb_strtolower(implode(' ', [
-        $item['title'] ?? '',
-        $item['excerpt'] ?? '',
-        implode(' ', $item['tags'] ?? [])
-      ]));
-      return mb_strpos($searchText, mb_strtolower($q)) !== false;
-    }));
-  }
-  // Sort by date (newest first)
-  usort($items, function($a, $b) {
-    return strtotime($b['date']) <=> strtotime($a['date']);
-  });
-  $total = count($items);
+  
+  // Get posts from database
+  $searchTerm = $q !== '' ? $q : null;
+  $itemsPage = Post::getPublished($page, $perPage, null, $searchTerm);
+  $total = Post::countPublished(null, $searchTerm);
   $pages = max(1, ceil($total / $perPage));
-  $offset = ($page - 1) * $perPage;
-  $itemsPage = array_slice($items, $offset, $perPage);
+  
+  // Format items for template compatibility
+  foreach ($itemsPage as &$item) {
+    $item['date'] = $item['published_at'] ?? $item['created_at'];
+    $item['file'] = 'post.php?slug=' . $item['slug'];
+    $item['tags'] = !empty($item['tags']) ? explode(',', $item['tags']) : [];
+  }
+  unset($item);
+  
+  // Get category counts from database
+  $categoryCounts = [];
+  $catCounts = Post::getCountByCategory();
+  foreach ($catCounts as $cc) {
+    $categoryCounts[$cc['category_slug']] = $cc['count'];
+  }
+  
   $result = [
     'items' => $itemsPage,
     'total' => $total,
@@ -277,19 +239,8 @@ if (isset($_GET['created'])) {
 <!-- Interactive Polls Section -->
 <div class="container mb-4">
   <?php
-  // Load active polls
-  $pollsDir = __DIR__ . '/data/polls';
-  $activePolls = [];
-  
-  if (is_dir($pollsDir)) {
-    $pollFiles = glob($pollsDir . '/*.json');
-    foreach ($pollFiles as $pollFile) {
-      $pollData = json_decode(file_get_contents($pollFile), true);
-      if ($pollData && isset($pollData['active']) && $pollData['active']) {
-        $activePolls[] = $pollData;
-      }
-    }
-  }
+  // Load active polls from database
+  $activePolls = Poll::getActive(5);
   ?>
   
   <?php if (!empty($activePolls)): ?>
