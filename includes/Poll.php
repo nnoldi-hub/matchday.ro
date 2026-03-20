@@ -313,4 +313,67 @@ class Poll {
             ['slug' => $slug]
         ) > 0;
     }
+    
+    /**
+     * Update poll options (replaces existing options)
+     * Note: This will reset vote counts!
+     */
+    public static function updateOptions(int $pollId, array $options): bool {
+        Database::beginTransaction();
+        
+        try {
+            // Delete existing options and votes
+            Database::execute("DELETE FROM poll_votes WHERE poll_id = :poll_id", ['poll_id' => $pollId]);
+            Database::execute("DELETE FROM poll_options WHERE poll_id = :poll_id", ['poll_id' => $pollId]);
+            
+            // Insert new options
+            foreach ($options as $index => $optionText) {
+                if (trim($optionText)) {
+                    Database::insert(
+                        "INSERT INTO poll_options (poll_id, option_text, sort_order) VALUES (:poll_id, :text, :order)",
+                        [
+                            'poll_id' => $pollId,
+                            'text' => trim($optionText),
+                            'order' => $index
+                        ]
+                    );
+                }
+            }
+            
+            Database::commit();
+            return true;
+            
+        } catch (Exception $e) {
+            Database::rollback();
+            throw $e;
+        }
+    }
+    
+    /**
+     * Add a single option to existing poll
+     */
+    public static function addOption(int $pollId, string $optionText): int {
+        $maxOrder = Database::fetchValue(
+            "SELECT MAX(sort_order) FROM poll_options WHERE poll_id = :poll_id",
+            ['poll_id' => $pollId]
+        ) ?? -1;
+        
+        return Database::insert(
+            "INSERT INTO poll_options (poll_id, option_text, sort_order) VALUES (:poll_id, :text, :order)",
+            [
+                'poll_id' => $pollId,
+                'text' => trim($optionText),
+                'order' => $maxOrder + 1
+            ]
+        );
+    }
+    
+    /**
+     * Remove option from poll
+     */
+    public static function removeOption(int $optionId): bool {
+        // Delete votes for this option first
+        Database::execute("DELETE FROM poll_votes WHERE option_id = :option_id", ['option_id' => $optionId]);
+        return Database::execute("DELETE FROM poll_options WHERE id = :id", ['id' => $optionId]) > 0;
+    }
 }

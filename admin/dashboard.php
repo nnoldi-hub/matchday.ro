@@ -9,11 +9,17 @@ require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/Post.php');
 require_once(__DIR__ . '/../includes/Poll.php');
 require_once(__DIR__ . '/../includes/Comment.php');
+require_once(__DIR__ . '/../includes/User.php');
 
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
     exit; 
 }
+
+// Get current user info
+$currentUserRole = $_SESSION['user_role'] ?? 'admin';
+$currentUserName = $_SESSION['user_name'] ?? 'Admin';
+$isAdmin = $currentUserRole === 'admin';
 
 // Get stats from database
 $totalPosts = Post::countAll();
@@ -39,7 +45,12 @@ include(__DIR__ . '/../includes/header.php');
   <div class="row">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3">Dashboard Admin</h1>
+        <div>
+          <h1 class="h3 mb-0">Dashboard Admin</h1>
+          <small class="text-muted">Bine ai venit, <strong><?= Security::sanitizeInput($currentUserName) ?></strong> 
+            <span class="badge bg-<?= $isAdmin ? 'danger' : 'secondary' ?>"><?= $isAdmin ? 'Admin' : 'Editor' ?></span>
+          </small>
+        </div>
         <div class="d-flex gap-2 flex-wrap">
           <a href="new-post.php" class="btn btn-accent">
             <i class="fas fa-plus me-1"></i>Articol nou
@@ -56,6 +67,14 @@ include(__DIR__ . '/../includes/header.php');
           <a href="polls.php" class="btn btn-primary">
             <i class="fas fa-poll me-1"></i>Sondaje
           </a>
+          <?php if ($isAdmin): ?>
+          <a href="users.php" class="btn btn-outline-danger">
+            <i class="fas fa-users me-1"></i>Utilizatori
+          </a>
+          <a href="settings.php" class="btn btn-outline-secondary">
+            <i class="fas fa-cog me-1"></i>Setări
+          </a>
+          <?php endif; ?>
           <a href="editorial-management.php" class="btn btn-info">
             <i class="fas fa-calendar-check me-1"></i>Plan Editorial
           </a>

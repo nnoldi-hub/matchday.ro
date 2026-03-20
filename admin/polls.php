@@ -1,29 +1,23 @@
 <?php
+/**
+ * Admin Polls Management - Refactored with Database
+ * MatchDay.ro
+ */
+session_start();
 require_once(__DIR__ . '/../config/config.php');
+require_once(__DIR__ . '/../config/database.php');
+require_once(__DIR__ . '/../includes/Poll.php');
+
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
     exit; 
 }
 
-// Get all polls
-$pollsDir = __DIR__ . '/../data/polls';
-$polls = [];
-
-if (is_dir($pollsDir)) {
-    $pollFiles = array_filter(scandir($pollsDir), fn($f) => substr($f, -5) === '.json');
-    foreach ($pollFiles as $pf) {
-        $pollData = json_decode(file_get_contents($pollsDir . '/' . $pf), true);
-        if ($pollData) {
-            $pollData['filename'] = $pf;
-            $polls[] = $pollData;
-        }
-    }
-}
-
-// Sort polls by creation date (newest first)
-usort($polls, function($a, $b) {
-    return strtotime($b['created_at'] ?? '1970-01-01') - strtotime($a['created_at'] ?? '1970-01-01');
-});
+// Get all polls from database
+$polls = Poll::getAll();
+$activePolls = array_filter($polls, fn($p) => $p['active'] == 1);
+$totalVotes = array_sum(array_column($polls, 'total_votes'));
+$avgVotes = count($polls) > 0 ? round($totalVotes / count($polls)) : 0;
 
 include(__DIR__ . '/../includes/header.php');
 ?>
@@ -53,7 +47,7 @@ include(__DIR__ . '/../includes/header.php');
         <div class="col-md-3">
             <div class="card text-center bg-primary text-white">
                 <div class="card-body">
-                    <h3 class="h2"><?php echo count($polls); ?></h3>
+                    <h3 class="h2"><?= count($polls) ?></h3>
                     <p class="mb-0 opacity-75">Total sondaje</p>
                 </div>
             </div>
@@ -61,7 +55,7 @@ include(__DIR__ . '/../includes/header.php');
         <div class="col-md-3">
             <div class="card text-center bg-success text-white">
                 <div class="card-body">
-                    <h3 class="h2"><?php echo count(array_filter($polls, fn($p) => $p['active'] ?? false)); ?></h3>
+                    <h3 class="h2"><?= count($activePolls) ?></h3>
                     <p class="mb-0 opacity-75">Active</p>
                 </div>
             </div>
@@ -69,7 +63,7 @@ include(__DIR__ . '/../includes/header.php');
         <div class="col-md-3">
             <div class="card text-center bg-warning text-white">
                 <div class="card-body">
-                    <h3 class="h2"><?php echo array_sum(array_column($polls, 'total_votes')); ?></h3>
+                    <h3 class="h2"><?= $totalVotes ?></h3>
                     <p class="mb-0 opacity-75">Total voturi</p>
                 </div>
             </div>
@@ -77,7 +71,7 @@ include(__DIR__ . '/../includes/header.php');
         <div class="col-md-3">
             <div class="card text-center bg-info text-white">
                 <div class="card-body">
-                    <h3 class="h2"><?php echo count($polls) > 0 ? round(array_sum(array_column($polls, 'total_votes')) / count($polls)) : 0; ?></h3>
+                    <h3 class="h2"><?= $avgVotes ?></h3>
                     <p class="mb-0 opacity-75">Medie voturi/sondaj</p>
                 </div>
             </div>
@@ -114,42 +108,42 @@ include(__DIR__ . '/../includes/header.php');
                             <?php foreach ($polls as $poll): ?>
                             <tr>
                                 <td>
-                                    <strong><?php echo Security::sanitizeInput($poll['question']); ?></strong>
+                                    <strong><?= Security::sanitizeInput($poll['question']) ?></strong>
                                     <?php if (!empty($poll['description'])): ?>
-                                        <br><small class="text-muted"><?php echo Security::sanitizeInput($poll['description']); ?></small>
+                                        <br><small class="text-muted"><?= Security::sanitizeInput($poll['description']) ?></small>
                                     <?php endif; ?>
-                                    <br><code class="small"><?php echo $poll['id']; ?></code>
+                                    <br><code class="small"><?= $poll['slug'] ?></code>
                                 </td>
                                 <td>
-                                    <?php if ($poll['active'] ?? false): ?>
+                                    <?php if ($poll['active']): ?>
                                         <span class="badge bg-success">Activ</span>
                                     <?php else: ?>
                                         <span class="badge bg-secondary">Inactiv</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <strong><?php echo $poll['total_votes'] ?? 0; ?></strong> voturi
-                                    <br><small class="text-muted"><?php echo count($poll['options'] ?? []); ?> opțiuni</small>
+                                    <strong><?= $poll['total_votes'] ?></strong> voturi
+                                    <br><small class="text-muted"><?= count($poll['options']) ?> opțiuni</small>
                                 </td>
                                 <td>
-                                    <?php echo date('d.m.Y', strtotime($poll['created_at'] ?? '1970-01-01')); ?>
+                                    <?= date('d.m.Y', strtotime($poll['created_at'])) ?>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <button type="button" class="btn btn-outline-info" 
-                                                onclick="viewPollResults('<?php echo $poll['id']; ?>')">
+                                                onclick="viewPollResults(<?= $poll['id'] ?>)">
                                             <i class="fas fa-chart-bar"></i>
                                         </button>
                                         <button type="button" class="btn btn-outline-primary" 
-                                                onclick="editPoll('<?php echo $poll['id']; ?>')">
+                                                onclick="editPoll(<?= $poll['id'] ?>)">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button type="button" class="btn btn-outline-<?php echo ($poll['active'] ?? false) ? 'warning' : 'success'; ?>" 
-                                                onclick="togglePollStatus('<?php echo $poll['id']; ?>', <?php echo ($poll['active'] ?? false) ? 'false' : 'true'; ?>)">
-                                            <i class="fas fa-<?php echo ($poll['active'] ?? false) ? 'pause' : 'play'; ?>"></i>
+                                        <button type="button" class="btn btn-outline-<?= $poll['active'] ? 'warning' : 'success' ?>" 
+                                                onclick="togglePollStatus(<?= $poll['id'] ?>, <?= $poll['active'] ? 'false' : 'true' ?>)">
+                                            <i class="fas fa-<?= $poll['active'] ? 'pause' : 'play' ?>"></i>
                                         </button>
                                         <button type="button" class="btn btn-outline-danger" 
-                                                onclick="deletePoll('<?php echo $poll['id']; ?>')">
+                                                onclick="deletePoll(<?= $poll['id'] ?>)">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -178,11 +172,11 @@ include(__DIR__ . '/../includes/header.php');
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label for="pollId" class="form-label">ID Sondaj *</label>
-                            <input type="text" class="form-control" id="pollId" name="poll_id" 
+                            <label for="pollSlug" class="form-label">Slug (URL) *</label>
+                            <input type="text" class="form-control" id="pollSlug" name="slug" 
                                    placeholder="ex: echipa-favorita" required
-                                   pattern="[a-z0-9\-_]+" title="Doar litere mici, cifre, cratima și underscore">
-                            <div class="form-text">Folosește doar litere mici, cifre, cratima (-) și underscore (_)</div>
+                                   pattern="[a-z0-9\-]+" title="Doar litere mici, cifre și cratimă">
+                            <div class="form-text">Folosește doar litere mici, cifre și cratimă (-). Va fi folosit în URL.</div>
                         </div>
                         
                         <div class="col-12">
@@ -269,12 +263,13 @@ include(__DIR__ . '/../includes/header.php');
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="editPollForm" onsubmit="updatePoll(event)">
+                <input type="hidden" id="editPollIdHidden" name="poll_id" value="">
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label for="editPollId" class="form-label">ID Sondaj</label>
-                            <input type="text" class="form-control" id="editPollId" name="poll_id" readonly>
-                            <div class="form-text">ID-ul nu poate fi modificat după crearea sondajului</div>
+                            <label for="editPollSlug" class="form-label">Slug (URL)</label>
+                            <input type="text" class="form-control" id="editPollSlug" name="slug" readonly>
+                            <div class="form-text">Slug-ul nu poate fi modificat după crearea sondajului</div>
                         </div>
                         
                         <div class="col-12">
@@ -350,6 +345,7 @@ include(__DIR__ . '/../includes/header.php');
 </div>
 
 <script>
+const csrfToken = '<?= Security::generateCSRFToken() ?>';
 let optionCounter = 2;
 
 function addPollOption() {
@@ -416,7 +412,8 @@ async function createPoll(event) {
     // Prepare data
     const pollData = {
         action: 'create_poll',
-        poll_id: formData.get('poll_id'),
+        csrf_token: csrfToken,
+        slug: formData.get('slug'),
         question: formData.get('question'),
         description: formData.get('description') || '',
         options: options,
@@ -446,7 +443,6 @@ async function createPoll(event) {
 }
 
 async function togglePollStatus(pollId, newStatus) {
-    const action = newStatus ? 'activate' : 'deactivate';
     const confirmMsg = newStatus ? 'activezi' : 'dezactivezi';
     
     if (!confirm(`Sigur vrei să ${confirmMsg} acest sondaj?`)) {
@@ -461,8 +457,8 @@ async function togglePollStatus(pollId, newStatus) {
             },
             body: JSON.stringify({
                 action: 'toggle_poll',
-                poll_id: pollId,
-                active: newStatus
+                csrf_token: csrfToken,
+                poll_id: pollId
             })
         });
         
@@ -491,6 +487,7 @@ async function deletePoll(pollId) {
             },
             body: JSON.stringify({
                 action: 'delete_poll',
+                csrf_token: csrfToken,
                 poll_id: pollId
             })
         });
@@ -509,7 +506,7 @@ async function deletePoll(pollId) {
 
 async function viewPollResults(pollId) {
     try {
-        const response = await fetch(`../polls_api.php?poll=${pollId}`);
+        const response = await fetch(`../polls_api.php?id=${pollId}`);
         const poll = await response.json();
         
         if (poll.error) {
@@ -534,7 +531,7 @@ async function viewPollResults(pollId) {
             resultsHtml += `
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span>${option.text}</span>
+                        <span>${option.option_text || option.text}</span>
                         <span><strong>${percentage}%</strong> (${votes} voturi)</span>
                     </div>
                     <div class="progress" style="height: 10px;">
@@ -555,13 +552,12 @@ async function viewPollResults(pollId) {
 }
 
 function editPoll(pollId) {
-    // Load poll data
     loadPollForEdit(pollId);
 }
 
 async function loadPollForEdit(pollId) {
     try {
-        const response = await fetch(`../polls_api.php?poll=${pollId}`);
+        const response = await fetch(`../polls_api.php?id=${pollId}`);
         const poll = await response.json();
         
         if (poll.error) {
@@ -569,11 +565,12 @@ async function loadPollForEdit(pollId) {
             return;
         }
         
-        // Populate edit form
-        document.getElementById('editPollId').value = poll.id;
+        // Populate edit form  
+        document.getElementById('editPollIdHidden').value = poll.id;
+        document.getElementById('editPollSlug').value = poll.slug || '';
         document.getElementById('editPollQuestion').value = poll.question || '';
         document.getElementById('editPollDescription').value = poll.description || '';
-        document.getElementById('editPollActive').checked = poll.active || false;
+        document.getElementById('editPollActive').checked = poll.active == 1;
         
         // Statistics
         document.getElementById('editPollTotalVotes').textContent = poll.total_votes || 0;
@@ -585,7 +582,7 @@ async function loadPollForEdit(pollId) {
         optionsContainer.innerHTML = '';
         
         poll.options.forEach((option, index) => {
-            addEditPollOptionWithData(option.text, option.votes || 0, index + 1);
+            addEditPollOptionWithData(option.option_text || option.text, option.votes || 0, index + 1);
         });
         
         editOptionCounter = poll.options.length;
@@ -678,7 +675,7 @@ async function updatePoll(event) {
         return;
     }
     
-    if (!confirm('Sigur vrei să salvezi modificările? Această acțiune poate afecta statisticile existente.')) {
+    if (!confirm('Sigur vrei să salvezi modificările? Dacă modifici opțiunile, voturile existente vor fi șterse.')) {
         return;
     }
     
@@ -690,6 +687,7 @@ async function updatePoll(event) {
     // Prepare data
     const pollData = {
         action: 'update_poll',
+        csrf_token: csrfToken,
         poll_id: formData.get('poll_id'),
         question: formData.get('question'),
         description: formData.get('description') || '',
@@ -739,16 +737,15 @@ function formatDate(dateString) {
 document.getElementById('pollQuestion').addEventListener('input', function() {
     const question = this.value;
     const slug = question.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/-+/g, '-') // Replace multiple hyphens with single
-        .substring(0, 50); // Limit length
+        .replace(/ă/g, 'a').replace(/â/g, 'a').replace(/î/g, 'i')
+        .replace(/ș/g, 's').replace(/ț/g, 't')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 50);
     
-    document.getElementById('pollId').value = slug;
+    document.getElementById('pollSlug').value = slug;
 });
 </script>
-
-<!-- Fix pentru API endpoint -->
-<script src="polls-api-fix.js"></script>
 
 <?php include(__DIR__ . '/../includes/footer.php'); ?>

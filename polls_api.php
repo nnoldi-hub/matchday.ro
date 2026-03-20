@@ -15,18 +15,19 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if ($method === 'GET') {
     try {
+        // Support both slug (poll=xxx) and numeric ID (id=123)
         $pollSlug = Security::sanitizeInput($_GET['poll'] ?? '');
         $pollSlug = preg_replace('/[^a-z0-9\-_]/', '', $pollSlug);
         
-        if ($pollSlug === '') {
+        $pollId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        
+        if ($pollSlug === '' && $pollId === 0) {
             // Return all active polls
             $polls = Poll::getActive(10);
             
             // Format for JS compatibility
             foreach ($polls as &$poll) {
-                $poll['id'] = $poll['slug'];
                 foreach ($poll['options'] as &$opt) {
-                    $opt['id'] = 'option_' . $opt['id'];
                     $opt['text'] = $opt['option_text'];
                 }
             }
@@ -35,7 +36,13 @@ if ($method === 'GET') {
             exit;
         }
         
-        $poll = Poll::getBySlug($pollSlug);
+        // Get poll by slug or ID
+        if ($pollId > 0) {
+            $poll = Poll::getById($pollId);
+        } else {
+            $poll = Poll::getBySlug($pollSlug);
+        }
+        
         if (!$poll) {
             http_response_code(404);
             echo json_encode(['error' => 'Sondaj nu a fost găsit']);
@@ -43,9 +50,7 @@ if ($method === 'GET') {
         }
         
         // Format for JS compatibility
-        $poll['id'] = $poll['slug'];
         foreach ($poll['options'] as &$opt) {
-            $opt['id'] = 'option_' . $opt['id'];
             $opt['text'] = $opt['option_text'];
         }
         
