@@ -12,7 +12,8 @@ class Stats {
      * Ensure stats tables exist
      */
     public static function ensureTables(): void {
-        $db = Database::getInstance();
+        try {
+            $db = Database::getInstance();
         
         if (Database::isMySQL()) {
             $db->exec("
@@ -64,15 +65,20 @@ class Stats {
                 )
             ");
         }
+        } catch (\Exception $e) {
+            error_log("Stats ensureTables error: " . $e->getMessage());
+        }
     }
     
     /**
      * Track page view - unique per IP per day
+     * Wrapped in try-catch to never block page display
      */
     public static function trackView(?int $postId = null, string $pageType = 'post'): void {
-        self::ensureTables();
-        
-        $db = Database::getInstance();
+        try {
+            self::ensureTables();
+            
+            $db = Database::getInstance();
         $today = date('Y-m-d');
         $ipHash = self::hashIP();
         
@@ -137,6 +143,10 @@ class Stats {
                     ON CONFLICT(post_id, date) DO UPDATE SET views = views + 1
                 ")->execute([$postId, $today]);
             }
+        }
+        } catch (\Exception $e) {
+            // Silently fail - tracking shouldn't block page display
+            error_log("Stats tracking error: " . $e->getMessage());
         }
     }
     
