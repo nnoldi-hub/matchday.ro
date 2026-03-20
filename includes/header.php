@@ -3,6 +3,8 @@ require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/Category.php');
 require_once(__DIR__ . '/seo.php');
+require_once(__DIR__ . '/Ad.php');
+require_once(__DIR__ . '/AdWidget.php');
 
 $base = (BASE_URL ?: '');
 $admin = (strpos($_SERVER['PHP_SELF'], '/admin/') !== false);
@@ -126,3 +128,14 @@ if (isset($articleTags)) $seo->setTags($articleTags);
         </div>
       </div>
     </nav>
+    
+    <?php 
+    // Header Ad Banner (728x90)
+    $headerAd = AdWidget::header();
+    if ($headerAd): ?>
+    <div class="container-fluid bg-light border-bottom">
+        <div class="container py-2">
+            <?= $headerAd ?>
+        </div>
+    </div>
+    <?php endif; ?>
