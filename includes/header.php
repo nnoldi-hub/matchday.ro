@@ -104,7 +104,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
                 foreach ($navCategories as $category):
                 ?>
                 <li>
-                  <a class="dropdown-item d-flex align-items-center" href="/category.php?cat=<?= urlencode($category['slug']) ?>">
+                  <a class="dropdown-item d-flex align-items-center" href="<?= SEOManager::getCategoryUrl($category['slug']) ?>">
                     <i class="<?= $category['icon'] ?> me-2" style="color: <?= $category['color'] ?>"></i>
                     <?= htmlspecialchars($category['name']) ?>
                   </a>

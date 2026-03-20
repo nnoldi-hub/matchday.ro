@@ -7,6 +7,7 @@ require_once(__DIR__ . '/config/config.php');
 require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Post.php');
 require_once(__DIR__ . '/includes/Stats.php');
+require_once(__DIR__ . '/includes/seo.php');
 
 // Track search page visit
 Stats::trackView(null, 'search');
@@ -130,7 +131,7 @@ $categories = require(__DIR__ . '/config/categories.php');
                         <div class="row g-0">
                             <?php if (!empty($post['cover_image'])): ?>
                             <div class="col-md-4">
-                                <a href="post.php?slug=<?= urlencode($post['slug']) ?>">
+                                <a href="<?= SEOManager::getArticleUrl($post['slug']) ?>">
                                     <img src="<?= Security::sanitizeInput($post['cover_image']) ?>" 
                                          class="img-fluid rounded-start h-100" 
                                          style="object-fit: cover; min-height: 180px;"
@@ -141,7 +142,7 @@ $categories = require(__DIR__ . '/config/categories.php');
                             <div class="<?= !empty($post['cover_image']) ? 'col-md-8' : 'col-12' ?>">
                                 <div class="card-body">
                                     <?php if ($cat): ?>
-                                    <a href="category.php?cat=<?= urlencode($post['category_slug']) ?>" 
+                                    <a href="<?= SEOManager::getCategoryUrl($post['category_slug']) ?>" 
                                        class="badge text-decoration-none mb-2"
                                        style="background-color: <?= $cat['color'] ?>">
                                         <i class="<?= $cat['icon'] ?> me-1"></i><?= $cat['name'] ?>
@@ -149,7 +150,7 @@ $categories = require(__DIR__ . '/config/categories.php');
                                     <?php endif; ?>
                                     
                                     <h2 class="card-title h5">
-                                        <a href="post.php?slug=<?= urlencode($post['slug']) ?>" class="text-decoration-none text-dark">
+                                        <a href="<?= SEOManager::getArticleUrl($post['slug']) ?>" class="text-decoration-none text-dark">
                                             <?= Security::sanitizeInput($post['title']) ?>
                                         </a>
                                     </h2>
@@ -164,7 +165,7 @@ $categories = require(__DIR__ . '/config/categories.php');
                                             <span class="mx-2">|</span>
                                             <i class="far fa-eye me-1"></i><?= number_format($post['views'] ?? 0) ?>
                                         </small>
-                                        <a href="post.php?slug=<?= urlencode($post['slug']) ?>" class="btn btn-sm btn-outline-primary">
+                                        <a href="<?= SEOManager::getArticleUrl($post['slug']) ?>" class="btn btn-sm btn-outline-primary">
                                             Citește <i class="fas fa-arrow-right ms-1"></i>
                                         </a>
                                     </div>
@@ -263,7 +264,7 @@ $categories = require(__DIR__ . '/config/categories.php');
                 </div>
                 <div class="list-group list-group-flush">
                     <?php foreach ($trendingPosts as $i => $post): ?>
-                    <a href="post.php?slug=<?= urlencode($post['slug']) ?>" 
+                    <a href="<?= SEOManager::getArticleUrl($post['slug']) ?>" 
                        class="list-group-item list-group-item-action d-flex gap-3">
                         <span class="badge bg-danger rounded-pill"><?= $i + 1 ?></span>
                         <div class="flex-grow-1">
@@ -285,7 +286,7 @@ $categories = require(__DIR__ . '/config/categories.php');
                 </div>
                 <div class="list-group list-group-flush">
                     <?php foreach ($categories as $slug => $cat): ?>
-                    <a href="category.php?cat=<?= urlencode($slug) ?>" 
+                    <a href="<?= SEOManager::getCategoryUrl($slug) ?>" 
                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                         <span>
                             <i class="<?= $cat['icon'] ?> me-2" style="color: <?= $cat['color'] ?>"></i>
@@ -323,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.length > 0) {
                         suggestions.innerHTML = data.map(item => 
-                            `<a href="/post.php?slug=${item.slug}" class="list-group-item list-group-item-action">
+                            `<a href="/articol/${item.slug}" class="list-group-item list-group-item-action">
                                 <i class="fas fa-newspaper me-2 text-muted"></i>${item.title}
                             </a>`
                         ).join('');

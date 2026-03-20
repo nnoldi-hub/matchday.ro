@@ -2,6 +2,7 @@
 require_once(__DIR__ . '/config/config.php');
 require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Category.php');
+require_once(__DIR__ . '/includes/seo.php');
 
 // SEO Configuration for 404 page
 $pageTitle = 'Pagină negăsită - MatchDay.ro';
@@ -93,7 +94,7 @@ include(__DIR__ . '/includes/header.php');
                 elseif (strpos($cat['color'] ?? '', '#20') === 0 || strpos($cat['color'] ?? '', '#17') === 0) $colorClass = 'info';
             ?>
             <div class="col-md-4 col-sm-6">
-              <a href="/category.php?cat=<?= htmlspecialchars($cat['slug']) ?>" 
+              <a href="<?= SEOManager::getCategoryUrl($cat['slug']) ?>" 
                  class="btn btn-outline-<?= $colorClass ?> w-100 d-flex align-items-center">
                 <i class="<?= htmlspecialchars($cat['icon'] ?? 'fas fa-folder') ?> me-2"></i>
                 <?= htmlspecialchars($cat['name']) ?>

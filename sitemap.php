@@ -115,7 +115,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     <!-- Categorii -->
     <?php foreach ($categories as $slug => $info): ?>
     <url>
-        <loc><?= generateSiteUrl('category.php?cat=' . urlencode($slug)) ?></loc>
+        <loc><?= generateSiteUrl('categorie/' . urlencode($slug)) ?></loc>
         <lastmod><?= date('c') ?></lastmod>
         <changefreq>weekly</changefreq>
         <priority><?= $info['priority'] ?></priority>

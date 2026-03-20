@@ -204,7 +204,7 @@ class Newsletter {
     public static function sendForPost(array $post): array {
         $subject = "📰 {$post['title']} - MatchDay.ro";
         
-        $postUrl = BASE_URL . '/post.php?slug=' . $post['slug'];
+        $postUrl = BASE_URL . '/articol/' . $post['slug'];
         $imageUrl = !empty($post['featured_image']) ? BASE_URL . $post['featured_image'] : '';
         
         $content = self::getPostTemplate($post, $postUrl, $imageUrl);

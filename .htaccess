@@ -80,32 +80,59 @@ DirectoryIndex index.php
 # SEO Friendly URL Rewriting
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /
     
-    # SEO Friendly URLs - Article Rewrites
-    # Redirecționează /articol/slug la /posts/YYYY-MM-DD-slug.html
-    RewriteRule ^articol/([a-z0-9\-]+)/?$ /posts/$1.html [L]
+    # ==========================
+    # CANONICALIZATION & HTTPS
+    # ==========================
     
-    # Alternative: găsește articolul după slug indiferent de dată
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^articol/([a-z0-9\-]+)/?$ /posts/2025-09-01-$1.html [L]
+    # Force HTTPS (production)
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP_HOST} ^(www\.)?matchday\.ro$ [NC]
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     
-    # Category URLs - SEO friendly
-    RewriteRule ^categorie/([a-z0-9\-]+)/?$ /category.php?cat=$1 [L,QSA]
+    # Force WWW removal - canonical non-www version
+    RewriteCond %{HTTP_HOST} ^www\.matchday\.ro$ [NC]
+    RewriteRule ^(.*)$ https://matchday.ro/$1 [R=301,L]
     
-    # Redirect old category.php URLs to friendly format
+    # ==========================
+    # SEO FRIENDLY ARTICLE URLs
+    # ==========================
+    
+    # Clean URL: /articol/slug -> post.php?slug=slug
+    RewriteRule ^articol/([a-z0-9\-]+)/?$ post.php?slug=$1 [L,QSA]
+    
+    # 301 Redirect old URLs with ?slug= to clean URLs
+    RewriteCond %{THE_REQUEST} \s/post\.php\?slug=([a-z0-9\-]+) [NC]
+    RewriteRule ^ /articol/%1? [R=301,L]
+    
+    # ==========================
+    # SEO FRIENDLY CATEGORY URLs
+    # ==========================
+    
+    # Clean URL: /categorie/slug -> category.php?cat=slug
+    RewriteRule ^categorie/([a-z0-9\-]+)/?$ category.php?cat=$1 [L,QSA]
+    
+    # 301 Redirect old URLs with ?cat= to clean URLs
     RewriteCond %{THE_REQUEST} \s/category\.php\?cat=([a-z0-9\-]+) [NC]
     RewriteRule ^ /categorie/%1? [R=301,L]
     
+    # ==========================
+    # OTHER SEO REWRITES
+    # ==========================
+    
+    # Clean URL: /cauta/query -> search.php?q=query
+    RewriteRule ^cauta/(.*)/?$ search.php?q=$1 [L,QSA]
+    
+    # 301 Redirect old search URLs
+    RewriteCond %{THE_REQUEST} \s/search\.php\?q=([^\s&]+) [NC]
+    RewriteRule ^ /cauta/%1? [R=301,L]
+    
     # XML Sitemap
-    RewriteRule ^sitemap\.xml$ /sitemap.php [L]
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
     
-    # Force HTTPS (uncomment for production)
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-    
-    # Force WWW removal (uncomment for production with domain)
-    # RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-    # RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+    # RSS Feed clean URL
+    RewriteRule ^feed/?$ rss.php [L]
     
     # Remove trailing slashes from files
     RewriteCond %{REQUEST_FILENAME} !-d

@@ -80,9 +80,9 @@ $breadcrumbs = [
     ['name' => 'Acasă', 'url' => '/index.php'],
 ];
 if ($category) {
-    $breadcrumbs[] = ['name' => $category['name'], 'url' => '/category.php?cat=' . $post['category_slug']];
+    $breadcrumbs[] = ['name' => $category['name'], 'url' => SEOManager::getCategoryUrl($post['category_slug'])];
 }
-$breadcrumbs[] = ['name' => $post['title'], 'url' => '/post.php?slug=' . $post['slug']];
+$breadcrumbs[] = ['name' => $post['title'], 'url' => SEOManager::getArticleUrl($post['slug'])];
 
 include(__DIR__ . '/includes/header.php');
 ?>
@@ -108,7 +108,7 @@ include(__DIR__ . '/includes/header.php');
             <!-- Article Header -->
             <header class="mb-4">
                 <?php if ($category): ?>
-                <a href="/category.php?cat=<?= htmlspecialchars($post['category_slug']) ?>" class="text-decoration-none">
+                <a href="<?= SEOManager::getCategoryUrl($post['category_slug']) ?>" class="text-decoration-none">
                     <span class="badge mb-2" style="background: <?= $category['color'] ?>; color: white;">
                         <i class="<?= $category['icon'] ?> me-1"></i><?= $category['name'] ?>
                     </span>
@@ -177,18 +177,27 @@ include(__DIR__ . '/includes/header.php');
             <!-- Share Buttons -->
             <div class="share-buttons mb-4 p-3 bg-light rounded-3">
                 <span class="me-2 fw-bold"><i class="fas fa-share-alt me-1"></i>Distribuie:</span>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode(SITE_URL . '/post.php?slug=' . $post['slug']) ?>" 
+                <?php $shareUrl = SEOManager::getArticleCanonicalUrl($post['slug']); ?>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode($shareUrl) ?>" 
                    target="_blank" class="btn btn-sm btn-primary me-1" rel="noopener">
                     <i class="fab fa-facebook-f"></i>
                 </a>
-                <a href="https://twitter.com/intent/tweet?url=<?= urlencode(SITE_URL . '/post.php?slug=' . $post['slug']) ?>&text=<?= urlencode($post['title']) ?>" 
+                <a href="https://twitter.com/intent/tweet?url=<?= urlencode($shareUrl) ?>&text=<?= urlencode($post['title']) ?>" 
                    target="_blank" class="btn btn-sm btn-info text-white me-1" rel="noopener">
                     <i class="fab fa-twitter"></i>
                 </a>
-                <a href="https://wa.me/?text=<?= urlencode($post['title'] . ' ' . SITE_URL . '/post.php?slug=' . $post['slug']) ?>" 
+                <a href="https://wa.me/?text=<?= urlencode($post['title'] . ' ' . $shareUrl) ?>" 
                    target="_blank" class="btn btn-sm btn-success me-1" rel="noopener">
                     <i class="fab fa-whatsapp"></i>
                 </a>
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= urlencode($shareUrl) ?>" 
+                   target="_blank" class="btn btn-sm btn-secondary me-1" rel="noopener">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <button onclick="navigator.clipboard.writeText('<?= $shareUrl ?>'); alert('Link copiat!');" 
+                        class="btn btn-sm btn-outline-dark" title="Copiază link">
+                    <i class="fas fa-link"></i>
+                </button>
             </div>
 
             <hr>
@@ -255,7 +264,7 @@ include(__DIR__ . '/includes/header.php');
                 <ul class="list-group list-group-flush">
                     <?php foreach ($relatedPosts as $related): ?>
                     <li class="list-group-item">
-                        <a href="/post.php?slug=<?= htmlspecialchars($related['slug']) ?>" class="text-decoration-none">
+                        <a href="<?= SEOManager::getArticleUrl($related['slug']) ?>" class="text-decoration-none">
                             <div class="d-flex align-items-center">
                                 <?php if (!empty($related['cover_image'])): ?>
                                 <img src="<?= htmlspecialchars($related['cover_image']) ?>" 
@@ -282,7 +291,7 @@ include(__DIR__ . '/includes/header.php');
                 <ul class="list-group list-group-flush">
                     <?php foreach ($categories as $catSlug => $cat): ?>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <a href="/category.php?cat=<?= htmlspecialchars($catSlug) ?>" class="text-decoration-none">
+                        <a href="<?= SEOManager::getCategoryUrl($catSlug) ?>" class="text-decoration-none">
                             <i class="<?= $cat['icon'] ?> me-2" style="color: <?= $cat['color'] ?>"></i>
                             <?= htmlspecialchars($cat['name']) ?>
                         </a>

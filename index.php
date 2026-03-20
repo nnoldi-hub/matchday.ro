@@ -11,9 +11,9 @@ require_once(__DIR__ . '/includes/AdWidget.php');
 Stats::trackView(null, 'homepage');
 
 // SEO Configuration for homepage
-$pageTitle = SITE_NAME . ' - Jurnalul meciurilor și transferurilor';
-$pageDescription = 'Citește ultimele știri din fotbalul românesc, analize ale meciurilor și transferurilor pe MatchDay.ro. Fiecare meci are o poveste - noi o scriem!';
-$pageKeywords = ['fotbal', 'romania', 'sport', 'meciuri', 'transferuri', 'echipa nationala', 'liga 1', 'champions league', 'europa league'];
+$pageTitle = 'Jurnalul meciurilor și transferurilor | Știri fotbal România';
+$pageDescription = 'Jurnalul meciurilor și transferurilor din fotbalul românesc. Analize, știri, comentarii despre Liga 1, Champions League și echipa națională. Fiecare meci are o poveste - noi o scriem!';
+$pageKeywords = ['jurnalul meciurilor', 'transferuri fotbal', 'fotbal romania', 'liga 1', 'champions league', 'echipa nationala', 'stiri fotbal', 'analize meciuri'];
 $pageType = 'website';
 
 // Breadcrumbs for homepage
@@ -43,7 +43,7 @@ if ($cachedResult === null) {
   // Format items for template compatibility
   foreach ($itemsPage as &$item) {
     $item['date'] = $item['published_at'] ?? $item['created_at'];
-    $item['file'] = 'post.php?slug=' . $item['slug'];
+    $item['file'] = SEOManager::getArticleUrl($item['slug']);
     $item['tags'] = !empty($item['tags']) ? explode(',', $item['tags']) : [];
   }
   unset($item);
@@ -221,7 +221,7 @@ if (isset($_GET['created'])) {
         foreach ($categories as $key => $category): 
         ?>
         <div class="col-6 col-md-4 col-lg-2">
-          <a href="/category.php?cat=<?= urlencode($key) ?>" class="text-decoration-none">
+          <a href="<?= SEOManager::getCategoryUrl($key) ?>" class="text-decoration-none">
             <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.2s ease">
               <div class="card-body text-center p-3" onmouseover="this.parentElement.style.transform='translateY(-2px)'" onmouseout="this.parentElement.style.transform='translateY(0)'">
                 <div class="d-flex align-items-center justify-content-center mb-2" 

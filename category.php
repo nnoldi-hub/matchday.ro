@@ -44,7 +44,7 @@ if (empty($categorySlug) || !$currentCategory) {
 }
 
 // SEO Configuration for category page
-$pageTitle = $currentCategory['name'] . ' - Articole ' . SITE_NAME;
+$pageTitle = $currentCategory['name'] . ' | Articole și știri fotbal';
 $pageDescription = 'Citește toate articolele din categoria ' . $currentCategory['name'] . ' pe ' . SITE_NAME . '. ' . ($currentCategory['description'] ?? 'Știri și analize din fotbalul românesc.');
 
 // Generate keywords based on category
@@ -89,7 +89,7 @@ $total = Post::countPublished($categorySlug, null);
 // Format posts for template
 foreach ($posts as &$post) {
     $post['date'] = $post['published_at'] ?? $post['created_at'];
-    $post['file'] = 'post.php?slug=' . $post['slug'];
+    $post['file'] = SEOManager::getArticleUrl($post['slug']);
     $post['tags'] = !empty($post['tags']) ? explode(',', $post['tags']) : [];
     $post['cover'] = $post['cover_image'] ?? '';
 }

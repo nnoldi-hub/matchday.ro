@@ -328,4 +328,53 @@ class SEOManager {
     public function render() {
         return $this->generateMetaTags() . $this->generateStructuredData();
     }
+    
+    // ==========================
+    // SEO URL HELPERS
+    // ==========================
+    
+    /**
+     * Generate clean URL for an article
+     * @param string $slug Article slug
+     * @return string Clean URL path
+     */
+    public static function getArticleUrl($slug) {
+        return '/articol/' . $slug;
+    }
+    
+    /**
+     * Generate clean URL for a category
+     * @param string $slug Category slug
+     * @return string Clean URL path
+     */
+    public static function getCategoryUrl($slug) {
+        return '/categorie/' . $slug;
+    }
+    
+    /**
+     * Generate clean URL for search
+     * @param string $query Search query
+     * @return string Clean URL path
+     */
+    public static function getSearchUrl($query) {
+        return '/cauta/' . urlencode($query);
+    }
+    
+    /**
+     * Get full canonical URL for an article
+     * @param string $slug Article slug
+     * @return string Full canonical URL
+     */
+    public static function getArticleCanonicalUrl($slug) {
+        return rtrim(SITE_URL, '/') . self::getArticleUrl($slug);
+    }
+    
+    /**
+     * Get full canonical URL for a category
+     * @param string $slug Category slug
+     * @return string Full canonical URL
+     */
+    public static function getCategoryCanonicalUrl($slug) {
+        return rtrim(SITE_URL, '/') . self::getCategoryUrl($slug);
+    }
 }
