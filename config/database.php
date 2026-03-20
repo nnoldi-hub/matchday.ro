@@ -230,10 +230,52 @@ class Database {
                     $db->exec($stmt);
                 }
             }
+            
+            // Auto-sync categories from config
+            self::syncCategoriesFromConfig($db);
+            
             return true;
         } catch (PDOException $e) {
             error_log("MySQL Schema initialization failed: " . $e->getMessage());
             return false;
+        }
+    }
+    
+    /**
+     * Sync categories from config file to database
+     */
+    private static function syncCategoriesFromConfig(PDO $db): void {
+        $configFile = __DIR__ . '/categories.php';
+        if (!file_exists($configFile)) return;
+        
+        $categories = include $configFile;
+        $order = 0;
+        
+        foreach ($categories as $slug => $data) {
+            try {
+                // Check if exists
+                $stmt = $db->prepare("SELECT id FROM categories WHERE slug = ?");
+                $stmt->execute([$slug]);
+                
+                if (!$stmt->fetch()) {
+                    // Insert new category
+                    $insert = $db->prepare("
+                        INSERT INTO categories (slug, name, description, color, icon, sort_order) 
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    ");
+                    $insert->execute([
+                        $slug,
+                        $data['name'],
+                        $data['description'] ?? '',
+                        $data['color'] ?? '#007bff',
+                        $data['icon'] ?? 'fas fa-folder',
+                        $order
+                    ]);
+                }
+            } catch (PDOException $e) {
+                // Skip errors, category might already exist
+            }
+            $order++;
         }
     }
     
@@ -370,6 +412,10 @@ class Database {
         
         try {
             $db->exec($schema);
+            
+            // Auto-sync categories from config
+            self::syncCategoriesFromConfig($db);
+            
             return true;
         } catch (PDOException $e) {
             error_log("SQLite Schema initialization failed: " . $e->getMessage());
