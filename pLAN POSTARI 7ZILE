@@ -1,0 +1,84 @@
+🟦 3. PLAN DE POSTĂRI PENTRU URMĂTOARELE 7 ZILE
+Acesta este un plan de creștere rapidă, adaptat pentru Facebook + Instagram.
+
+📅 Ziua 1
+Postare 1: „Clasament Liga 1 – actualizat azi”
+
+Postare 2: Meme fotbal
+
+Story: sondaj „Cine câștigă etapa?”
+
+📅 Ziua 2
+Postare 1: „Top marcatori UCL după meciurile de aseară”
+
+Postare 2: Rezultat meci important
+
+Story: 3 scoruri + sticker întrebări
+
+📅 Ziua 3
+Postare 1: „Program Champions League – meciurile următoare”
+
+Postare 2: Meme
+
+Story: „Cine câștigă UCL?”
+
+📅 Ziua 4
+Postare 1: „Transferuri confirmate azi”
+
+Postare 2: Rezultat meci
+
+Story: 3 întrebări rapide
+
+📅 Ziua 5
+Postare 1: „Top 10 jucători U21 din lume”
+
+Postare 2: Meme
+
+Story: sondaj
+
+📅 Ziua 6
+Postare 1: „Istoria clubului Real Madrid – versiunea scurtă”
+
+Postare 2: Rezultat meci
+
+Story: 3 scoruri
+
+📅 Ziua 7
+Postare 1: „Clasament UCL – actualizat”
+
+Postare 2: Meme
+
+Story: Q&A cu urmăritorii
+
+🟦 4. PLAN DE AUTOMATIZĂRI (trafic zilnic fără efort)
+🔹 Automatizare 1: Clasamente actualizate automat
+Liga 1
+
+Champions League
+
+Europa League
+
+Actualizare zilnică prin cron job.
+
+🔹 Automatizare 2: Rezultate meciuri
+import API
+
+generare articol scurt automat:
+„X a învins pe Y cu scorul Z.”
+
+🔹 Automatizare 3: Scoruri live
+widget integrat
+
+trafic masiv în zilele de meci
+
+🔹 Automatizare 4: Notificări push
+Ex:
+
+„Barcelona câștigă cu 3–1!”
+
+„Clasamentul UCL a fost actualizat!”
+
+🔹 Automatizare 5: Postări programate pe Facebook
+2 pe zi
+
+14 programate în avans
