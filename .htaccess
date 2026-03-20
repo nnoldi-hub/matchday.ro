@@ -90,10 +90,10 @@ DirectoryIndex index.php
     RewriteRule ^articol/([a-z0-9\-]+)/?$ /posts/2025-09-01-$1.html [L]
     
     # Category URLs - SEO friendly
-    RewriteRule ^categorie/([a-z]+)/?$ /category.php?cat=$1 [L,QSA]
+    RewriteRule ^categorie/([a-z0-9\-]+)/?$ /category.php?cat=$1 [L,QSA]
     
     # Redirect old category.php URLs to friendly format
-    RewriteCond %{THE_REQUEST} \s/category\.php\?cat=([a-z]+) [NC]
+    RewriteCond %{THE_REQUEST} \s/category\.php\?cat=([a-z0-9\-]+) [NC]
     RewriteRule ^ /categorie/%1? [R=301,L]
     
     # XML Sitemap

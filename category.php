@@ -2,13 +2,25 @@
 require_once(__DIR__ . '/config/config.php');
 require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Post.php');
+require_once(__DIR__ . '/includes/Category.php');
 
 // Get category from URL
 $categorySlug = $_GET['cat'] ?? '';
-$categories = require(__DIR__ . '/config/categories.php');
+
+// Try to get category from database first
+$currentCategory = Category::getBySlug($categorySlug);
+
+// If not in database, try config file (backwards compatibility)
+if (!$currentCategory) {
+    $configCategories = require(__DIR__ . '/config/categories.php');
+    if (isset($configCategories[$categorySlug])) {
+        $currentCategory = $configCategories[$categorySlug];
+        $currentCategory['slug'] = $categorySlug;
+    }
+}
 
 // Validate category
-if (empty($categorySlug) || !isset($categories[$categorySlug])) {
+if (empty($categorySlug) || !$currentCategory) {
     http_response_code(404);
     
     // SEO for 404
@@ -20,12 +32,10 @@ if (empty($categorySlug) || !isset($categories[$categorySlug])) {
   ];
     
     include(__DIR__ . '/includes/header.php');
-  echo '<div class="container my-5"><h1>Categoria nu a fost găsită</h1><a href="/index.php">Înapoi la jurnal</a></div>';
+  echo '<div class="container my-5"><h1>Categoria nu a fost găsită</h1><p>Categoria "' . htmlspecialchars($categorySlug) . '" nu există.</p><a href="/index.php">Înapoi la jurnal</a></div>';
     include(__DIR__ . '/includes/footer.php');
     exit;
 }
-
-$currentCategory = $categories[$categorySlug];
 
 // SEO Configuration for category page
 $pageTitle = $currentCategory['name'] . ' - Articole ' . SITE_NAME;
