@@ -149,7 +149,7 @@ class SEOManager {
         $output .= '    <meta name="twitter:description" content="' . htmlspecialchars($this->description) . '">' . PHP_EOL;
         $output .= '    <meta name="twitter:image" content="' . htmlspecialchars($this->ogImage) . '">' . PHP_EOL;
         $output .= '    <meta name="twitter:site" content="@MatchDayRo">' . PHP_EOL;
-        $output .= '    <meta name="twitter:creator" content="@DavidCocioaba">' . PHP_EOL;
+        $output .= '    <meta name="twitter:creator" content="@DavidNyikora">' . PHP_EOL;
         
         // Additional SEO tags
         $output .= '    <meta name="robots" content="index, follow, max-image-preview:large">' . PHP_EOL;

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once(__DIR__ . '/../config/config.php');
 
@@ -8,12 +8,12 @@ if (!isset($_SESSION['david_logged']) || !$_SESSION['david_logged']) {
     exit;
 }
 
-// Funcție pentru citirea planului editorial
+// FuncÈ›ie pentru citirea planului editorial
 function getEditorialPlan() {
     $planFile = __DIR__ . '/../data/editorial-plan.json';
     
     if (!file_exists($planFile)) {
-        // Creează planul inițial dacă nu există
+        // CreeazÄƒ planul iniÈ›ial dacÄƒ nu existÄƒ
         $initialPlan = generateInitialPlan();
         file_put_contents($planFile, json_encode($initialPlan, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         return $initialPlan;
@@ -23,40 +23,40 @@ function getEditorialPlan() {
     return json_decode($content, true) ?: [];
 }
 
-// Funcție pentru salvarea planului editorial
+// FuncÈ›ie pentru salvarea planului editorial
 function saveEditorialPlan($plan) {
     $planFile = __DIR__ . '/../data/editorial-plan.json';
     return file_put_contents($planFile, json_encode($plan, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 }
 
-// Generează planul inițial
+// GenereazÄƒ planul iniÈ›ial
 function generateInitialPlan() {
     $plan = [];
     $startDate = new DateTime('2025-09-01');
     
-    for ($i = 0; $i < 28; $i++) { // 4 săptămâni
+    for ($i = 0; $i < 28; $i++) { // 4 sÄƒptÄƒmÃ¢ni
         $currentDate = clone $startDate;
         $currentDate->add(new DateInterval('P' . $i . 'D'));
         
         $dayName = $currentDate->format('l');
         $dayNameRo = [
             'Monday' => 'Luni',
-            'Tuesday' => 'Marți', 
+            'Tuesday' => 'MarÈ›i', 
             'Wednesday' => 'Miercuri',
             'Thursday' => 'Joi',
             'Friday' => 'Vineri',
-            'Saturday' => 'Sâmbătă',
-            'Sunday' => 'Duminică'
+            'Saturday' => 'SÃ¢mbÄƒtÄƒ',
+            'Sunday' => 'DuminicÄƒ'
         ][$dayName];
         
         $contentTypes = [
-            'Luni' => 'Rezumatul săptămânii',
-            'Marți' => 'Analize tactice',
+            'Luni' => 'Rezumatul sÄƒptÄƒmÃ¢nii',
+            'MarÈ›i' => 'Analize tactice',
             'Miercuri' => 'Interviuri & Reportaje',
-            'Joi' => 'Știri & Transferuri',
+            'Joi' => 'È˜tiri & Transferuri',
             'Vineri' => 'Avanpremiere weekend',
-            'Sâmbătă' => 'Live Updates & Cronici',
-            'Duminică' => 'Cronici & Reacții'
+            'SÃ¢mbÄƒtÄƒ' => 'Live Updates & Cronici',
+            'DuminicÄƒ' => 'Cronici & ReacÈ›ii'
         ];
         
         $plan[] = [
@@ -68,7 +68,7 @@ function generateInitialPlan() {
             'description' => '',
             'status' => 'planned', // planned, in_progress, review, published
             'priority' => 'normal', // high, normal, low
-            'author' => 'David Cocioabă',
+            'author' => 'David CocioabÄƒ',
             'category' => '',
             'tags' => [],
             'notes' => '',
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             
-            echo json_encode(['success' => false, 'error' => 'Articolul nu a fost găsit']);
+            echo json_encode(['success' => false, 'error' => 'Articolul nu a fost gÄƒsit']);
             exit;
             
         case 'save_article':
@@ -228,7 +228,7 @@ require_once(__DIR__ . '/admin-header.php');
             <div class="stat-icon info"><i class="fas fa-spinner"></i></div>
             <div class="stat-content">
                 <h3 id="stat-in_progress">-</h3>
-                <p>În progres</p>
+                <p>ÃŽn progres</p>
             </div>
         </div>
     </div>
@@ -246,12 +246,12 @@ require_once(__DIR__ . '/admin-header.php');
 <!-- Editorial Plan Table -->
 <div class="admin-card">
     <div class="admin-card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h2><i class="fas fa-list me-2"></i>Planul Editorial - Următoarele 4 săptămâni</h2>
+        <h2><i class="fas fa-list me-2"></i>Planul Editorial - UrmÄƒtoarele 4 sÄƒptÄƒmÃ¢ni</h2>
         <div class="d-flex gap-2 mt-2 mt-md-0">
             <select class="form-select form-select-sm" id="filterStatus" onchange="filterTable()">
                 <option value="">Toate statusurile</option>
                 <option value="planned">Planificat</option>
-                <option value="in_progress">În progres</option>
+                <option value="in_progress">ÃŽn progres</option>
                 <option value="review">Review</option>
                 <option value="published">Publicat</option>
             </select>
@@ -263,12 +263,12 @@ require_once(__DIR__ . '/admin-header.php');
                 <tr>
                     <th style="width: 100px;">Data</th>
                                     <th style="width: 80px;">Zi</th>
-                                    <th style="width: 150px;">Tip conținut</th>
+                                    <th style="width: 150px;">Tip conÈ›inut</th>
                                     <th>Titlu articol</th>
                                     <th style="width: 100px;">Status</th>
                                     <th style="width: 80px;">Prioritate</th>
                                     <th style="width: 120px;">Categorie</th>
-                                    <th style="width: 100px;">Acțiuni</th>
+                                    <th style="width: 100px;">AcÈ›iuni</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -285,7 +285,7 @@ require_once(__DIR__ . '/admin-header.php');
                                     </td>
                                     <td>
                                         <div class="editable" data-field="title" data-article="<?= $article['id'] ?>">
-                                            <?= !empty($article['title']) ? htmlspecialchars($article['title']) : '<em class="text-muted">Click pentru a adăuga titlu...</em>' ?>
+                                            <?= !empty($article['title']) ? htmlspecialchars($article['title']) : '<em class="text-muted">Click pentru a adÄƒuga titlu...</em>' ?>
                                         </div>
                                         <?php if (!empty($article['description'])): ?>
                                         <small class="text-muted d-block mt-1 editable" data-field="description" data-article="<?= $article['id'] ?>">
@@ -300,16 +300,16 @@ require_once(__DIR__ . '/admin-header.php');
                                     <td>
                                         <select class="form-select form-select-sm status-select" data-field="status" data-article="<?= $article['id'] ?>">
                                             <option value="planned" <?= $article['status'] === 'planned' ? 'selected' : '' ?>>Planificat</option>
-                                            <option value="in_progress" <?= $article['status'] === 'in_progress' ? 'selected' : '' ?>>În progres</option>
+                                            <option value="in_progress" <?= $article['status'] === 'in_progress' ? 'selected' : '' ?>>ÃŽn progres</option>
                                             <option value="review" <?= $article['status'] === 'review' ? 'selected' : '' ?>>Review</option>
                                             <option value="published" <?= $article['status'] === 'published' ? 'selected' : '' ?>>Publicat</option>
                                         </select>
                                     </td>
                                     <td>
                                         <select class="form-select form-select-sm priority-select" data-field="priority" data-article="<?= $article['id'] ?>">
-                                            <option value="low" <?= $article['priority'] === 'low' ? 'selected' : '' ?>>Scăzută</option>
-                                            <option value="normal" <?= $article['priority'] === 'normal' ? 'selected' : '' ?>>Normală</option>
-                                            <option value="high" <?= $article['priority'] === 'high' ? 'selected' : '' ?>>Înaltă</option>
+                                            <option value="low" <?= $article['priority'] === 'low' ? 'selected' : '' ?>>ScÄƒzutÄƒ</option>
+                                            <option value="normal" <?= $article['priority'] === 'normal' ? 'selected' : '' ?>>NormalÄƒ</option>
+                                            <option value="high" <?= $article['priority'] === 'high' ? 'selected' : '' ?>>ÃŽnaltÄƒ</option>
                                         </select>
                                     </td>
                                     <td>
@@ -319,7 +319,7 @@ require_once(__DIR__ . '/admin-header.php');
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary btn-sm" onclick="editArticle('<?= $article['id'] ?>')" title="Editează">
+                                            <button class="btn btn-outline-primary btn-sm" onclick="editArticle('<?= $article['id'] ?>')" title="EditeazÄƒ">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button class="btn btn-outline-info btn-sm" onclick="viewDetails('<?= $article['id'] ?>')" title="Detalii">
@@ -341,7 +341,7 @@ require_once(__DIR__ . '/admin-header.php');
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="fas fa-edit me-2"></i>
-                    Editează articol
+                    EditeazÄƒ articol
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -366,7 +366,7 @@ require_once(__DIR__ . '/admin-header.php');
                                 </label>
                                 <select class="form-select" id="editStatus">
                                     <option value="planned">Planificat</option>
-                                    <option value="in_progress">În progres</option>
+                                    <option value="in_progress">ÃŽn progres</option>
                                     <option value="review">Review</option>
                                     <option value="published">Publicat</option>
                                 </select>
@@ -379,7 +379,7 @@ require_once(__DIR__ . '/admin-header.php');
                             <i class="fas fa-align-left me-1"></i>Descriere
                         </label>
                         <textarea class="form-control" id="editDescription" rows="4" 
-                                  placeholder="Descrie pe scurt conținutul articolului..."></textarea>
+                                  placeholder="Descrie pe scurt conÈ›inutul articolului..."></textarea>
                     </div>
                     
                     <div class="row">
@@ -389,14 +389,14 @@ require_once(__DIR__ . '/admin-header.php');
                                     <i class="fas fa-folder me-1"></i>Categorie
                                 </label>
                                 <select class="form-select" id="editCategory">
-                                    <option value="">Selectează categoria</option>
+                                    <option value="">SelecteazÄƒ categoria</option>
                                     <option value="opinii">Opinii</option>
                                     <option value="analize">Analize</option>
                                     <option value="interviuri">Interviuri</option>
                                     <option value="reportaje">Reportaje</option>
                                     <option value="transfer">Transfer</option>
-                                    <option value="nacional">Fotbal Național</option>
-                                    <option value="international">Fotbal Internațional</option>
+                                    <option value="nacional">Fotbal NaÈ›ional</option>
+                                    <option value="international">Fotbal InternaÈ›ional</option>
                                 </select>
                             </div>
                         </div>
@@ -406,9 +406,9 @@ require_once(__DIR__ . '/admin-header.php');
                                     <i class="fas fa-exclamation-circle me-1"></i>Prioritate
                                 </label>
                                 <select class="form-select" id="editPriority">
-                                    <option value="low">Scăzută</option>
-                                    <option value="normal">Normală</option>
-                                    <option value="high">Înaltă</option>
+                                    <option value="low">ScÄƒzutÄƒ</option>
+                                    <option value="normal">NormalÄƒ</option>
+                                    <option value="high">ÃŽnaltÄƒ</option>
                                 </select>
                             </div>
                         </div>
@@ -418,7 +418,7 @@ require_once(__DIR__ . '/admin-header.php');
                                     <i class="fas fa-user me-1"></i>Autor
                                 </label>
                                 <input type="text" class="form-control" id="editAuthor" 
-                                       value="David Cocioabă" readonly>
+                                       value="David CocioabÄƒ" readonly>
                             </div>
                         </div>
                     </div>
@@ -426,7 +426,7 @@ require_once(__DIR__ . '/admin-header.php');
                     <div class="mb-3">
                         <label class="form-label fw-medium">
                             <i class="fas fa-tags me-1"></i>Tags
-                            <small class="text-muted">(separate prin virgulă)</small>
+                            <small class="text-muted">(separate prin virgulÄƒ)</small>
                         </label>
                         <input type="text" class="form-control" id="editTags" 
                                placeholder="ex: analiza, transferuri, liga 1">
@@ -437,7 +437,7 @@ require_once(__DIR__ . '/admin-header.php');
                             <i class="fas fa-sticky-note me-1"></i>Note personale
                         </label>
                         <textarea class="form-control" id="editNotes" rows="3" 
-                                  placeholder="Adaugă note pentru tine sau echipă..."></textarea>
+                                  placeholder="AdaugÄƒ note pentru tine sau echipÄƒ..."></textarea>
                     </div>
                     
                     <!-- Info display -->
@@ -445,13 +445,13 @@ require_once(__DIR__ . '/admin-header.php');
                         <div class="col-md-6">
                             <small class="text-muted">
                                 <i class="fas fa-calendar me-1"></i>
-                                Data publicării: <span id="editDateDisplay"></span>
+                                Data publicÄƒrii: <span id="editDateDisplay"></span>
                             </small>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">
                                 <i class="fas fa-clock me-1"></i>
-                                Tip conținut: <span id="editContentType"></span>
+                                Tip conÈ›inut: <span id="editContentType"></span>
                             </small>
                         </div>
                     </div>
@@ -459,10 +459,10 @@ require_once(__DIR__ . '/admin-header.php');
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Anulează
+                    <i class="fas fa-times me-1"></i>AnuleazÄƒ
                 </button>
                 <button type="button" class="btn btn-primary" onclick="saveArticle()">
-                    <i class="fas fa-save me-1"></i>Salvează modificările
+                    <i class="fas fa-save me-1"></i>SalveazÄƒ modificÄƒrile
                 </button>
             </div>
         </div>
@@ -504,7 +504,7 @@ require_once(__DIR__ . '/admin-header.php');
                                 <td id="detailDay"></td>
                             </tr>
                             <tr>
-                                <td class="fw-medium"><i class="fas fa-file-alt me-1"></i>Tip conținut:</td>
+                                <td class="fw-medium"><i class="fas fa-file-alt me-1"></i>Tip conÈ›inut:</td>
                                 <td id="detailContentTypeValue"></td>
                             </tr>
                             <tr>
@@ -544,10 +544,10 @@ require_once(__DIR__ . '/admin-header.php');
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Închide
+                    <i class="fas fa-times me-1"></i>ÃŽnchide
                 </button>
                 <button type="button" class="btn btn-primary" onclick="openEditFromDetails()">
-                    <i class="fas fa-edit me-1"></i>Editează
+                    <i class="fas fa-edit me-1"></i>EditeazÄƒ
                 </button>
             </div>
         </div>
@@ -674,7 +674,7 @@ function editArticle(articleId) {
             document.getElementById('editCategory').value = article.category || '';
             document.getElementById('editStatus').value = article.status || 'planned';
             document.getElementById('editPriority').value = article.priority || 'normal';
-            document.getElementById('editAuthor').value = article.author || 'David Cocioabă';
+            document.getElementById('editAuthor').value = article.author || 'David CocioabÄƒ';
             document.getElementById('editTags').value = Array.isArray(article.tags) ? article.tags.join(', ') : '';
             document.getElementById('editNotes').value = article.notes || '';
             
@@ -686,12 +686,12 @@ function editArticle(articleId) {
             const modal = new bootstrap.Modal(document.getElementById('editModal'));
             modal.show();
         } else {
-            alert('Eroare la încărcarea articolului: ' + result.error);
+            alert('Eroare la Ã®ncÄƒrcarea articolului: ' + result.error);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Eroare la încărcarea datelor');
+        alert('Eroare la Ã®ncÄƒrcarea datelor');
     });
 }
 
@@ -708,8 +708,8 @@ function viewDetails(articleId) {
             const article = result.article;
             
             // Populate details modal
-            document.getElementById('detailTitle').textContent = article.title || 'Fără titlu';
-            document.getElementById('detailDescription').textContent = article.description || 'Fără descriere';
+            document.getElementById('detailTitle').textContent = article.title || 'FÄƒrÄƒ titlu';
+            document.getElementById('detailDescription').textContent = article.description || 'FÄƒrÄƒ descriere';
             
             // Status badge
             const statusBadge = document.getElementById('detailStatus');
@@ -721,7 +721,7 @@ function viewDetails(articleId) {
             };
             const statusTexts = {
                 'planned': 'Planificat',
-                'in_progress': 'În progres',
+                'in_progress': 'ÃŽn progres',
                 'review': 'Review',
                 'published': 'Publicat'
             };
@@ -730,9 +730,9 @@ function viewDetails(articleId) {
             
             // Priority
             const priorityTexts = {
-                'low': 'Prioritate scăzută',
-                'normal': 'Prioritate normală',
-                'high': 'Prioritate înaltă'
+                'low': 'Prioritate scÄƒzutÄƒ',
+                'normal': 'Prioritate normalÄƒ',
+                'high': 'Prioritate Ã®naltÄƒ'
             };
             document.getElementById('detailPriority').textContent = priorityTexts[article.priority] || 'Normal';
             
@@ -741,14 +741,14 @@ function viewDetails(articleId) {
             document.getElementById('detailDay').textContent = article.day_name || '';
             document.getElementById('detailContentTypeValue').textContent = article.content_type || '';
             document.getElementById('detailCategoryValue').textContent = article.category || 'Necategorizat';
-            document.getElementById('detailAuthorValue').textContent = article.author || 'David Cocioabă';
+            document.getElementById('detailAuthorValue').textContent = article.author || 'David CocioabÄƒ';
             document.getElementById('detailCreated').textContent = formatDateTime(article.created_at);
             document.getElementById('detailUpdated').textContent = formatDateTime(article.updated_at);
             
             // Tags
             const tagsText = Array.isArray(article.tags) && article.tags.length > 0 
                 ? article.tags.join(', ') 
-                : 'Fără tags';
+                : 'FÄƒrÄƒ tags';
             document.getElementById('detailTagsValue').textContent = tagsText;
             
             // Notes section
@@ -768,12 +768,12 @@ function viewDetails(articleId) {
             const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
             modal.show();
         } else {
-            alert('Eroare la încărcarea detaliilor: ' + result.error);
+            alert('Eroare la Ã®ncÄƒrcarea detaliilor: ' + result.error);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Eroare la încărcarea datelor');
+        alert('Eroare la Ã®ncÄƒrcarea datelor');
     });
 }
 
@@ -866,8 +866,9 @@ function formatDateTime(dateTimeString) {
 // Export plan (placeholder)
 function exportPlan() {
     // TODO: Generate CSV or PDF export
-    alert('Funcționalitatea de export va fi implementată în curând.');
+    alert('FuncÈ›ionalitatea de export va fi implementatÄƒ Ã®n curÃ¢nd.');
 }
 </script>
 
 <?php require_once(__DIR__ . '/admin-footer.php'); ?>
+
