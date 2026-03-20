@@ -1,5 +1,7 @@
 <?php 
 require_once(__DIR__ . '/config/config.php');
+require_once(__DIR__ . '/config/database.php');
+require_once(__DIR__ . '/includes/Category.php');
 
 // SEO Configuration for 404 page
 $pageTitle = 'Pagină negăsită - MatchDay.ro';
@@ -72,22 +74,29 @@ include(__DIR__ . '/includes/header.php');
         <div class="card-body">
           <div class="row g-2">
             <?php 
-            $categories = [
-                'opinii' => ['name' => 'Opinii', 'icon' => 'fas fa-comments', 'color' => 'warning'],
-                'analize' => ['name' => 'Analize', 'icon' => 'fas fa-chart-line', 'color' => 'info'],
-                'interviuri' => ['name' => 'Interviuri', 'icon' => 'fas fa-microphone', 'color' => 'success'],
-                'reportaje' => ['name' => 'Reportaje', 'icon' => 'fas fa-camera', 'color' => 'danger'],
-                'transfer' => ['name' => 'Transfer', 'icon' => 'fas fa-exchange-alt', 'color' => 'primary'],
-                'nacional' => ['name' => 'Fotbal Național', 'icon' => 'fas fa-flag', 'color' => 'warning']
-            ];
+            // Get categories from database
+            $categories = Category::getAll();
+            if (empty($categories)) {
+                // Fallback to config if DB is empty
+                $configCats = require(__DIR__ . '/config/categories.php');
+                $categories = [];
+                foreach ($configCats as $slug => $info) {
+                    $categories[] = array_merge($info, ['slug' => $slug]);
+                }
+            }
             
-            foreach ($categories as $slug => $info): 
+            foreach (array_slice($categories, 0, 6) as $cat): 
+                $colorClass = 'primary';
+                if (strpos($cat['color'] ?? '', '#dc') === 0) $colorClass = 'danger';
+                elseif (strpos($cat['color'] ?? '', '#28') === 0) $colorClass = 'success';
+                elseif (strpos($cat['color'] ?? '', '#fd') === 0 || strpos($cat['color'] ?? '', '#ffc') === 0) $colorClass = 'warning';
+                elseif (strpos($cat['color'] ?? '', '#20') === 0 || strpos($cat['color'] ?? '', '#17') === 0) $colorClass = 'info';
             ?>
             <div class="col-md-4 col-sm-6">
-              <a href="/category.php?cat=<?= $slug ?>" 
-                 class="btn btn-outline-<?= $info['color'] ?> w-100 d-flex align-items-center">
-                <i class="<?= $info['icon'] ?> me-2"></i>
-                <?= $info['name'] ?>
+              <a href="/category.php?cat=<?= htmlspecialchars($cat['slug']) ?>" 
+                 class="btn btn-outline-<?= $colorClass ?> w-100 d-flex align-items-center">
+                <i class="<?= htmlspecialchars($cat['icon'] ?? 'fas fa-folder') ?> me-2"></i>
+                <?= htmlspecialchars($cat['name']) ?>
               </a>
             </div>
             <?php endforeach; ?>

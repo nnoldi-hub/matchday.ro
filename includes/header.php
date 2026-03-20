@@ -1,5 +1,7 @@
 <?php
 require_once(__DIR__ . '/../config/config.php');
+require_once(__DIR__ . '/../config/database.php');
+require_once(__DIR__ . '/Category.php');
 require_once(__DIR__ . '/seo.php');
 
 $base = (BASE_URL ?: '');
@@ -83,11 +85,18 @@ if (isset($articleTags)) $seo->setTags($articleTags);
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Categorii</a>
               <ul class="dropdown-menu">
                 <?php
-                $categories = require(__DIR__ . '/../config/categories.php');
-                foreach ($categories as $key => $category):
+                // Try database first, fallback to config
+                $navCategories = Category::getAll();
+                if (empty($navCategories)) {
+                    $configCats = require(__DIR__ . '/../config/categories.php');
+                    foreach ($configCats as $key => $cat) {
+                        $navCategories[] = array_merge($cat, ['slug' => $key]);
+                    }
+                }
+                foreach ($navCategories as $category):
                 ?>
                 <li>
-                  <a class="dropdown-item d-flex align-items-center" href="/category.php?cat=<?= urlencode($key) ?>">
+                  <a class="dropdown-item d-flex align-items-center" href="/category.php?cat=<?= urlencode($category['slug']) ?>">
                     <i class="<?= $category['icon'] ?> me-2" style="color: <?= $category['color'] ?>"></i>
                     <?= htmlspecialchars($category['name']) ?>
                   </a>
@@ -97,14 +106,14 @@ if (isset($articleTags)) $seo->setTags($articleTags);
                 <li><a class="dropdown-item" href="/index.php">Toate articolele</a></li>
               </ul>
             </li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo $admin ? '../despre.php' : './despre.php'; ?>">Despre</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo $admin ? '../contact.php' : './contact.php'; ?>">Contact</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo $admin ? '../calendar-editorial.php' : './calendar-editorial.php'; ?>" title="Calendar Editorial"><i class="fas fa-calendar-alt me-1"></i>Program</a></li>
-            <li class="nav-item"><a class="nav-link" href="<?php echo $admin ? '../rss.php' : './rss.php'; ?>" target="_blank" title="RSS Feed"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="/despre.php">Despre</a></li>
+            <li class="nav-item"><a class="nav-link" href="/contact.php">Contact</a></li>
+            <li class="nav-item"><a class="nav-link" href="/calendar-editorial.php" title="Calendar Editorial"><i class="fas fa-calendar-alt me-1"></i>Program</a></li>
+            <li class="nav-item"><a class="nav-link" href="/rss.php" target="_blank" title="RSS Feed"><i class="fas fa-rss"></i></a></li>
             <?php if (isset($_SESSION['david_logged']) && $_SESSION['david_logged']): ?>
-              <li class="nav-item"><a class="nav-link" href="<?php echo $admin ? 'dashboard.php' : './admin/dashboard.php'; ?>">Dashboard</a></li>
+              <li class="nav-item"><a class="nav-link" href="/admin/dashboard.php">Dashboard</a></li>
             <?php else: ?>
-              <li class="nav-item"><a class="nav-link" href="<?php echo $admin ? 'login.php' : './admin/login.php'; ?>">Scrie un articol</a></li>
+              <li class="nav-item"><a class="nav-link" href="/admin/login.php">Scrie un articol</a></li>
             <?php endif; ?>
           </ul>
         </div>
