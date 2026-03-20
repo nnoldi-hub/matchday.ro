@@ -152,6 +152,15 @@ include(__DIR__ . '/includes/header.php');
             <div class="article-content mb-4">
                 <?= $post['content'] ?>
             </div>
+            
+            <!-- In-Content Ad (300x250) -->
+            <?php 
+            $contentAd = AdWidget::articleContent();
+            if ($contentAd): ?>
+            <div class="mb-4">
+                <?= $contentAd ?>
+            </div>
+            <?php endif; ?>
 
             <!-- Tags -->
             <?php if (!empty($tags)): ?>
