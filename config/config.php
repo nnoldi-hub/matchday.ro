@@ -7,6 +7,23 @@ define('SITE_URL', BASE_URL); // Alias for compatibility
 date_default_timezone_set('Europe/Bucharest');
 define('CONTACT_TO_EMAIL', 'contact@matchday.ro'); // OBLIGATORIU: Schimbă cu email-ul tău real
 
+// Email/SMTP Configuration
+define('SMTP_ENABLED', true);
+define('SMTP_HOST', 'mail.matchday.ro');
+define('SMTP_PORT', 465);
+define('SMTP_SECURE', 'ssl'); // 'ssl' for port 465, 'tls' for port 587
+define('SMTP_USERNAME', 'newsletter@matchday.ro');
+define('SMTP_FROM_EMAIL', 'newsletter@matchday.ro');
+define('SMTP_FROM_NAME', 'MatchDay.ro');
+define('SMTP_REPLY_TO', 'contact@matchday.ro');
+
+// Load SMTP password from separate file (not in git)
+if (file_exists(__DIR__ . '/email_secret.php')) {
+    require_once(__DIR__ . '/email_secret.php');
+} else {
+    define('SMTP_PASSWORD', ''); // Set in config/email_secret.php on server
+}
+
 // Security configuration
 define('ADMIN_PASSWORD_HASH', '$argon2id$v=19$m=65536,t=4,p=1$dWhzWHAxcDIzdURHS3ZXYg$UHeFfdLTQBW2YHKywkophXH2stSKrZ2j6q6HH+uPUls');
 define('SESSION_TIMEOUT', 3600); // 1 hour

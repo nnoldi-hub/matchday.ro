@@ -295,18 +295,141 @@ class Newsletter {
     }
     
     /**
-     * Send email via PHP mail() or SMTP
+     * Send email via SMTP or PHP mail()
      */
     private static function sendEmail(string $to, string $subject, string $htmlContent): bool {
+        // Try SMTP first if configured
+        if (defined('SMTP_ENABLED') && SMTP_ENABLED && defined('SMTP_PASSWORD') && SMTP_PASSWORD !== '') {
+            return self::sendViaSMTP($to, $subject, $htmlContent);
+        }
+        
+        // Fallback to PHP mail()
         $headers = [
             'MIME-Version: 1.0',
             'Content-Type: text/html; charset=UTF-8',
-            'From: MatchDay.ro <newsletter@matchday.ro>',
-            'Reply-To: contact@matchday.ro',
+            'From: ' . (defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : 'MatchDay.ro') . ' <' . (defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'newsletter@matchday.ro') . '>',
+            'Reply-To: ' . (defined('SMTP_REPLY_TO') ? SMTP_REPLY_TO : 'contact@matchday.ro'),
             'X-Mailer: PHP/' . phpversion()
         ];
         
         return @mail($to, $subject, $htmlContent, implode("\r\n", $headers));
+    }
+    
+    /**
+     * Send email using SMTP with authentication
+     */
+    private static function sendViaSMTP(string $to, string $subject, string $htmlContent): bool {
+        $host = SMTP_HOST;
+        $port = SMTP_PORT;
+        $secure = SMTP_SECURE ?? 'ssl';
+        $username = SMTP_USERNAME;
+        $password = SMTP_PASSWORD;
+        $fromEmail = SMTP_FROM_EMAIL;
+        $fromName = SMTP_FROM_NAME ?? 'MatchDay.ro';
+        $replyTo = SMTP_REPLY_TO ?? $fromEmail;
+        
+        try {
+            // Connect with SSL/TLS
+            $context = stream_context_create([
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                ]
+            ]);
+            
+            $prefix = ($secure === 'ssl') ? 'ssl://' : '';
+            $socket = @stream_socket_client(
+                $prefix . $host . ':' . $port,
+                $errno, $errstr, 30,
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
+            
+            if (!$socket) {
+                error_log("SMTP Connection failed: $errstr ($errno)");
+                return false;
+            }
+            
+            // Read greeting
+            $response = fgets($socket, 515);
+            if (substr($response, 0, 3) !== '220') {
+                fclose($socket);
+                return false;
+            }
+            
+            // EHLO
+            fwrite($socket, "EHLO " . gethostname() . "\r\n");
+            $response = self::readSMTPResponse($socket);
+            
+            // AUTH LOGIN
+            fwrite($socket, "AUTH LOGIN\r\n");
+            $response = fgets($socket, 515);
+            
+            // Username (base64)
+            fwrite($socket, base64_encode($username) . "\r\n");
+            $response = fgets($socket, 515);
+            
+            // Password (base64)
+            fwrite($socket, base64_encode($password) . "\r\n");
+            $response = fgets($socket, 515);
+            
+            if (substr($response, 0, 3) !== '235') {
+                error_log("SMTP Auth failed: $response");
+                fclose($socket);
+                return false;
+            }
+            
+            // MAIL FROM
+            fwrite($socket, "MAIL FROM:<$fromEmail>\r\n");
+            $response = fgets($socket, 515);
+            
+            // RCPT TO
+            fwrite($socket, "RCPT TO:<$to>\r\n");
+            $response = fgets($socket, 515);
+            
+            // DATA
+            fwrite($socket, "DATA\r\n");
+            $response = fgets($socket, 515);
+            
+            // Headers and body
+            $boundary = md5(time());
+            $message = "From: $fromName <$fromEmail>\r\n";
+            $message .= "To: $to\r\n";
+            $message .= "Reply-To: $replyTo\r\n";
+            $message .= "Subject: =?UTF-8?B?" . base64_encode($subject) . "?=\r\n";
+            $message .= "MIME-Version: 1.0\r\n";
+            $message .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $message .= "Content-Transfer-Encoding: base64\r\n";
+            $message .= "\r\n";
+            $message .= chunk_split(base64_encode($htmlContent));
+            $message .= "\r\n.\r\n";
+            
+            fwrite($socket, $message);
+            $response = fgets($socket, 515);
+            
+            // QUIT
+            fwrite($socket, "QUIT\r\n");
+            fclose($socket);
+            
+            return substr($response, 0, 3) === '250';
+            
+        } catch (Exception $e) {
+            error_log("SMTP Exception: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Read multi-line SMTP response
+     */
+    private static function readSMTPResponse($socket): string {
+        $response = '';
+        while ($line = fgets($socket, 515)) {
+            $response .= $line;
+            if (substr($line, 3, 1) === ' ') break;
+        }
+        return $response;
     }
     
     /**

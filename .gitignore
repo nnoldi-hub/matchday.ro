@@ -1,5 +1,6 @@
 # Configurații locale
 config/config.local.php
+config/email_secret.php
 .env
 
 # Cache și fișiere temporare
