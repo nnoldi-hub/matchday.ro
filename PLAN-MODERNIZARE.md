@@ -91,9 +91,9 @@
 
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
-| 4.1 | **Analytics Dashboard** | 🔄 În progres | Stats model + visitor tracking |
-| 4.2 | Căutare full-text | ⬜ TODO | FTS5 SQLite / MySQL FULLTEXT |
-| 4.3 | Articole similare | ⬜ TODO | Bazat pe tags/categorie |
+| 4.1 | **Analytics Dashboard** | ✅ DONE | Stats model + visitor tracking |
+| 4.2 | **Căutare full-text** | ✅ DONE | FULLTEXT MySQL + relevance scoring |
+| 4.3 | **Articole similare** | ✅ DONE | Algoritm tags + categorie |
 | 4.4 | Newsletter integration | ⬜ TODO | MailerLite/Sendinblue |
 | 4.5 | Social auto-post | ⬜ TODO | Facebook/Twitter API |
 | 4.6 | PWA (Service Worker) | ⬜ TODO | Offline support |

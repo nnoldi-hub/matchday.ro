@@ -54,8 +54,8 @@ $category = isset($post['category_slug']) && isset($categories[$post['category_s
 // Parse tags
 $tags = !empty($post['tags']) ? explode(',', $post['tags']) : [];
 
-// Get related posts
-$relatedPosts = Post::getRelated($post['category_slug'] ?? '', $post['slug'], 3);
+// Get similar/related posts (improved algorithm using tags + category)
+$relatedPosts = Post::getSimilar($post['id'], $post['category_slug'] ?? '', $post['tags'] ?? '', 4);
 
 // Get comments
 $comments = Comment::getByPost($post['slug']);

@@ -350,4 +350,233 @@ class Post {
             ['id' => $id]
         ) > 0;
     }
+    
+    /**
+     * Advanced full-text search with relevance scoring
+     * Uses MySQL FULLTEXT when available, falls back to LIKE
+     */
+    public static function fullTextSearch(string $query, int $page = 1, int $perPage = 10): array {
+        $offset = ($page - 1) * $perPage;
+        $query = trim($query);
+        
+        if (empty($query)) {
+            return ['results' => [], 'total' => 0];
+        }
+        
+        $db = Database::getInstance();
+        
+        // Try to use MySQL FULLTEXT
+        if (Database::isMySQL()) {
+            // Check if FULLTEXT index exists and create if not
+            try {
+                $indexCheck = $db->query("SHOW INDEX FROM posts WHERE Key_name = 'idx_fulltext_search'");
+                if ($indexCheck->rowCount() === 0) {
+                    $db->exec("ALTER TABLE posts ADD FULLTEXT INDEX idx_fulltext_search (title, content, excerpt)");
+                }
+            } catch (PDOException $e) {
+                // Index might already exist or FULLTEXT not supported
+            }
+            
+            // Use MATCH AGAINST for better relevance
+            $searchQuery = '+' . implode(' +', array_filter(explode(' ', $query)));
+            
+            try {
+                $sql = "SELECT p.*, c.name as category_name, c.color as category_color,
+                        MATCH(p.title, p.content, p.excerpt) AGAINST(:query IN BOOLEAN MODE) as relevance
+                        FROM posts p
+                        LEFT JOIN categories c ON p.category_slug = c.slug
+                        WHERE p.status = 'published' 
+                        AND MATCH(p.title, p.content, p.excerpt) AGAINST(:query2 IN BOOLEAN MODE)
+                        ORDER BY relevance DESC, p.published_at DESC
+                        LIMIT :limit OFFSET :offset";
+                
+                $stmt = $db->prepare($sql);
+                $stmt->bindValue(':query', $searchQuery);
+                $stmt->bindValue(':query2', $searchQuery);
+                $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+                $stmt->execute();
+                $results = $stmt->fetchAll();
+                
+                // Count total
+                $countSql = "SELECT COUNT(*) FROM posts 
+                             WHERE status = 'published' 
+                             AND MATCH(title, content, excerpt) AGAINST(:query IN BOOLEAN MODE)";
+                $total = (int) Database::fetchValue($countSql, ['query' => $searchQuery]);
+                
+                return ['results' => $results, 'total' => $total];
+            } catch (PDOException $e) {
+                // Fall back to LIKE search
+            }
+        }
+        
+        // Fallback: LIKE search with relevance scoring
+        $searchTerm = "%$query%";
+        $sql = "SELECT p.*, c.name as category_name, c.color as category_color,
+                CASE 
+                    WHEN p.title LIKE :exact THEN 100
+                    WHEN p.title LIKE :term THEN 50
+                    WHEN p.excerpt LIKE :term2 THEN 25
+                    ELSE 10
+                END as relevance
+                FROM posts p
+                LEFT JOIN categories c ON p.category_slug = c.slug
+                WHERE p.status = 'published'
+                AND (p.title LIKE :term3 OR p.content LIKE :term4 OR p.excerpt LIKE :term5 OR p.tags LIKE :term6)
+                ORDER BY relevance DESC, p.published_at DESC
+                LIMIT :limit OFFSET :offset";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':exact', $query);
+        $stmt->bindValue(':term', $searchTerm);
+        $stmt->bindValue(':term2', $searchTerm);
+        $stmt->bindValue(':term3', $searchTerm);
+        $stmt->bindValue(':term4', $searchTerm);
+        $stmt->bindValue(':term5', $searchTerm);
+        $stmt->bindValue(':term6', $searchTerm);
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+        
+        // Count total
+        $countSql = "SELECT COUNT(*) FROM posts 
+                     WHERE status = 'published'
+                     AND (title LIKE :term OR content LIKE :term2 OR excerpt LIKE :term3 OR tags LIKE :term4)";
+        $total = (int) Database::fetchValue($countSql, [
+            'term' => $searchTerm,
+            'term2' => $searchTerm,
+            'term3' => $searchTerm,
+            'term4' => $searchTerm
+        ]);
+        
+        return ['results' => $results, 'total' => $total];
+    }
+    
+    /**
+     * Get related articles by tags and category
+     * Returns posts that share the most tags with the current post
+     */
+    public static function getSimilar(int $postId, string $category, string $tags, int $limit = 4): array {
+        $db = Database::getInstance();
+        $tagList = array_filter(array_map('trim', explode(',', $tags)));
+        
+        if (empty($tagList) && empty($category)) {
+            // No tags or category, return latest posts
+            return self::getLatest($limit);
+        }
+        
+        // Build query to find posts with matching tags
+        $tagConditions = [];
+        $params = ['exclude_id' => $postId, 'category' => $category];
+        
+        foreach ($tagList as $i => $tag) {
+            $tagConditions[] = "p.tags LIKE :tag$i";
+            $params["tag$i"] = "%$tag%";
+        }
+        
+        $tagMatchSql = !empty($tagConditions) ? '(' . implode(' OR ', $tagConditions) . ')' : '0';
+        
+        $sql = "SELECT p.*, c.name as category_name, c.color as category_color,
+                (CASE WHEN p.category_slug = :category THEN 2 ELSE 0 END) +
+                (CASE WHEN $tagMatchSql THEN 3 ELSE 0 END) as similarity_score
+                FROM posts p
+                LEFT JOIN categories c ON p.category_slug = c.slug
+                WHERE p.status = 'published' 
+                AND p.id != :exclude_id
+                AND (p.category_slug = :category2 OR $tagMatchSql)
+                ORDER BY similarity_score DESC, p.published_at DESC
+                LIMIT :limit";
+        
+        $params['category2'] = $category;
+        $params['limit'] = $limit;
+        
+        $stmt = $db->prepare($sql);
+        foreach ($params as $key => $value) {
+            if ($key === 'limit') {
+                $stmt->bindValue(":$key", $value, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue(":$key", $value);
+            }
+        }
+        $stmt->execute();
+        $results = $stmt->fetchAll();
+        
+        // If not enough results, fill with latest from same category
+        if (count($results) < $limit) {
+            $existingIds = array_column($results, 'id');
+            $existingIds[] = $postId;
+            $needed = $limit - count($results);
+            
+            $placeholders = implode(',', array_fill(0, count($existingIds), '?'));
+            $fillSql = "SELECT p.*, c.name as category_name, c.color as category_color
+                        FROM posts p
+                        LEFT JOIN categories c ON p.category_slug = c.slug
+                        WHERE p.status = 'published' 
+                        AND p.id NOT IN ($placeholders)
+                        ORDER BY p.published_at DESC
+                        LIMIT ?";
+            
+            $fillParams = array_merge($existingIds, [$needed]);
+            $stmt = $db->prepare($fillSql);
+            $stmt->execute($fillParams);
+            $fillResults = $stmt->fetchAll();
+            
+            $results = array_merge($results, $fillResults);
+        }
+        
+        return $results;
+    }
+    
+    /**
+     * Get search suggestions (autocomplete)
+     */
+    public static function getSearchSuggestions(string $query, int $limit = 5): array {
+        if (strlen($query) < 2) {
+            return [];
+        }
+        
+        $searchTerm = "$query%";
+        return Database::fetchAll(
+            "SELECT title, slug FROM posts 
+             WHERE status = 'published' AND title LIKE :term
+             ORDER BY views DESC, published_at DESC
+             LIMIT :limit",
+            ['term' => $searchTerm, 'limit' => $limit]
+        );
+    }
+    
+    /**
+     * Get trending posts (most viewed in last 7 days)
+     */
+    public static function getTrending(int $limit = 5): array {
+        $db = Database::getInstance();
+        
+        if (Database::isMySQL()) {
+            $sql = "SELECT p.*, c.name as category_name, c.color as category_color,
+                    COALESCE(SUM(s.views), p.views) as trend_score
+                    FROM posts p
+                    LEFT JOIN categories c ON p.category_slug = c.slug
+                    LEFT JOIN stats s ON s.post_id = p.id AND s.date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                    WHERE p.status = 'published'
+                    GROUP BY p.id
+                    ORDER BY trend_score DESC
+                    LIMIT :limit";
+        } else {
+            $sql = "SELECT p.*, c.name as category_name, c.color as category_color,
+                    COALESCE(SUM(s.views), p.views) as trend_score
+                    FROM posts p
+                    LEFT JOIN categories c ON p.category_slug = c.slug
+                    LEFT JOIN stats s ON s.post_id = p.id AND s.date >= DATE('now', '-7 days')
+                    WHERE p.status = 'published'
+                    GROUP BY p.id
+                    ORDER BY trend_score DESC
+                    LIMIT :limit";
+        }
+        
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

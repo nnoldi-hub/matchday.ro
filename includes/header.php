@@ -110,6 +110,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
             <li class="nav-item"><a class="nav-link" href="/contact.php">Contact</a></li>
             <li class="nav-item"><a class="nav-link" href="/calendar-editorial.php" title="Calendar Editorial"><i class="fas fa-calendar-alt me-1"></i>Program</a></li>
             <li class="nav-item"><a class="nav-link" href="/rss.php" target="_blank" title="RSS Feed"><i class="fas fa-rss"></i></a></li>
+            <li class="nav-item"><a class="nav-link" href="/search.php" title="Caută"><i class="fas fa-search"></i></a></li>
             <?php if (isset($_SESSION['david_logged']) && $_SESSION['david_logged']): ?>
               <li class="nav-item"><a class="nav-link" href="/admin/dashboard.php">Dashboard</a></li>
             <?php else: ?>
