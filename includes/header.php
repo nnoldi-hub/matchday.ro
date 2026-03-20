@@ -53,7 +53,13 @@ if (isset($articleTags)) $seo->setTags($articleTags);
     <!-- Favicons -->
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
-  <link rel="apple-touch-icon" href="/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="/assets/images/icons/icon-192x192.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MatchDay">
     
     <!-- RSS Feed -->
     <link rel="alternate" type="application/rss+xml" title="<?php echo SITE_NAME; ?> RSS" href="<?php echo $base ?>rss.php">

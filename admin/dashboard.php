@@ -74,6 +74,9 @@ include(__DIR__ . '/../includes/header.php');
           <a href="stats.php" class="btn btn-outline-info">
             <i class="fas fa-chart-line me-1"></i>Statistici
           </a>
+          <a href="backup.php" class="btn btn-outline-dark">
+            <i class="fas fa-database me-1"></i>Backup
+          </a>
           <a href="settings.php" class="btn btn-outline-secondary">
             <i class="fas fa-cog me-1"></i>Setări
           </a>

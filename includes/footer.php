@@ -38,5 +38,31 @@ if (!isset($assetBase)) {
     <script src="<?= BASE_URL ?>/assets/js/comments.js"></script>
     <script src="<?= BASE_URL ?>/assets/js/polls.js"></script>
     <script src="<?= BASE_URL ?>/assets/js/social.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then((registration) => {
+                    console.log('ServiceWorker registered:', registration.scope);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version available
+                                console.log('New version available!');
+                            }
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+        });
+    }
+    </script>
   </body>
 </html>

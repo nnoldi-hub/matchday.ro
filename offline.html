@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - MatchDay.ro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #e94560;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .retry-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #e94560;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .retry-btn:hover {
+            background: #ff6b6b;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+        }
+        
+        .tips {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            text-align: left;
+        }
+        
+        .tips h3 {
+            color: #e94560;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        
+        .tips ul {
+            list-style: none;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .tips li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .tips li::before {
+            content: '•';
+            color: #e94560;
+            position: absolute;
+            left: 0;
+        }
+        
+        .logo {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e94560;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="logo">⚽ MatchDay.ro</div>
+        <div class="offline-icon">📡</div>
+        <h1>Ești offline</h1>
+        <p>Se pare că nu ai conexiune la internet. Verifică conexiunea și încearcă din nou.</p>
+        
+        <button class="retry-btn" onclick="window.location.reload()">
+            Încearcă din nou
+        </button>
+        
+        <div class="tips">
+            <h3>💡 Sugestii:</h3>
+            <ul>
+                <li>Verifică dacă Wi-Fi sau datele mobile sunt activate</li>
+                <li>Încearcă să te conectezi la o altă rețea</li>
+                <li>Pornește și oprește modul avion</li>
+                <li>Paginile vizitate anterior pot fi disponibile offline</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-retry when connection is restored
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>
