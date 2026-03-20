@@ -127,8 +127,12 @@ class AdWidget {
         
         Ad::recordImpression($ad['id']);
         
-        $html = '<div class="ad-header-banner text-center py-2 bg-light">';
-        $html .= self::buildHtml($ad, ['hide_label' => true, 'class' => '']);
+        $html = '<div class="ad-header-banner text-center py-2">';
+        $html .= '<a href="/ad-click.php?id=' . $ad['id'] . '" target="_blank" rel="noopener sponsored" style="display:inline-block;">';
+        $html .= '<img src="' . htmlspecialchars($ad['image']) . '" ';
+        $html .= 'alt="' . htmlspecialchars($ad['name']) . '" ';
+        $html .= 'style="max-height: 90px; max-width: 728px; width: auto; height: auto;" loading="lazy">';
+        $html .= '</a>';
         $html .= '</div>';
         
         return $html;
