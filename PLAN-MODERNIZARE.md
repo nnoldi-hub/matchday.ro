@@ -94,8 +94,8 @@
 | 4.1 | **Analytics Dashboard** | ✅ DONE | Stats model + visitor tracking |
 | 4.2 | **Căutare full-text** | ✅ DONE | FULLTEXT MySQL + relevance scoring |
 | 4.3 | **Articole similare** | ✅ DONE | Algoritm tags + categorie |
-| 4.4 | Newsletter integration | ⬜ TODO | MailerLite/Sendinblue |
-| 4.5 | Social auto-post | ⬜ TODO | Facebook/Twitter API |
+| 4.4 | **Newsletter** | ✅ DONE | Subscriberi DB + admin send |
+| 4.5 | **Social share manual** | ✅ DONE | Butoane share pe articole |
 | 4.6 | **PWA (Service Worker)** | ✅ DONE | manifest.json + offline support |
 | 4.7 | **Backup automat** | ✅ DONE | JSON/SQL/ZIP export + restore |
 | 4.8 | Testare completă | ⬜ TODO | |
