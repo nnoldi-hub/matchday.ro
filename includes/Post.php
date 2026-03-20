@@ -466,40 +466,41 @@ class Post {
             return self::getLatest($limit);
         }
         
-        // Build query to find posts with matching tags
-        $tagConditions = [];
-        $params = ['exclude_id' => $postId, 'category' => $category];
+        // Simple approach: get by category first, then by tags
+        // This avoids complex parameter reuse issues
+        $params = [];
+        $conditions = ["p.status = 'published'", "p.id != ?"];
+        $params[] = $postId;
         
-        foreach ($tagList as $i => $tag) {
-            $tagConditions[] = "p.tags LIKE :tag$i";
-            $params["tag$i"] = "%$tag%";
+        $whereConditions = [];
+        
+        // Category match
+        if (!empty($category)) {
+            $whereConditions[] = "p.category_slug = ?";
+            $params[] = $category;
         }
         
-        $tagMatchSql = !empty($tagConditions) ? '(' . implode(' OR ', $tagConditions) . ')' : '0';
+        // Tag matches
+        foreach ($tagList as $tag) {
+            $whereConditions[] = "p.tags LIKE ?";
+            $params[] = "%$tag%";
+        }
         
-        $sql = "SELECT p.*, c.name as category_name, c.color as category_color,
-                (CASE WHEN p.category_slug = :category THEN 2 ELSE 0 END) +
-                (CASE WHEN $tagMatchSql THEN 3 ELSE 0 END) as similarity_score
+        if (!empty($whereConditions)) {
+            $conditions[] = "(" . implode(" OR ", $whereConditions) . ")";
+        }
+        
+        $sql = "SELECT p.*, c.name as category_name, c.color as category_color
                 FROM posts p
                 LEFT JOIN categories c ON p.category_slug = c.slug
-                WHERE p.status = 'published' 
-                AND p.id != :exclude_id
-                AND (p.category_slug = :category2 OR $tagMatchSql)
-                ORDER BY similarity_score DESC, p.published_at DESC
-                LIMIT :limit";
+                WHERE " . implode(" AND ", $conditions) . "
+                ORDER BY p.published_at DESC
+                LIMIT ?";
         
-        $params['category2'] = $category;
-        $params['limit'] = $limit;
+        $params[] = $limit;
         
         $stmt = $db->prepare($sql);
-        foreach ($params as $key => $value) {
-            if ($key === 'limit') {
-                $stmt->bindValue(":$key", $value, PDO::PARAM_INT);
-            } else {
-                $stmt->bindValue(":$key", $value);
-            }
-        }
-        $stmt->execute();
+        $stmt->execute($params);
         $results = $stmt->fetchAll();
         
         // If not enough results, fill with latest from same category
