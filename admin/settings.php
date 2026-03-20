@@ -20,6 +20,30 @@ if ($currentUserRole !== 'admin') {
     exit;
 }
 
+// Ensure settings table exists
+try {
+    $db = Database::getInstance();
+    if (Database::isMySQL()) {
+        $db->exec("
+            CREATE TABLE IF NOT EXISTS settings (
+                setting_key VARCHAR(100) PRIMARY KEY,
+                setting_value TEXT,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+    } else {
+        $db->exec("
+            CREATE TABLE IF NOT EXISTS settings (
+                setting_key TEXT PRIMARY KEY,
+                setting_value TEXT,
+                updated_at TEXT DEFAULT (datetime('now'))
+            )
+        ");
+    }
+} catch (PDOException $e) {
+    error_log("Settings table creation failed: " . $e->getMessage());
+}
+
 $message = '';
 $error = '';
 $activeTab = $_GET['tab'] ?? 'general';
