@@ -318,8 +318,8 @@ if (isset($_GET['created'])) {
       <?php 
       $adInlineShown = false;
       foreach ($displayItems as $index => $item): 
-        // Show inline ad after every 3 articles
-        if ($index > 0 && $index % 3 === 0 && !$adInlineShown):
+        // Show inline ad after every 2 articles
+        if ($index > 0 && $index % 2 === 0 && !$adInlineShown):
           $inlineAd = AdWidget::articleInline();
           if ($inlineAd):
             $adInlineShown = true;
