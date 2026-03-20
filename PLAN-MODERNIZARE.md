@@ -98,8 +98,88 @@
 | 4.5 | **Social share manual** | ✅ DONE | Butoane share pe articole |
 | 4.6 | **PWA (Service Worker)** | ✅ DONE | manifest.json + offline support |
 | 4.7 | **Backup automat** | ✅ DONE | JSON/SQL/ZIP export + restore |
-| 4.8 | Testare completă | ⬜ TODO | |
-| 4.9 | Deploy final | ⬜ TODO | |
+| 4.8 | Testare completă | ✅ DONE | Fix SITE_URL + Post::getSimilar |
+| 4.9 | Deploy final | ✅ DONE | Toate feature-urile funcționale |
+
+---
+
+## 🎯 FAZA 5: Admin Modern + Reclame
+**Durată estimată:** 2-3 zile  
+**Status:** ⬜ ÎN AȘTEPTARE
+
+### 🧱 5.1 Reorganizarea Dashboard-ului Admin
+| # | Task | Status | Notițe |
+|---|------|--------|--------|
+| 5.1.1 | Creare layout cu sidebar fix stânga | ⬜ TODO | 240px lățime, sticky top |
+| 5.1.2 | Design sidebar modern cu iconițe | ⬜ TODO | FontAwesome icons, hover effects |
+| 5.1.3 | Zona principală scrollabilă dreapta | ⬜ TODO | margin-left: 240px |
+| 5.1.4 | Responsive pentru mobil | ⬜ TODO | Hamburger menu pe mobile |
+| 5.1.5 | Refactor toate paginile admin | ⬜ TODO | Folosesc noul layout |
+
+**Meniu Sidebar propus:**
+```
+📊 Dashboard
+➕ Articol nou
+📝 Articole
+📂 Categorii
+🖼️ Media
+📊 Sondaje
+👤 Utilizatori
+📈 Statistici
+📧 Newsletter
+📢 Reclame / Sponsori  ← NOU
+💾 Backup
+⚙️ Setări
+📅 Plan Editorial
+🚪 Delogare
+```
+
+### 📢 5.2 Modul Gestionare Reclame / Sponsori
+| # | Task | Status | Notițe |
+|---|------|--------|--------|
+| 5.2.1 | Creare tabel `reclame` în DB | ⬜ TODO | MySQL schema |
+| 5.2.2 | Model Ad.php | ⬜ TODO | CRUD + getByPosition |
+| 5.2.3 | Admin: admin/ads.php | ⬜ TODO | Lista, add, edit, delete |
+| 5.2.4 | Upload imagine banner | ⬜ TODO | /assets/uploads/ads/ |
+| 5.2.5 | Poziții disponibile | ⬜ TODO | sidebar, header, footer, articol |
+| 5.2.6 | Perioadă activare (start/end) | ⬜ TODO | Date picker |
+| 5.2.7 | Status activ/inactiv | ⬜ TODO | Toggle switch |
+| 5.2.8 | Tracking clicks (opțional) | ⬜ TODO | Statistici per reclamă |
+
+**Schema MySQL propusă:**
+```sql
+CREATE TABLE ads (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    image VARCHAR(255),
+    link VARCHAR(500),
+    position ENUM('sidebar','header','footer','article-inline') DEFAULT 'sidebar',
+    start_date DATE,
+    end_date DATE,
+    active TINYINT(1) DEFAULT 1,
+    clicks INT DEFAULT 0,
+    impressions INT DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME
+);
+```
+
+### 🧩 5.3 Integrare Front-end
+| # | Task | Status | Notițe |
+|---|------|--------|--------|
+| 5.3.1 | Helper Ad::getActive($position) | ⬜ TODO | Filtrare pe poziție și dată |
+| 5.3.2 | Widget sidebar reclame | ⬜ TODO | include în sidebar |
+| 5.3.3 | Banner header (opțional) | ⬜ TODO | Sub navbar |
+| 5.3.4 | Banner între articole | ⬜ TODO | La fiecare N articole |
+| 5.3.5 | Tracking click redirect | ⬜ TODO | /ad-click.php?id=X |
+
+### 🎨 5.4 Template-uri Banner
+| # | Task | Status | Notițe |
+|---|------|--------|--------|
+| 5.4.1 | Banner 300x250 (sidebar) | ⬜ TODO | MPU standard |
+| 5.4.2 | Banner 728x90 (header) | ⬜ TODO | Leaderboard |
+| 5.4.3 | Banner 320x100 (mobile) | ⬜ TODO | Mobile banner |
+| 5.4.4 | Card sponsor cu logo+text | ⬜ TODO | Style custom |
 
 ---
 
