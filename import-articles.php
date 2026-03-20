@@ -420,6 +420,11 @@ foreach ($articles as $article) {
     }
 }
 
+// Clear cache after import
+require_once(__DIR__ . '/config/cache.php');
+Cache::clear();
+echo "🗑️ Cache șters!<br>";
+
 echo "<br><hr><br>";
 echo "<h3>Rezultat import:</h3>";
 echo "<p><strong>$imported articole importate cu succes!</strong></p>";
@@ -433,5 +438,6 @@ if (!empty($errors)) {
 }
 
 echo "<br><p><a href='/admin/posts.php' class='btn btn-primary'>Vezi articolele</a></p>";
+echo "<p><a href='/' class='btn btn-success'>Vezi site-ul public</a></p>";
 echo "<p style='color:red;'><strong>⚠️ ȘTERGE ACEST FIȘIER DUPĂ IMPORT!</strong></p>";
 ?>
