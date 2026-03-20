@@ -1,14 +1,22 @@
 <?php
+/**
+ * Admin Comments Management
+ * MatchDay.ro - Database Version
+ */
 session_start();
 require_once(__DIR__ . '/../config/config.php');
+require_once(__DIR__ . '/../config/database.php');
+require_once(__DIR__ . '/../includes/Comment.php');
 
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
     exit; 
 }
 
-// Handle actions
 $message = '';
+$messageType = 'info';
+
+// Handle actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $token = $_POST['csrf_token'] ?? '';
@@ -17,267 +25,309 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $action = $_POST['action'] ?? '';
-        $slug = Security::sanitizeInput($_POST['slug'] ?? '');
-        $commentIndex = intval($_POST['comment_index'] ?? -1);
         
-        if ($action === 'delete_comment' && $slug && $commentIndex >= 0) {
-            $result = deleteComment($slug, $commentIndex);
-            $message = $result ? 'Comentariu șters cu succes!' : 'Eroare la ștergerea comentariului.';
-        } elseif ($action === 'approve_comment' && $slug && $commentIndex >= 0) {
-            $result = approveComment($slug, $commentIndex);
-            $message = $result ? 'Comentariu aprobat cu succes!' : 'Eroare la aprobarea comentariului.';
+        // Single comment actions
+        if (in_array($action, ['approve', 'reject', 'delete'])) {
+            $id = intval($_POST['id'] ?? 0);
+            if ($id > 0) {
+                switch ($action) {
+                    case 'approve':
+                        Comment::approve($id);
+                        $message = 'Comentariu aprobat!';
+                        $messageType = 'success';
+                        break;
+                    case 'reject':
+                        Comment::reject($id);
+                        $message = 'Comentariu respins.';
+                        $messageType = 'warning';
+                        break;
+                    case 'delete':
+                        Comment::delete($id);
+                        $message = 'Comentariu șters!';
+                        $messageType = 'success';
+                        break;
+                }
+            }
+        }
+        
+        // Bulk actions
+        if ($action === 'bulk' && !empty($_POST['selected'])) {
+            $ids = array_map('intval', $_POST['selected']);
+            $bulkAction = $_POST['bulk_action'] ?? '';
+            
+            switch ($bulkAction) {
+                case 'approve':
+                    $count = Comment::bulkApprove($ids);
+                    $message = "$count comentarii aprobate!";
+                    $messageType = 'success';
+                    break;
+                case 'delete':
+                    $count = Comment::bulkDelete($ids);
+                    $message = "$count comentarii șterse!";
+                    $messageType = 'success';
+                    break;
+            }
         }
         
     } catch (Exception $e) {
         $message = $e->getMessage();
+        $messageType = 'danger';
     }
 }
 
-// Get all comments
-function getAllComments() {
-    $commentsDir = __DIR__ . '/../data/comments';
-    $allComments = [];
-    
-    if (!is_dir($commentsDir)) return $allComments;
-    
-    $files = array_filter(scandir($commentsDir), fn($f) => substr($f, -5) === '.json' && !str_starts_with($f, 'recent_'));
-    
-    foreach ($files as $file) {
-        $slug = str_replace('.json', '', $file);
-        $comments = json_decode(file_get_contents($commentsDir . '/' . $file), true) ?: [];
-        
-        foreach ($comments as $index => $comment) {
-            $comment['slug'] = $slug;
-            $comment['index'] = $index;
-            $comment['post_title'] = getPostTitle($slug);
-            $allComments[] = $comment;
-        }
-    }
-    
-    // Sort by timestamp descending (newest first)
-    usort($allComments, fn($a, $b) => ($b['timestamp'] ?? 0) - ($a['timestamp'] ?? 0));
-    
-    return $allComments;
-}
+// Filters
+$filter = $_GET['filter'] ?? 'all';
+$approvedFilter = null;
+if ($filter === 'pending') $approvedFilter = 0;
+if ($filter === 'approved') $approvedFilter = 1;
 
-function getPostTitle($slug) {
-    $postsDir = __DIR__ . '/../posts';
-    $files = scandir($postsDir);
-    
-    foreach ($files as $file) {
-        if (strpos($file, $slug) !== false && substr($file, -5) === '.html') {
-            $html = file_get_contents($postsDir . '/' . $file);
-            if (preg_match('/<!--\s*david-meta:(.*?)-->/', $html, $m)) {
-                $meta = json_decode(trim($m[1]), true);
-                if (isset($meta['title'])) return $meta['title'];
-            }
-            break;
-        }
-    }
-    
-    return ucfirst(str_replace('-', ' ', $slug));
-}
-
-function deleteComment($slug, $commentIndex) {
-    $file = __DIR__ . '/../data/comments/' . $slug . '.json';
-    if (!file_exists($file)) return false;
-    
-    $comments = json_decode(file_get_contents($file), true) ?: [];
-    if (!isset($comments[$commentIndex])) return false;
-    
-    array_splice($comments, $commentIndex, 1);
-    return file_put_contents($file, json_encode($comments, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX) !== false;
-}
-
-function approveComment($slug, $commentIndex) {
-    $file = __DIR__ . '/../data/comments/' . $slug . '.json';
-    if (!file_exists($file)) return false;
-    
-    $comments = json_decode(file_get_contents($file), true) ?: [];
-    if (!isset($comments[$commentIndex])) return false;
-    
-    $comments[$commentIndex]['approved'] = true;
-    $comments[$commentIndex]['approved_at'] = time();
-    
-    return file_put_contents($file, json_encode($comments, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX) !== false;
-}
-
-$comments = getAllComments();
+// Pagination
 $page = max(1, intval($_GET['page'] ?? 1));
 $perPage = 20;
-$total = count($comments);
-$pages = ceil($total / $perPage);
-$offset = ($page - 1) * $perPage;
-$pagedComments = array_slice($comments, $offset, $perPage);
+$total = Comment::countAll($approvedFilter);
+$pages = max(1, ceil($total / $perPage));
+$page = min($page, $pages);
+
+// Get comments
+$comments = Comment::getAll($page, $perPage, $approvedFilter);
+
+// Stats
+$totalAll = Comment::countAll();
+$totalApproved = Comment::countAll(1);
+$totalPending = Comment::countPending();
 
 include(__DIR__ . '/../includes/header.php');
 ?>
 
 <div class="container admin-card">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">Management Comentarii</h1>
+    <h1 class="h3">
+      <i class="fas fa-comments me-2"></i>Comentarii
+    </h1>
     <a href="dashboard.php" class="btn btn-outline-secondary">
-      <i class="fas fa-arrow-left me-1"></i> Înapoi la Dashboard
+      <i class="fas fa-arrow-left me-1"></i>Dashboard
     </a>
   </div>
   
   <?php if ($message): ?>
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-      <?php echo Security::sanitizeInput($message); ?>
+    <div class="alert alert-<?= $messageType ?> alert-dismissible fade show">
+      <?= htmlspecialchars($message) ?>
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   <?php endif; ?>
   
-  <!-- Stats Summary -->
+  <!-- Stats Cards -->
   <div class="row g-3 mb-4">
-    <div class="col-md-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <h4 class="text-primary"><?php echo $total; ?></h4>
-          <small class="text-muted">Total comentarii</small>
+    <div class="col-md-4">
+      <a href="?filter=all" class="text-decoration-none">
+        <div class="card text-center <?= $filter === 'all' ? 'border-primary' : '' ?>">
+          <div class="card-body py-3">
+            <h4 class="mb-0 text-primary"><?= $totalAll ?></h4>
+            <small class="text-muted">Total</small>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
-    <div class="col-md-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <h4 class="text-success"><?php echo count(array_filter($comments, fn($c) => isset($c['approved']) && $c['approved'] === true)); ?></h4>
-          <small class="text-muted">Aprobate</small>
+    <div class="col-md-4">
+      <a href="?filter=approved" class="text-decoration-none">
+        <div class="card text-center <?= $filter === 'approved' ? 'border-success' : '' ?>">
+          <div class="card-body py-3">
+            <h4 class="mb-0 text-success"><?= $totalApproved ?></h4>
+            <small class="text-muted">Aprobate</small>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
-    <div class="col-md-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <h4 class="text-warning"><?php echo count(array_filter($comments, fn($c) => !isset($c['approved']) || $c['approved'] !== true)); ?></h4>
-          <small class="text-muted">În așteptare</small>
+    <div class="col-md-4">
+      <a href="?filter=pending" class="text-decoration-none">
+        <div class="card text-center <?= $filter === 'pending' ? 'border-warning' : '' ?>">
+          <div class="card-body py-3">
+            <h4 class="mb-0 text-warning"><?= $totalPending ?></h4>
+            <small class="text-muted">În așteptare</small>
+          </div>
         </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <h4 class="text-info"><?php echo $pages; ?></h4>
-          <small class="text-muted">Pagini</small>
-        </div>
-      </div>
+      </a>
     </div>
   </div>
 
-  <!-- Comments List -->
+  <!-- Comments Table -->
   <div class="card">
-    <div class="card-header">
-      <h5 class="mb-0">Toate comentariile</h5>
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <?php
+        echo match($filter) {
+            'pending' => 'Comentarii în așteptare',
+            'approved' => 'Comentarii aprobate',
+            default => 'Toate comentariile'
+        };
+        ?>
+      </h5>
+      <?php if ($totalPending > 0): ?>
+        <span class="badge bg-warning"><?= $totalPending ?> noi</span>
+      <?php endif; ?>
     </div>
     <div class="card-body">
-      <?php if (empty($pagedComments)): ?>
-        <div class="text-center py-4">
+      <?php if (empty($comments)): ?>
+        <div class="text-center py-5">
           <i class="fas fa-comments fa-3x text-muted mb-3"></i>
-          <p class="text-muted">Nu există comentarii încă.</p>
+          <p class="text-muted mb-0">Nu există comentarii<?= $filter !== 'all' ? ' în această categorie' : '' ?>.</p>
         </div>
       <?php else: ?>
-        <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>Articol</th>
-                <th>Autor</th>
-                <th>Comentariu</th>
-                <th>Data</th>
-                <th>Status</th>
-                <th>Acțiuni</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($pagedComments as $comment): ?>
-              <tr class="<?php echo isset($comment['approved']) ? '' : 'table-warning'; ?>">
-                <td>
-                  <strong><?php echo Security::sanitizeInput($comment['post_title']); ?></strong>
-                  <br><small class="text-muted"><?php echo Security::sanitizeInput($comment['slug']); ?></small>
-                </td>
-                <td>
-                  <strong><?php echo Security::sanitizeInput($comment['name']); ?></strong>
-                  <br><small class="text-muted">IP: <?php echo Security::sanitizeInput(substr($comment['ip'] ?? '', 0, 8)); ?>...</small>
-                </td>
-                <td>
-                  <div style="max-width: 300px;">
-                    <?php 
-                    $message = Security::sanitizeInput($comment['message']);
-                    echo strlen($message) > 100 ? substr($message, 0, 100) . '...' : $message;
-                    ?>
-                  </div>
-                </td>
-                <td>
-                  <?php echo Security::sanitizeInput($comment['date'] ?? 'N/A'); ?>
-                  <?php if (isset($comment['timestamp'])): ?>
-                    <br><small class="text-muted"><?php echo date('H:i', $comment['timestamp']); ?></small>
-                  <?php endif; ?>
-                </td>
-                <td>
-                  <?php if (isset($comment['approved']) && $comment['approved'] === true): ?>
-                    <span class="badge bg-success">Aprobat</span>
-                  <?php else: ?>
-                    <span class="badge bg-warning">În așteptare</span>
-                  <?php endif; ?>
-                </td>
-                <td>
-                  <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-primary" 
-                            onclick="viewComment('<?php echo Security::sanitizeInput($comment['message']); ?>', '<?php echo Security::sanitizeInput($comment['name']); ?>')">
-                      <i class="fas fa-eye"></i>
-                    </button>
-                    
-                    <?php if (!isset($comment['approved']) || $comment['approved'] !== true): ?>
-                    <form method="post" class="d-inline">
-                      <input type="hidden" name="csrf_token" value="<?php echo Security::generateCSRFToken(); ?>">
-                      <input type="hidden" name="action" value="approve_comment">
-                      <input type="hidden" name="slug" value="<?php echo Security::sanitizeInput($comment['slug']); ?>">
-                      <input type="hidden" name="comment_index" value="<?php echo $comment['index']; ?>">
-                      <button type="submit" class="btn btn-outline-success" 
-                              onclick="return confirm('Aprobi acest comentariu?')">
-                        <i class="fas fa-check"></i>
-                      </button>
-                    </form>
+        <form method="post" id="bulkForm">
+          <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+          <input type="hidden" name="action" value="bulk">
+          
+          <!-- Bulk Actions Bar -->
+          <div class="mb-3 d-flex gap-2 align-items-center">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="selectAll">
+              <label class="form-check-label" for="selectAll">Selectează tot</label>
+            </div>
+            <select name="bulk_action" class="form-select form-select-sm" style="width: auto;">
+              <option value="">-- Acțiune --</option>
+              <option value="approve">Aprobă selectate</option>
+              <option value="delete">Șterge selectate</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary" onclick="return confirmBulk()">
+              <i class="fas fa-check me-1"></i>Aplică
+            </button>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 40px;"></th>
+                  <th>Autor</th>
+                  <th>Comentariu</th>
+                  <th>Articol</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                  <th style="width: 150px;">Acțiuni</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($comments as $comment): ?>
+                <tr class="<?= $comment['approved'] ? '' : 'table-warning' ?>">
+                  <td>
+                    <input type="checkbox" name="selected[]" value="<?= $comment['id'] ?>" class="form-check-input comment-check">
+                  </td>
+                  <td>
+                    <strong><?= htmlspecialchars($comment['author_name']) ?></strong>
+                    <?php if (!empty($comment['author_email'])): ?>
+                      <br><small class="text-muted"><?= htmlspecialchars($comment['author_email']) ?></small>
                     <?php endif; ?>
-                    
-                    <form method="post" class="d-inline">
-                      <input type="hidden" name="csrf_token" value="<?php echo Security::generateCSRFToken(); ?>">
-                      <input type="hidden" name="action" value="delete_comment">
-                      <input type="hidden" name="slug" value="<?php echo Security::sanitizeInput($comment['slug']); ?>">
-                      <input type="hidden" name="comment_index" value="<?php echo $comment['index']; ?>">
-                      <button type="submit" class="btn btn-outline-danger" 
-                              onclick="return confirm('Sigur vrei să ștergi acest comentariu?')">
-                        <i class="fas fa-trash"></i>
+                  </td>
+                  <td>
+                    <div class="comment-preview" style="max-width: 300px;">
+                      <?php 
+                      $content = htmlspecialchars($comment['content']);
+                      echo mb_strlen($content) > 100 ? mb_substr($content, 0, 100) . '...' : $content;
+                      ?>
+                    </div>
+                    <?php if (mb_strlen($comment['content']) > 100): ?>
+                      <button type="button" class="btn btn-link btn-sm p-0" 
+                              onclick="viewComment(<?= $comment['id'] ?>, '<?= htmlspecialchars(addslashes($comment['author_name'])) ?>')">
+                        Vezi tot
                       </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <?php if ($comment['post_title']): ?>
+                      <a href="edit-post.php?slug=<?= urlencode($comment['post_slug']) ?>" class="text-decoration-none">
+                        <?= htmlspecialchars(mb_strimwidth($comment['post_title'], 0, 30, '...')) ?>
+                      </a>
+                    <?php else: ?>
+                      <span class="text-muted"><?= htmlspecialchars($comment['post_slug']) ?></span>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <small><?= date('d.m.Y', strtotime($comment['created_at'])) ?></small>
+                    <br><small class="text-muted"><?= date('H:i', strtotime($comment['created_at'])) ?></small>
+                  </td>
+                  <td>
+                    <?php if ($comment['approved']): ?>
+                      <span class="badge bg-success">Aprobat</span>
+                    <?php else: ?>
+                      <span class="badge bg-warning text-dark">În așteptare</span>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <?php if (!$comment['approved']): ?>
+                      <form method="post" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+                        <input type="hidden" name="action" value="approve">
+                        <input type="hidden" name="id" value="<?= $comment['id'] ?>">
+                        <button type="submit" class="btn btn-success" title="Aprobă">
+                          <i class="fas fa-check"></i>
+                        </button>
+                      </form>
+                      <?php else: ?>
+                      <form method="post" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+                        <input type="hidden" name="action" value="reject">
+                        <input type="hidden" name="id" value="<?= $comment['id'] ?>">
+                        <button type="submit" class="btn btn-outline-warning" title="Respinge">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </form>
+                      <?php endif; ?>
+                      <form method="post" class="d-inline" onsubmit="return confirm('Sigur ștergi acest comentariu?')">
+                        <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="id" value="<?= $comment['id'] ?>">
+                        <button type="submit" class="btn btn-outline-danger" title="Șterge">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        </form>
         
         <!-- Pagination -->
         <?php if ($pages > 1): ?>
-        <nav aria-label="Paginare comentarii" class="mt-4">
-          <ul class="pagination justify-content-center">
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center mb-0">
             <?php if ($page > 1): ?>
-            <li class="page-item">
-              <a class="page-link" href="?page=<?php echo $page - 1; ?>">Anterior</a>
-            </li>
+              <li class="page-item">
+                <a class="page-link" href="?filter=<?= $filter ?>&page=<?= $page - 1 ?>">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              </li>
             <?php endif; ?>
             
-            <?php for ($i = max(1, $page - 2); $i <= min($pages, $page + 2); $i++): ?>
-            <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
-              <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
-            </li>
-            <?php endfor; ?>
+            <?php 
+            $start = max(1, $page - 2);
+            $end = min($pages, $page + 2);
+            
+            if ($start > 1): ?>
+              <li class="page-item"><a class="page-link" href="?filter=<?= $filter ?>&page=1">1</a></li>
+              <?php if ($start > 2): ?><li class="page-item disabled"><span class="page-link">...</span></li><?php endif; ?>
+            <?php endif;
+            
+            for ($i = $start; $i <= $end; $i++): ?>
+              <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                <a class="page-link" href="?filter=<?= $filter ?>&page=<?= $i ?>"><?= $i ?></a>
+              </li>
+            <?php endfor;
+            
+            if ($end < $pages): ?>
+              <?php if ($end < $pages - 1): ?><li class="page-item disabled"><span class="page-link">...</span></li><?php endif; ?>
+              <li class="page-item"><a class="page-link" href="?filter=<?= $filter ?>&page=<?= $pages ?>"><?= $pages ?></a></li>
+            <?php endif; ?>
             
             <?php if ($page < $pages): ?>
-            <li class="page-item">
-              <a class="page-link" href="?page=<?php echo $page + 1; ?>">Următor</a>
-            </li>
+              <li class="page-item">
+                <a class="page-link" href="?filter=<?= $filter ?>&page=<?= $page + 1 ?>">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
             <?php endif; ?>
           </ul>
         </nav>
@@ -287,8 +337,8 @@ include(__DIR__ . '/../includes/header.php');
   </div>
 </div>
 
-<!-- Modal pentru vizualizare comentariu complet -->
-<div class="modal fade" id="commentModal" tabindex="-1">
+<!-- Modal View Comment -->
+<div class="modal fade" id="viewModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -296,7 +346,7 @@ include(__DIR__ . '/../includes/header.php');
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <div id="modalMessage" style="white-space: pre-wrap; word-wrap: break-word;"></div>
+        <div id="modalContent" style="white-space: pre-wrap;"></div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Închide</button>
@@ -306,10 +356,50 @@ include(__DIR__ . '/../includes/header.php');
 </div>
 
 <script>
-function viewComment(message, author) {
-    document.getElementById('modalMessage').textContent = message;
+// Store comments content for modal
+const commentsData = <?= json_encode(array_map(fn($c) => ['id' => $c['id'], 'content' => $c['content']], $comments)) ?>;
+
+// Select all checkbox
+document.getElementById('selectAll')?.addEventListener('change', function() {
+  document.querySelectorAll('.comment-check').forEach(cb => cb.checked = this.checked);
+});
+
+// Update "select all" when individual checkboxes change
+document.querySelectorAll('.comment-check').forEach(cb => {
+  cb.addEventListener('change', function() {
+    const all = document.querySelectorAll('.comment-check');
+    const checked = document.querySelectorAll('.comment-check:checked');
+    document.getElementById('selectAll').checked = all.length === checked.length;
+  });
+});
+
+// Confirm bulk action
+function confirmBulk() {
+  const checked = document.querySelectorAll('.comment-check:checked');
+  const action = document.querySelector('[name="bulk_action"]').value;
+  
+  if (checked.length === 0) {
+    alert('Selectează cel puțin un comentariu.');
+    return false;
+  }
+  
+  if (!action) {
+    alert('Alege o acțiune.');
+    return false;
+  }
+  
+  const actionText = action === 'delete' ? 'ștergi' : 'aprobi';
+  return confirm(`Sigur vrei să ${actionText} ${checked.length} comentarii?`);
+}
+
+// View full comment
+function viewComment(id, author) {
+  const comment = commentsData.find(c => c.id === id);
+  if (comment) {
     document.getElementById('modalAuthor').textContent = author;
-    new bootstrap.Modal(document.getElementById('commentModal')).show();
+    document.getElementById('modalContent').textContent = comment.content;
+    new bootstrap.Modal(document.getElementById('viewModal')).show();
+  }
 }
 </script>
 
