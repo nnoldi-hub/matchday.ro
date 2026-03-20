@@ -48,6 +48,16 @@ if (isset($_GET['id'])) {
             }
         }
         echo "</pre>";
+        
+        // Check for dangerous tags that could break page structure
+        echo "<h4>Dangerous Tags Check:</h4>";
+        $dangerous = ['</body>', '</html>', '<body', '<html', '</head>', '<script'];
+        foreach ($dangerous as $dtag) {
+            if (stripos($content, $dtag) !== false) {
+                echo "<strong style='color:red;'>DANGER: Found '$dtag' in content!</strong><br>";
+            }
+        }
+        
         exit;
     }
 }

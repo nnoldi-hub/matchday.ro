@@ -3,6 +3,7 @@
 define('SITE_NAME', 'MatchDay.ro');
 define('SITE_TAGLINE', 'Fiecare meci are o poveste. Noi o scriem.');
 define('BASE_URL', 'https://matchday.ro'); // Actualizează cu https://matchday.ro pentru producție
+define('SITE_URL', BASE_URL); // Alias for compatibility
 date_default_timezone_set('Europe/Bucharest');
 define('CONTACT_TO_EMAIL', 'contact@matchday.ro'); // OBLIGATORIU: Schimbă cu email-ul tău real
 
