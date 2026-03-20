@@ -133,9 +133,9 @@ if (isset($_GET['created'])) {
   </div>
 </section>
 
-<!-- Hero Carousel cu ultimele 3 articole -->
+<!-- Hero Carousel cu ultimele 3 articole (ascuns la căutare) -->
 <div class="container mb-4">
-  <?php if (!empty($itemsPage) && count($itemsPage) >= 3): ?>
+  <?php if (!$q && !empty($itemsPage) && count($itemsPage) >= 3): ?>
   <div id="heroCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
     <div class="carousel-indicators">
       <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
@@ -282,8 +282,13 @@ if (isset($_GET['created'])) {
 
 <div class="container my-4">
   <?php 
-  // Pentru afișarea în listă, excludem primele 3 articole dacă sunt în carousel
-  $displayItems = (!empty($itemsPage) && count($itemsPage) >= 3) ? array_slice($itemsPage, 3) : $itemsPage;
+  // Când e căutare activă, afișăm toate rezultatele (fără carousel)
+  // Altfel excludem primele 3 articole care sunt în carousel
+  if ($q) {
+    $displayItems = $itemsPage; // Toate rezultatele căutării
+  } else {
+    $displayItems = (!empty($itemsPage) && count($itemsPage) >= 3) ? array_slice($itemsPage, 3) : $itemsPage;
+  }
   ?>
   
   <?php if (empty($displayItems) && empty($itemsPage)): ?>
@@ -304,8 +309,12 @@ if (isset($_GET['created'])) {
     <div class="row mb-4">
       <div class="col-12">
         <h2 class="h5 d-flex align-items-center">
-          <i class="fas fa-newspaper me-2"></i>
-          <?= (!empty($itemsPage) && count($itemsPage) >= 3) ? 'Mai multe articole' : 'Toate articolele' ?>
+          <i class="fas fa-<?= $q ? 'search' : 'newspaper' ?> me-2"></i>
+          <?php if ($q): ?>
+            Rezultate pentru "<?= htmlspecialchars($q) ?>"
+          <?php else: ?>
+            <?= (!empty($itemsPage) && count($itemsPage) >= 3) ? 'Mai multe articole' : 'Toate articolele' ?>
+          <?php endif; ?>
         </h2>
       </div>
     </div>
