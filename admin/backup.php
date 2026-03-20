@@ -10,8 +10,8 @@ require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../config/security.php');
 require_once(__DIR__ . '/../includes/Backup.php');
 
-// Check admin authentication
-if (!isset($_SESSION['user']) || !$_SESSION['user']['is_admin']) {
+// Check admin authentication (consistent with dashboard.php)
+if (empty($_SESSION['david_logged'])) {
     header('Location: login.php');
     exit;
 }
