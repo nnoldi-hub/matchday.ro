@@ -40,12 +40,15 @@ include(__DIR__ . '/../includes/header.php');
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3">Dashboard Admin</h1>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
           <a href="new-post.php" class="btn btn-accent">
             <i class="fas fa-plus me-1"></i>Articol nou
           </a>
           <a href="posts.php" class="btn btn-outline-primary">
             <i class="fas fa-newspaper me-1"></i>Articole
+          </a>
+          <a href="media.php" class="btn btn-outline-success">
+            <i class="fas fa-images me-1"></i>Media
           </a>
           <a href="polls.php" class="btn btn-primary">
             <i class="fas fa-poll me-1"></i>Sondaje
