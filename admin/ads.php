@@ -14,7 +14,11 @@ if (empty($_SESSION['david_logged'])) {
 }
 
 // Run migration to ensure table exists
-Ad::migrate();
+try {
+    Ad::migrate();
+} catch (Exception $e) {
+    error_log("Ad migration error: " . $e->getMessage());
+}
 
 // Handle actions
 $message = '';

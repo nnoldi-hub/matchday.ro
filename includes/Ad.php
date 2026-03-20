@@ -12,22 +12,30 @@ class Ad {
      * Get all ads with pagination
      */
     public static function getAll(int $page = 1, int $perPage = 20): array {
-        $offset = ($page - 1) * $perPage;
-        $sql = "SELECT * FROM ads ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
-        
-        $stmt = Database::getInstance()->prepare($sql);
-        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        return $stmt->fetchAll();
+        try {
+            $offset = ($page - 1) * $perPage;
+            $sql = "SELECT * FROM ads ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+            
+            $stmt = Database::getInstance()->prepare($sql);
+            $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            return [];
+        }
     }
     
     /**
      * Count all ads
      */
     public static function countAll(): int {
-        return (int) Database::fetchValue("SELECT COUNT(*) FROM ads");
+        try {
+            return (int) Database::fetchValue("SELECT COUNT(*) FROM ads");
+        } catch (Exception $e) {
+            return 0;
+        }
     }
     
     /**
@@ -163,19 +171,30 @@ class Ad {
      * Get ad statistics
      */
     public static function getStats(): array {
-        $total = (int) Database::fetchValue("SELECT COUNT(*) FROM ads");
-        $active = (int) Database::fetchValue("SELECT COUNT(*) FROM ads WHERE active = 1");
-        $totalClicks = (int) Database::fetchValue("SELECT COALESCE(SUM(clicks), 0) FROM ads");
-        $totalImpressions = (int) Database::fetchValue("SELECT COALESCE(SUM(impressions), 0) FROM ads");
-        
-        return [
-            'total' => $total,
-            'active' => $active,
-            'inactive' => $total - $active,
-            'clicks' => $totalClicks,
-            'impressions' => $totalImpressions,
-            'ctr' => $totalImpressions > 0 ? round(($totalClicks / $totalImpressions) * 100, 2) : 0
-        ];
+        try {
+            $total = (int) Database::fetchValue("SELECT COUNT(*) FROM ads");
+            $active = (int) Database::fetchValue("SELECT COUNT(*) FROM ads WHERE active = 1");
+            $totalClicks = (int) Database::fetchValue("SELECT COALESCE(SUM(clicks), 0) FROM ads");
+            $totalImpressions = (int) Database::fetchValue("SELECT COALESCE(SUM(impressions), 0) FROM ads");
+            
+            return [
+                'total' => $total,
+                'active' => $active,
+                'inactive' => $total - $active,
+                'clicks' => $totalClicks,
+                'impressions' => $totalImpressions,
+                'ctr' => $totalImpressions > 0 ? round(($totalClicks / $totalImpressions) * 100, 2) : 0
+            ];
+        } catch (Exception $e) {
+            return [
+                'total' => 0,
+                'active' => 0,
+                'inactive' => 0,
+                'clicks' => 0,
+                'impressions' => 0,
+                'ctr' => 0
+            ];
+        }
     }
     
     /**
@@ -246,6 +265,9 @@ class Ad {
             Database::getInstance()->exec($sql);
             return true;
         } catch (PDOException $e) {
+            error_log("Ad table migration failed (PDO): " . $e->getMessage());
+            return false;
+        } catch (Exception $e) {
             error_log("Ad table migration failed: " . $e->getMessage());
             return false;
         }
