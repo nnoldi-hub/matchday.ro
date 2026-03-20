@@ -7,7 +7,26 @@ if (!isset($assetBase)) {
     $admin = (strpos($_SERVER['PHP_SELF'], '/admin/') !== false);
     $assetBase = $base . ($admin ? '../' : '');
 }
+
+// Require Ad classes if not in admin
+if (!$admin && !class_exists('AdWidget')) {
+    require_once(__DIR__ . '/Ad.php');
+    require_once(__DIR__ . '/AdWidget.php');
+}
 ?>
+    <?php 
+    // Footer Ad Banner (before footer)
+    if (!$admin && class_exists('AdWidget')):
+        $footerAd = AdWidget::render('footer');
+        if ($footerAd):
+    ?>
+    <div class="container-fluid bg-light py-3 border-top">
+        <div class="container text-center">
+            <?= $footerAd ?>
+        </div>
+    </div>
+    <?php endif; endif; ?>
+    
     <footer class="border-top py-4 mt-5">
       <div class="container">
         <div class="row">

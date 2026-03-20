@@ -9,6 +9,8 @@ require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Post.php');
 require_once(__DIR__ . '/includes/Comment.php');
 require_once(__DIR__ . '/includes/Stats.php');
+require_once(__DIR__ . '/includes/Ad.php');
+require_once(__DIR__ . '/includes/AdWidget.php');
 
 // Get post slug
 $slug = isset($_GET['slug']) ? Security::sanitizeInput($_GET['slug']) : '';
@@ -279,6 +281,9 @@ include(__DIR__ . '/includes/header.php');
                     <?php endforeach; ?>
                 </ul>
             </div>
+            
+            <!-- Sidebar Ad -->
+            <?= AdWidget::sidebar('Sponsor') ?>
         </aside>
     </div>
 </article>

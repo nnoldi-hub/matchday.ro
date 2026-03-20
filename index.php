@@ -4,6 +4,8 @@ require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Post.php');
 require_once(__DIR__ . '/includes/Poll.php');
 require_once(__DIR__ . '/includes/Stats.php');
+require_once(__DIR__ . '/includes/Ad.php');
+require_once(__DIR__ . '/includes/AdWidget.php');
 
 // Track homepage visit
 Stats::trackView(null, 'homepage');
@@ -310,7 +312,19 @@ if (isset($_GET['created'])) {
     <?php endif; ?>
     
     <div class="row g-4">
-      <?php foreach ($displayItems as $index => $item): ?>
+      <?php 
+      $adInlineShown = false;
+      foreach ($displayItems as $index => $item): 
+        // Show inline ad after every 3 articles
+        if ($index > 0 && $index % 3 === 0 && !$adInlineShown):
+          $inlineAd = AdWidget::articleInline();
+          if ($inlineAd):
+            $adInlineShown = true;
+      ?>
+        <div class="col-12">
+          <?= $inlineAd ?>
+        </div>
+      <?php endif; endif; ?>
         <div class="col-12 col-md-6 col-lg-4">
           <article class="card card-article h-100" itemscope itemtype="https://schema.org/Article">
             <a href="/<?php echo Security::sanitizeInput($item['file']); ?>" 

@@ -4,6 +4,8 @@ require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Post.php');
 require_once(__DIR__ . '/includes/Category.php');
 require_once(__DIR__ . '/includes/Stats.php');
+require_once(__DIR__ . '/includes/Ad.php');
+require_once(__DIR__ . '/includes/AdWidget.php');
 
 // Track category page visit
 Stats::trackView(null, 'category');
