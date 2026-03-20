@@ -4,13 +4,15 @@
  * Handles database export and file backup
  */
 
+require_once(__DIR__ . '/../config/database.php');
+
 class BackupManager {
     private $pdo;
     private $backupDir;
     private $maxBackups = 10; // Keep last 10 backups
     
     public function __construct($pdo = null) {
-        $this->pdo = $pdo ?: getPDO();
+        $this->pdo = $pdo ?: Database::getInstance();
         $this->backupDir = __DIR__ . '/../data/backups/';
         
         // Ensure backup directory exists

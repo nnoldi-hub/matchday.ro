@@ -4,12 +4,14 @@
  * Handles subscriber management and email dispatch
  */
 
+require_once(__DIR__ . '/../config/database.php');
+
 class Newsletter {
     private static $pdo = null;
     
     private static function getPDO() {
         if (self::$pdo === null) {
-            self::$pdo = getPDO();
+            self::$pdo = Database::getInstance();
         }
         return self::$pdo;
     }
