@@ -173,9 +173,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $editorialPlan = getEditorialPlan();
 $admin = true;
-$pageTitle = 'Management Editorial - Admin MatchDay.ro';
+$pageTitle = 'Management Editorial';
 
-include(__DIR__ . '/../includes/header.php');
+require_once(__DIR__ . '/admin-header.php');
 ?>
 
 <style>
@@ -190,91 +190,78 @@ include(__DIR__ . '/../includes/header.php');
 .editable:hover { background-color: #f8f9fa; }
 </style>
 
-<main class="container-fluid my-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="h3 fw-bold mb-1">
-                        <i class="fas fa-calendar-check text-primary me-2"></i>
-                        Management Editorial
-                    </h1>
-                    <p class="text-muted mb-0">Urmărește și gestionează planul editorial pentru MatchDay.ro</p>
-                </div>
-                
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-primary" onclick="refreshStats()">
-                        <i class="fas fa-sync me-1"></i>Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="exportPlan()">
-                        <i class="fas fa-download me-1"></i>Export
-                    </button>
-                </div>
+<!-- Page Header -->
+<div class="admin-page-header">
+    <h1><i class="fas fa-calendar-check me-2"></i>Management Editorial</h1>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="refreshStats()">
+            <i class="fas fa-sync me-1"></i>Refresh
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="exportPlan()">
+            <i class="fas fa-download me-1"></i>Export
+        </button>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4" id="statsCards">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon primary"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-content">
+                <h3 id="stat-total">-</h3>
+                <p>Total articole</p>
             </div>
         </div>
     </div>
-
-    <!-- Stats Cards -->
-    <div class="row mb-4" id="statsCards">
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="h2 text-primary mb-1" id="stat-total">-</div>
-                    <small class="text-muted">Total articole</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="h2 text-warning mb-1" id="stat-planned">-</div>
-                    <small class="text-muted">Planificate</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="h2 text-info mb-1" id="stat-in_progress">-</div>
-                    <small class="text-muted">În progres</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="h2 text-success mb-1" id="stat-published">-</div>
-                    <small class="text-muted">Publicate</small>
-                </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon warning"><i class="fas fa-clock"></i></div>
+            <div class="stat-content">
+                <h3 id="stat-planned">-</h3>
+                <p>Planificate</p>
             </div>
         </div>
     </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon info"><i class="fas fa-spinner"></i></div>
+            <div class="stat-content">
+                <h3 id="stat-in_progress">-</h3>
+                <p>În progres</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon success"><i class="fas fa-check"></i></div>
+            <div class="stat-content">
+                <h3 id="stat-published">-</h3>
+                <p>Publicate</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <!-- Editorial Plan Table -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <h4 class="h6 mb-0">
-                        <i class="fas fa-list me-2"></i>
-                        Planul Editorial - Următoarele 4 săptămâni
-                    </h4>
-                    <div class="d-flex gap-2">
-                        <select class="form-select form-select-sm" id="filterStatus" onchange="filterTable()">
-                            <option value="">Toate statusurile</option>
-                            <option value="planned">Planificat</option>
-                            <option value="in_progress">În progres</option>
-                            <option value="review">Review</option>
-                            <option value="published">Publicat</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0" id="editorialTable">
-                            <thead class="table-light">
-                                <tr>
-                                    <th style="width: 100px;">Data</th>
+<!-- Editorial Plan Table -->
+<div class="admin-card">
+    <div class="admin-card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h2><i class="fas fa-list me-2"></i>Planul Editorial - Următoarele 4 săptămâni</h2>
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <select class="form-select form-select-sm" id="filterStatus" onchange="filterTable()">
+                <option value="">Toate statusurile</option>
+                <option value="planned">Planificat</option>
+                <option value="in_progress">În progres</option>
+                <option value="review">Review</option>
+                <option value="published">Publicat</option>
+            </select>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="admin-table" id="editorialTable">
+            <thead>
+                <tr>
+                    <th style="width: 100px;">Data</th>
                                     <th style="width: 80px;">Zi</th>
                                     <th style="width: 150px;">Tip conținut</th>
                                     <th>Titlu articol</th>
@@ -344,12 +331,8 @@ include(__DIR__ . '/../includes/header.php');
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
-</main>
+</div>
 
 <!-- Edit Modal -->
 <div class="modal fade" id="editModal" tabindex="-1">
@@ -887,4 +870,4 @@ function exportPlan() {
 }
 </script>
 
-<?php include(__DIR__ . '/../includes/footer.php'); ?>
+<?php require_once(__DIR__ . '/admin-footer.php'); ?>

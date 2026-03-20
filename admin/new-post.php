@@ -5,19 +5,22 @@ if (empty($_SESSION['david_logged'])) {
     exit; 
 }
 
-include(__DIR__ . '/../includes/header.php');
+$pageTitle = 'Articol Nou';
+require_once(__DIR__ . '/admin-header.php');
 ?>
-<div class="container admin-card">
-  <div class="card shadow-sm">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h4 m-0">Articol nou</h1>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-outline-info btn-sm" onclick="previewPost()">Preview</button>
-          <a class="btn btn-outline-secondary btn-sm" href="logout.php">Delogare</a>
-        </div>
-      </div>
-      
+
+<!-- Page Header -->
+<div class="admin-page-header">
+    <h1><i class="fas fa-plus-circle me-2"></i>Articol Nou</h1>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-info btn-sm" onclick="previewPost()">
+            <i class="fas fa-eye me-1"></i>Preview
+        </button>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="p-4">
       <form action="save-post.php" method="post" enctype="multipart/form-data" id="postForm">
         <input type="hidden" name="csrf_token" value="<?php echo Security::generateCSRFToken(); ?>">
         
@@ -89,15 +92,14 @@ include(__DIR__ . '/../includes/header.php');
           </div>
         </div>
         
-        <div class="d-flex gap-2 mt-4">
-          <button class="btn btn-accent" type="submit">Publică articolul</button>
-          <button type="button" class="btn btn-outline-success" onclick="saveDraft()">Salvează draft</button>
-          <button type="button" class="btn btn-outline-info" onclick="loadDraft()">Încarcă draft</button>
-          <a href="../index.php" class="btn btn-outline-secondary">Anulează</a>
+        <div class="d-flex gap-2 mt-4 flex-wrap">
+          <button class="btn btn-accent" type="submit"><i class="fas fa-paper-plane me-1"></i>Publică articolul</button>
+          <button type="button" class="btn btn-outline-success" onclick="saveDraft()"><i class="fas fa-save me-1"></i>Salvează draft</button>
+          <button type="button" class="btn btn-outline-info" onclick="loadDraft()"><i class="fas fa-folder-open me-1"></i>Încarcă draft</button>
+          <a href="posts.php" class="btn btn-outline-secondary"><i class="fas fa-times me-1"></i>Anulează</a>
         </div>
       </form>
     </div>
-  </div>
 </div>
 
 <!-- Preview Modal -->
@@ -227,4 +229,4 @@ function previewPost() {
     new bootstrap.Modal(document.getElementById('previewModal')).show();
 }
 </script>
-<?php include(__DIR__ . '/../includes/footer.php'); ?>
+<?php require_once(__DIR__ . '/admin-footer.php'); ?>

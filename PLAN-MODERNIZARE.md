@@ -105,16 +105,16 @@
 
 ## 🎯 FAZA 5: Admin Modern + Reclame
 **Durată estimată:** 2-3 zile  
-**Status:** ⬜ ÎN AȘTEPTARE
+**Status:** ✅ COMPLETAT
 
 ### 🧱 5.1 Reorganizarea Dashboard-ului Admin
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
-| 5.1.1 | Creare layout cu sidebar fix stânga | ⬜ TODO | 240px lățime, sticky top |
-| 5.1.2 | Design sidebar modern cu iconițe | ⬜ TODO | FontAwesome icons, hover effects |
-| 5.1.3 | Zona principală scrollabilă dreapta | ⬜ TODO | margin-left: 240px |
-| 5.1.4 | Responsive pentru mobil | ⬜ TODO | Hamburger menu pe mobile |
-| 5.1.5 | Refactor toate paginile admin | ⬜ TODO | Folosesc noul layout |
+| 5.1.1 | Creare layout cu sidebar fix stânga | ✅ DONE | 260px, admin-header.php |
+| 5.1.2 | Design sidebar modern cu iconițe | ✅ DONE | FontAwesome + dark theme #1a1d21 |
+| 5.1.3 | Zona principală scrollabilă dreapta | ✅ DONE | margin-left responsive |
+| 5.1.4 | Responsive pentru mobil | ✅ DONE | Hamburger menu @991px |
+| 5.1.5 | Refactor toate paginile admin | ✅ DONE | 15+ pagini actualizate |
 
 **Meniu Sidebar propus:**
 ```
@@ -137,14 +137,14 @@
 ### 📢 5.2 Modul Gestionare Reclame / Sponsori
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
-| 5.2.1 | Creare tabel `reclame` în DB | ⬜ TODO | MySQL schema |
-| 5.2.2 | Model Ad.php | ⬜ TODO | CRUD + getByPosition |
-| 5.2.3 | Admin: admin/ads.php | ⬜ TODO | Lista, add, edit, delete |
-| 5.2.4 | Upload imagine banner | ⬜ TODO | /assets/uploads/ads/ |
-| 5.2.5 | Poziții disponibile | ⬜ TODO | sidebar, header, footer, articol |
-| 5.2.6 | Perioadă activare (start/end) | ⬜ TODO | Date picker |
-| 5.2.7 | Status activ/inactiv | ⬜ TODO | Toggle switch |
-| 5.2.8 | Tracking clicks (opțional) | ⬜ TODO | Statistici per reclamă |
+| 5.2.1 | Creare tabel `ads` în DB | ✅ DONE | MySQL + SQLite schema |
+| 5.2.2 | Model Ad.php | ✅ DONE | CRUD + getActive + stats |
+| 5.2.3 | Admin: admin/ads.php | ✅ DONE | Lista, add, edit, delete, toggle |
+| 5.2.4 | Upload imagine banner | ✅ DONE | /assets/uploads/ads/ |
+| 5.2.5 | Poziții disponibile | ✅ DONE | 5 poziții (sidebar, header, footer, article-inline, article-content) |
+| 5.2.6 | Perioadă activare (start/end) | ✅ DONE | Date picker în modal |
+| 5.2.7 | Status activ/inactiv | ✅ DONE | Toggle instant |
+| 5.2.8 | Tracking clicks + impressions | ✅ DONE | ad-click.php + CTR stats |
 
 **Schema MySQL propusă:**
 ```sql
@@ -167,19 +167,19 @@ CREATE TABLE ads (
 ### 🧩 5.3 Integrare Front-end
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
-| 5.3.1 | Helper Ad::getActive($position) | ⬜ TODO | Filtrare pe poziție și dată |
-| 5.3.2 | Widget sidebar reclame | ⬜ TODO | include în sidebar |
-| 5.3.3 | Banner header (opțional) | ⬜ TODO | Sub navbar |
-| 5.3.4 | Banner între articole | ⬜ TODO | La fiecare N articole |
-| 5.3.5 | Tracking click redirect | ⬜ TODO | /ad-click.php?id=X |
+| 5.3.1 | Helper Ad::getActive($position) | ✅ DONE | Filtrare poziție + date |
+| 5.3.2 | Widget sidebar reclame | ✅ DONE | AdWidget::sidebar() |
+| 5.3.3 | Banner header (opțional) | ✅ DONE | AdWidget::header() |
+| 5.3.4 | Banner între articole | ✅ DONE | AdWidget::articleInline() |
+| 5.3.5 | Tracking click redirect | ✅ DONE | /ad-click.php?id=X |
 
 ### 🎨 5.4 Template-uri Banner
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
-| 5.4.1 | Banner 300x250 (sidebar) | ⬜ TODO | MPU standard |
-| 5.4.2 | Banner 728x90 (header) | ⬜ TODO | Leaderboard |
-| 5.4.3 | Banner 320x100 (mobile) | ⬜ TODO | Mobile banner |
-| 5.4.4 | Card sponsor cu logo+text | ⬜ TODO | Style custom |
+| 5.4.1 | Banner 300x250 (sidebar) | ✅ DONE | .ad-sidebar class |
+| 5.4.2 | Banner 728x90 (header) | ✅ DONE | .ad-header-banner class |
+| 5.4.3 | Banner 320x100 (mobile) | ✅ DONE | Responsive img-fluid |
+| 5.4.4 | Card sponsor cu logo+text | ✅ DONE | AdWidget::sidebar() |
 
 ---
 

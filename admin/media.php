@@ -126,232 +126,215 @@ function getImages($dir) {
 $images = getImages($uploadsDir);
 $totalSize = array_sum(array_column($images, 'size'));
 
-include(__DIR__ . '/../includes/header.php');
+$pageTitle = 'Media Library';
+require_once(__DIR__ . '/admin-header.php');
 ?>
 
-<div class="container admin-card">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">
-      <i class="fas fa-images me-2"></i>Media Library
-    </h1>
-    <div class="d-flex gap-2">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+<!-- Page Header -->
+<div class="admin-page-header">
+    <h1><i class="fas fa-images me-2"></i>Media Library</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
         <i class="fas fa-upload me-1"></i>Încarcă imagine
-      </button>
-      <a href="dashboard.php" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Dashboard
-      </a>
-    </div>
-  </div>
-  
-  <?php if ($message): ?>
-    <div class="alert alert-<?= $messageType ?> alert-dismissible fade show">
-      <?= htmlspecialchars($message) ?>
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  <?php endif; ?>
-  
-  <!-- Stats -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-body d-flex align-items-center">
-          <div class="bg-primary bg-opacity-10 rounded-3 p-3 me-3">
-            <i class="fas fa-images fa-2x text-primary"></i>
-          </div>
-          <div>
-            <h4 class="mb-0"><?= count($images) ?></h4>
-            <small class="text-muted">Imagini</small>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-body d-flex align-items-center">
-          <div class="bg-info bg-opacity-10 rounded-3 p-3 me-3">
-            <i class="fas fa-database fa-2x text-info"></i>
-          </div>
-          <div>
-            <h4 class="mb-0"><?= number_format($totalSize / 1024 / 1024, 2) ?> MB</h4>
-            <small class="text-muted">Spațiu folosit</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Images Grid -->
-  <div class="card">
-    <div class="card-header">
-      <h5 class="mb-0">Toate imaginile</h5>
-    </div>
-    <div class="card-body">
-      <?php if (empty($images)): ?>
-        <div class="text-center py-5">
-          <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
-          <p class="text-muted mb-3">Nu ai încărcat nicio imagine încă.</p>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
-            <i class="fas fa-upload me-1"></i>Încarcă prima imagine
-          </button>
-        </div>
-      <?php else: ?>
-        <div class="row g-3">
-          <?php foreach ($images as $img): ?>
-          <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100 image-card">
-              <div class="position-relative">
-                <img src="<?= htmlspecialchars($img['url']) ?>" 
-                     class="card-img-top" 
-                     alt="<?= htmlspecialchars($img['name']) ?>"
-                     style="height: 150px; object-fit: cover; cursor: pointer;"
-                     onclick="showPreview('<?= htmlspecialchars($img['url']) ?>', '<?= htmlspecialchars($img['name']) ?>')">
-                <div class="position-absolute top-0 end-0 p-2">
-                  <form method="post" class="d-inline" onsubmit="return confirm('Sigur ștergi această imagine?')">
-                    <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
-                    <input type="hidden" name="delete" value="<?= htmlspecialchars($img['name']) ?>">
-                    <button type="submit" class="btn btn-danger btn-sm">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </form>
-                </div>
-              </div>
-              <div class="card-body p-2">
-                <small class="text-muted d-block text-truncate" title="<?= htmlspecialchars($img['name']) ?>">
-                  <?= htmlspecialchars($img['name']) ?>
-                </small>
-                <small class="text-muted">
-                  <?= number_format($img['size'] / 1024, 1) ?> KB
-                  · <?= date('d.m.Y', $img['modified']) ?>
-                </small>
-              </div>
-              <div class="card-footer p-2 bg-light">
-                <button class="btn btn-sm btn-outline-primary w-100" onclick="copyUrl('<?= htmlspecialchars($img['url']) ?>')">
-                  <i class="fas fa-link me-1"></i>Copiază URL
-                </button>
-              </div>
+    </button>
+</div>
+
+<?php if ($message): ?>
+<div class="alert alert-<?= $messageType ?> alert-dismissible fade show">
+    <?= htmlspecialchars($message) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon primary"><i class="fas fa-images"></i></div>
+            <div class="stat-content">
+                <h3><?= count($images) ?></h3>
+                <p>Imagini încărcate</p>
             </div>
-          </div>
-          <?php endforeach; ?>
         </div>
-      <?php endif; ?>
     </div>
-  </div>
+    <div class="col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon info"><i class="fas fa-database"></i></div>
+            <div class="stat-content">
+                <h3><?= number_format($totalSize / 1024 / 1024, 2) ?> MB</h3>
+                <p>Spațiu folosit</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Images Grid -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2>Toate imaginile</h2>
+        <span class="badge bg-secondary"><?= count($images) ?> fișiere</span>
+    </div>
+    
+    <?php if (empty($images)): ?>
+        <div class="text-center py-5">
+            <i class="fas fa-cloud-upload-alt fa-4x text-muted mb-3"></i>
+            <p class="text-muted mb-3">Nu ai încărcat nicio imagine încă.</p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                <i class="fas fa-upload me-1"></i>Încarcă prima imagine
+            </button>
+        </div>
+    <?php else: ?>
+        <div class="row g-3 p-3">
+            <?php foreach ($images as $img): ?>
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100 image-card">
+                    <div class="position-relative">
+                        <img src="<?= htmlspecialchars($img['url']) ?>" 
+                             class="card-img-top" 
+                             alt="<?= htmlspecialchars($img['name']) ?>"
+                             style="height: 150px; object-fit: cover; cursor: pointer;"
+                             onclick="showPreview('<?= htmlspecialchars($img['url']) ?>', '<?= htmlspecialchars($img['name']) ?>')">
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <form method="post" class="d-inline" onsubmit="return confirm('Sigur ștergi această imagine?')">
+                                <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+                                <input type="hidden" name="delete" value="<?= htmlspecialchars($img['name']) ?>">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body p-2">
+                        <small class="text-muted d-block text-truncate" title="<?= htmlspecialchars($img['name']) ?>">
+                            <?= htmlspecialchars($img['name']) ?>
+                        </small>
+                        <small class="text-muted">
+                            <?= number_format($img['size'] / 1024, 1) ?> KB · <?= date('d.m.Y', $img['modified']) ?>
+                        </small>
+                    </div>
+                    <div class="card-footer p-2 bg-light">
+                        <button class="btn btn-sm btn-outline-primary w-100" onclick="copyUrl('<?= htmlspecialchars($img['url']) ?>')">
+                            <i class="fas fa-link me-1"></i>Copiază URL
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <!-- Upload Modal -->
 <div class="modal fade" id="uploadModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-upload me-2"></i>Încarcă imagine</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form method="post" enctype="multipart/form-data">
-        <div class="modal-body">
-          <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
-          
-          <div class="mb-3">
-            <label class="form-label">Selectează imagine</label>
-            <input type="file" name="image" class="form-control" accept="image/*" required>
-            <div class="form-text">JPG, PNG, GIF, WebP. Maxim 5MB.</div>
-          </div>
-          
-          <div id="preview" class="text-center d-none">
-            <img id="previewImg" src="" class="img-fluid rounded" style="max-height: 200px;">
-          </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-upload me-2"></i>Încarcă imagine</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Selectează imagine</label>
+                        <input type="file" name="image" class="form-control" accept="image/*" required>
+                        <div class="form-text">JPG, PNG, GIF, WebP. Maxim 5MB.</div>
+                    </div>
+                    
+                    <div id="preview" class="text-center d-none">
+                        <img id="previewImg" src="" class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload me-1"></i>Încarcă
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-upload me-1"></i>Încarcă
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
 
 <!-- Preview Modal -->
 <div class="modal fade" id="previewModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="previewTitle">Previzualizare</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-center p-0">
-        <img id="previewFullImg" src="" class="img-fluid">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-primary" onclick="copyUrl(document.getElementById('previewFullImg').src)">
-          <i class="fas fa-link me-1"></i>Copiază URL
-        </button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Închide</button>
-      </div>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewTitle">Previzualizare</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="previewFullImg" src="" class="img-fluid">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" onclick="copyUrl(document.getElementById('previewFullImg').src)">
+                    <i class="fas fa-link me-1"></i>Copiază URL
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Închide</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <style>
 .image-card {
-  transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 .image-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 .image-card .btn-danger {
-  opacity: 0;
-  transition: opacity 0.2s;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
 .image-card:hover .btn-danger {
-  opacity: 1;
+    opacity: 1;
 }
 </style>
 
 <script>
 // Preview before upload
 document.querySelector('input[name="image"]')?.addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('previewImg').src = e.target.result;
-      document.getElementById('preview').classList.remove('d-none');
-    };
-    reader.readAsDataURL(file);
-  }
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('preview').classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
 });
 
 // Copy URL to clipboard
 function copyUrl(url) {
-  const fullUrl = window.location.origin + url;
-  navigator.clipboard.writeText(fullUrl).then(() => {
-    // Show toast or alert
-    const toast = document.createElement('div');
-    toast.className = 'position-fixed bottom-0 end-0 p-3';
-    toast.style.zIndex = '9999';
-    toast.innerHTML = `
-      <div class="toast show bg-success text-white">
-        <div class="toast-body">
-          <i class="fas fa-check me-2"></i>URL copiat în clipboard!
-        </div>
-      </div>
-    `;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
-  }).catch(() => {
-    alert('URL: ' + fullUrl);
-  });
+    const fullUrl = window.location.origin + url;
+    navigator.clipboard.writeText(fullUrl).then(() => {
+        const toast = document.createElement('div');
+        toast.className = 'position-fixed bottom-0 end-0 p-3';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            <div class="toast show bg-success text-white">
+                <div class="toast-body">
+                    <i class="fas fa-check me-2"></i>URL copiat în clipboard!
+                </div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }).catch(() => {
+        alert('URL: ' + fullUrl);
+    });
 }
 
 // Show full preview
 function showPreview(url, name) {
-  document.getElementById('previewFullImg').src = url;
-  document.getElementById('previewTitle').textContent = name;
-  new bootstrap.Modal(document.getElementById('previewModal')).show();
+    document.getElementById('previewFullImg').src = url;
+    document.getElementById('previewTitle').textContent = name;
+    new bootstrap.Modal(document.getElementById('previewModal')).show();
 }
 </script>
 
-<?php include(__DIR__ . '/../includes/footer.php'); ?>
+<?php require_once(__DIR__ . '/admin-footer.php'); ?>

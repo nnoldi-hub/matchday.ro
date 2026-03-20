@@ -39,216 +39,196 @@ for ($h = 0; $h < 24; $h++) {
     $hourlyValues[] = $hourlyStats[$h] ?? 0;
 }
 
-include(__DIR__ . '/../includes/header.php');
+$pageTitle = 'Statistici';
+require_once(__DIR__ . '/admin-header.php');
 ?>
 
-<div class="container admin-card">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3"><i class="fas fa-chart-line me-2"></i>Statistici Vizitatori</h1>
-        <a href="dashboard.php" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Înapoi
-        </a>
-    </div>
-    
-    <!-- Summary Cards -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3 col-6">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <div class="h2 text-primary mb-0"><?= number_format($summary['today_views']) ?></div>
-                    <small class="text-muted">Vizualizări azi</small>
-                    <div class="small text-secondary mt-1">
-                        <i class="fas fa-users me-1"></i><?= number_format($summary['today_unique']) ?> unici
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <div class="h2 text-success mb-0"><?= number_format($summary['yesterday_views']) ?></div>
-                    <small class="text-muted">Vizualizări ieri</small>
-                    <?php 
-                    $change = $summary['today_views'] - $summary['yesterday_views'];
-                    $changeClass = $change >= 0 ? 'text-success' : 'text-danger';
-                    $changeIcon = $change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-                    ?>
-                    <div class="small <?= $changeClass ?> mt-1">
-                        <i class="fas <?= $changeIcon ?> me-1"></i><?= abs($change) ?> vs azi
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <div class="h2 text-warning mb-0"><?= number_format($summary['this_week_views']) ?></div>
-                    <small class="text-muted">Săptămâna asta</small>
-                    <?php 
-                    $weekChange = $summary['this_week_views'] - $summary['last_week_views'];
-                    $weekClass = $weekChange >= 0 ? 'text-success' : 'text-danger';
-                    $weekIcon = $weekChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-                    ?>
-                    <div class="small <?= $weekClass ?> mt-1">
-                        <i class="fas <?= $weekIcon ?> me-1"></i><?= abs($weekChange) ?> vs săpt. trec.
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <div class="h2 text-info mb-0"><?= number_format($summary['total_views']) ?></div>
-                    <small class="text-muted">Total vizualizări</small>
-                    <div class="small text-secondary mt-1">
-                        <i class="fas fa-users me-1"></i><?= number_format($summary['total_unique']) ?> unici
-                    </div>
-                </div>
+<!-- Page Header -->
+<div class="admin-page-header">
+    <h1><i class="fas fa-chart-line me-2"></i>Statistici Vizitatori</h1>
+    <span class="text-muted">Ultima actualizare: <?= date('d.m.Y H:i') ?></span>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="stat-icon primary"><i class="fas fa-eye"></i></div>
+            <div class="stat-content">
+                <h3><?= number_format($summary['today_views']) ?></h3>
+                <p>Vizualizări azi</p>
+                <small class="text-muted"><i class="fas fa-users me-1"></i><?= number_format($summary['today_unique']) ?> unici</small>
             </div>
         </div>
     </div>
-    
-    <!-- Charts Row -->
-    <div class="row g-4 mb-4">
-        <!-- Daily Views Chart -->
-        <div class="col-lg-8">
-            <div class="card h-100">
-                <div class="card-header">
-                    <i class="fas fa-chart-area me-1"></i>Vizualizări ultimele 30 zile
-                </div>
-                <div class="card-body">
-                    <canvas id="dailyChart" height="250"></canvas>
-                </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="stat-icon success"><i class="fas fa-calendar-day"></i></div>
+            <div class="stat-content">
+                <h3><?= number_format($summary['yesterday_views']) ?></h3>
+                <p>Vizualizări ieri</p>
+                <?php 
+                $change = $summary['today_views'] - $summary['yesterday_views'];
+                $changeClass = $change >= 0 ? 'text-success' : 'text-danger';
+                $changeIcon = $change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                ?>
+                <small class="<?= $changeClass ?>"><i class="fas <?= $changeIcon ?> me-1"></i><?= abs($change) ?> vs azi</small>
             </div>
         </div>
-        
-        <!-- Hourly Distribution -->
-        <div class="col-lg-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <i class="fas fa-clock me-1"></i>Distribuție orară (azi)
-                </div>
-                <div class="card-body">
-                    <canvas id="hourlyChart" height="250"></canvas>
-                </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="stat-icon warning"><i class="fas fa-calendar-week"></i></div>
+            <div class="stat-content">
+                <h3><?= number_format($summary['this_week_views']) ?></h3>
+                <p>Săptămâna asta</p>
+                <?php 
+                $weekChange = $summary['this_week_views'] - $summary['last_week_views'];
+                $weekClass = $weekChange >= 0 ? 'text-success' : 'text-danger';
+                $weekIcon = $weekChange >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                ?>
+                <small class="<?= $weekClass ?>"><i class="fas <?= $weekIcon ?> me-1"></i><?= abs($weekChange) ?> vs săpt. trec.</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="stat-icon info"><i class="fas fa-chart-bar"></i></div>
+            <div class="stat-content">
+                <h3><?= number_format($summary['total_views']) ?></h3>
+                <p>Total vizualizări</p>
+                <small class="text-muted"><i class="fas fa-users me-1"></i><?= number_format($summary['total_unique']) ?> unici</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <!-- Daily Views Chart -->
+    <div class="col-lg-8">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <h2><i class="fas fa-chart-area me-2"></i>Vizualizări ultimele 30 zile</h2>
+            </div>
+            <div class="p-3">
+                <canvas id="dailyChart" height="250"></canvas>
             </div>
         </div>
     </div>
     
-    <!-- Tables Row -->
-    <div class="row g-4">
-        <!-- Top Posts -->
-        <div class="col-lg-7">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-fire me-1"></i>Articole populare (ultimele 30 zile)
-                </div>
-                <div class="card-body p-0">
-                    <?php if (empty($topPosts)): ?>
-                    <p class="text-muted p-3 mb-0">Nu există date încă.</p>
-                    <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Articol</th>
-                                    <th class="text-end">Vizualizări</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($topPosts as $i => $post): ?>
-                                <tr>
-                                    <td class="text-muted"><?= $i + 1 ?></td>
-                                    <td>
-                                        <a href="../post.php?slug=<?= urlencode($post['slug']) ?>" target="_blank" class="text-decoration-none">
-                                            <?= Security::sanitizeInput(mb_substr($post['title'], 0, 50)) ?>
-                                            <?= mb_strlen($post['title']) > 50 ? '...' : '' ?>
-                                        </a>
-                                    </td>
-                                    <td class="text-end">
-                                        <span class="badge bg-primary"><?= number_format($post['total_views']) ?></span>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <?php endif; ?>
-                </div>
+    <!-- Hourly Distribution -->
+    <div class="col-lg-4">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <h2><i class="fas fa-clock me-2"></i>Distribuție orară</h2>
             </div>
-        </div>
-        
-        <!-- Traffic Sources -->
-        <div class="col-lg-5">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-globe me-1"></i>Surse de trafic (ultimele 7 zile)
-                </div>
-                <div class="card-body p-0">
-                    <?php if (empty($topReferers)): ?>
-                    <p class="text-muted p-3 mb-0">Nu există date încă.</p>
-                    <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Sursă</th>
-                                    <th class="text-end">Vizite</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php 
-                                $totalVisits = array_sum(array_column($topReferers, 'visits'));
-                                foreach ($topReferers as $ref): 
-                                    $percent = $totalVisits > 0 ? round(($ref['visits'] / $totalVisits) * 100, 1) : 0;
-                                ?>
-                                <tr>
-                                    <td>
-                                        <?php if ($ref['source'] === 'Direct'): ?>
-                                            <i class="fas fa-link text-muted me-1"></i>
-                                        <?php elseif (strpos($ref['source'], 'google') !== false): ?>
-                                            <i class="fab fa-google text-danger me-1"></i>
-                                        <?php elseif (strpos($ref['source'], 'facebook') !== false): ?>
-                                            <i class="fab fa-facebook text-primary me-1"></i>
-                                        <?php else: ?>
-                                            <i class="fas fa-external-link-alt text-secondary me-1"></i>
-                                        <?php endif; ?>
-                                        <?= Security::sanitizeInput(mb_substr($ref['source'], 0, 30)) ?>
-                                    </td>
-                                    <td class="text-end">
-                                        <span class="badge bg-secondary"><?= number_format($ref['visits']) ?></span>
-                                        <small class="text-muted ms-1">(<?= $percent ?>%)</small>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <?php endif; ?>
-                </div>
+            <div class="p-3">
+                <canvas id="hourlyChart" height="250"></canvas>
             </div>
         </div>
     </div>
-    
-    <!-- Info Footer -->
-    <div class="card mt-4 bg-light">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Statisticile sunt actualizate în timp real. Vizitatorii unici sunt identificați prin IP hash zilnic (GDPR compliant).
-                        Datele mai vechi de 90 de zile sunt șterse automat.
-                    </small>
-                </div>
-                <div class="col-md-4 text-md-end mt-2 mt-md-0">
-                    <small class="text-muted">
-                        Ultima actualizare: <?= date('d.m.Y H:i') ?>
-                    </small>
-                </div>
+</div>
+
+<!-- Tables Row -->
+<div class="row g-4">
+    <!-- Top Posts -->
+    <div class="col-lg-7">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2><i class="fas fa-fire me-2"></i>Articole populare (30 zile)</h2>
             </div>
+            <?php if (empty($topPosts)): ?>
+            <p class="text-muted p-3 mb-0">Nu există date încă.</p>
+            <?php else: ?>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Articol</th>
+                            <th class="text-end">Views</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($topPosts as $i => $post): ?>
+                        <tr>
+                            <td class="text-muted"><?= $i + 1 ?></td>
+                            <td>
+                                <a href="../post.php?slug=<?= urlencode($post['slug']) ?>" target="_blank" class="text-decoration-none">
+                                    <?= Security::sanitizeInput(mb_substr($post['title'], 0, 45)) ?><?= mb_strlen($post['title']) > 45 ? '...' : '' ?>
+                                </a>
+                            </td>
+                            <td class="text-end">
+                                <span class="badge bg-primary"><?= number_format($post['total_views']) ?></span>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php endif; ?>
         </div>
+    </div>
+    
+    <!-- Traffic Sources -->
+    <div class="col-lg-5">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h2><i class="fas fa-globe me-2"></i>Surse de trafic (7 zile)</h2>
+            </div>
+            <?php if (empty($topReferers)): ?>
+            <p class="text-muted p-3 mb-0">Nu există date încă.</p>
+            <?php else: ?>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Sursă</th>
+                            <th class="text-end">Vizite</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $totalVisits = array_sum(array_column($topReferers, 'visits'));
+                        foreach ($topReferers as $ref): 
+                            $percent = $totalVisits > 0 ? round(($ref['visits'] / $totalVisits) * 100, 1) : 0;
+                        ?>
+                        <tr>
+                            <td>
+                                <?php if ($ref['source'] === 'Direct'): ?>
+                                    <i class="fas fa-link text-muted me-1"></i>
+                                <?php elseif (strpos($ref['source'], 'google') !== false): ?>
+                                    <i class="fab fa-google text-danger me-1"></i>
+                                <?php elseif (strpos($ref['source'], 'facebook') !== false): ?>
+                                    <i class="fab fa-facebook text-primary me-1"></i>
+                                <?php else: ?>
+                                    <i class="fas fa-external-link-alt text-secondary me-1"></i>
+                                <?php endif; ?>
+                                <?= Security::sanitizeInput(mb_substr($ref['source'], 0, 25)) ?>
+                            </td>
+                            <td class="text-end">
+                                <span class="badge bg-secondary"><?= number_format($ref['visits']) ?></span>
+                                <small class="text-muted">(<?= $percent ?>%)</small>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- Info Footer -->
+<div class="admin-card mt-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap p-3">
+        <small class="text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            Statisticile sunt actualizate în timp real. Vizitatorii unici sunt identificați prin IP hash zilnic (GDPR compliant).
+            Datele mai vechi de 90 de zile sunt șterse automat.
+        </small>
     </div>
 </div>
 
@@ -337,4 +317,4 @@ new Chart(hourlyCtx, {
 });
 </script>
 
-<?php include(__DIR__ . '/../includes/footer.php'); ?>
+<?php require_once(__DIR__ . '/admin-footer.php'); ?>

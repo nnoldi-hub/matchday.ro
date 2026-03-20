@@ -115,135 +115,174 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $users = User::getAll();
 $roles = User::getAvailableRoles();
 
-include(__DIR__ . '/../includes/header.php');
+$pageTitle = 'Utilizatori';
+require_once(__DIR__ . '/admin-header.php');
 ?>
 
-<div class="container admin-card">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3"><i class="fas fa-users me-2"></i>Gestionare Utilizatori</h1>
-        <div class="d-flex gap-2">
-            <button class="btn btn-accent" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openCreateModal()">
-                <i class="fas fa-user-plus me-1"></i>Utilizator nou
-            </button>
-            <a href="dashboard.php" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i>Înapoi
-            </a>
+<!-- Page Header -->
+<div class="admin-page-header">
+    <h1><i class="fas fa-users me-2"></i>Gestionare Utilizatori</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openCreateModal()">
+        <i class="fas fa-user-plus me-1"></i>Utilizator nou
+    </button>
+</div>
+
+<?php if ($message): ?>
+<div class="alert alert-success alert-dismissible fade show">
+    <i class="fas fa-check-circle me-1"></i><?= Security::sanitizeInput($message) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+
+<?php if ($error): ?>
+<div class="alert alert-danger alert-dismissible fade show">
+    <i class="fas fa-exclamation-circle me-1"></i><?= Security::sanitizeInput($error) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon primary"><i class="fas fa-users"></i></div>
+            <div class="stat-content">
+                <h3><?= count($users) ?></h3>
+                <p>Total utilizatori</p>
+            </div>
         </div>
     </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon danger"><i class="fas fa-crown"></i></div>
+            <div class="stat-content">
+                <h3><?= count(array_filter($users, fn($u) => $u['role'] === 'admin')) ?></h3>
+                <p>Administratori</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon secondary"><i class="fas fa-edit"></i></div>
+            <div class="stat-content">
+                <h3><?= count(array_filter($users, fn($u) => $u['role'] === 'editor')) ?></h3>
+                <p>Editori</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon success"><i class="fas fa-clock"></i></div>
+            <div class="stat-content">
+                <h3><?= count(array_filter($users, fn($u) => $u['last_login'] && strtotime($u['last_login']) > strtotime('-7 days'))) ?></h3>
+                <p>Activi (7 zile)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2>Lista utilizatori</h2>
+        <span class="badge bg-primary"><?= count($users) ?> utilizatori</span>
+    </div>
     
-    <?php if ($message): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="fas fa-check-circle me-1"></i><?= Security::sanitizeInput($message) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <?php if (empty($users)): ?>
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+        <p class="text-muted">Nu există utilizatori.</p>
+    </div>
+    <?php else: ?>
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Utilizator</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Ultima autentificare</th>
+                    <th>Creat la</th>
+                    <th class="text-center">Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($users as $user): ?>
+                <tr>
+                    <td class="text-muted">#<?= $user['id'] ?></td>
+                    <td>
+                        <strong><?= Security::sanitizeInput($user['username']) ?></strong>
+                        <?php if (($user['id'] ?? 0) === ($_SESSION['user_id'] ?? 0)): ?>
+                        <span class="badge bg-info ms-1">Tu</span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="text-muted"><?= Security::sanitizeInput($user['email'] ?? '-') ?></td>
+                    <td>
+                        <?php if ($user['role'] === 'admin'): ?>
+                        <span class="badge bg-danger"><i class="fas fa-crown me-1"></i>Admin</span>
+                        <?php else: ?>
+                        <span class="badge bg-secondary"><i class="fas fa-edit me-1"></i>Editor</span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="text-muted small">
+                        <?php if ($user['last_login']): ?>
+                        <?= date('d.m.Y H:i', strtotime($user['last_login'])) ?>
+                        <?php else: ?>
+                        <span class="text-muted">Niciodată</span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="text-muted small"><?= date('d.m.Y', strtotime($user['created_at'])) ?></td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" 
+                                    onclick="openEditModal(<?= htmlspecialchars(json_encode($user), ENT_QUOTES) ?>)"
+                                    title="Editează">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <?php if (($user['id'] ?? 0) !== ($_SESSION['user_id'] ?? 0)): ?>
+                            <button class="btn btn-outline-danger" 
+                                    onclick="confirmDelete(<?= $user['id'] ?>, '<?= Security::sanitizeInput($user['username']) ?>')"
+                                    title="Șterge">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <?php endif; ?>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
     <?php endif; ?>
-    
-    <?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="fas fa-exclamation-circle me-1"></i><?= Security::sanitizeInput($error) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <?php endif; ?>
-    
-    <!-- Users Table -->
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-list me-1"></i>Lista utilizatori</span>
-            <span class="badge bg-primary"><?= count($users) ?> utilizatori</span>
-        </div>
-        <div class="card-body p-0">
-            <?php if (empty($users)): ?>
-            <div class="text-center py-5">
-                <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                <p class="text-muted">Nu există utilizatori.</p>
+</div>
+
+<!-- Role Info -->
+<div class="row g-4 mt-2">
+    <div class="col-md-6">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <h2><span class="badge bg-danger me-2"><i class="fas fa-crown"></i></span>Administrator</h2>
             </div>
-            <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>Utilizator</th>
-                            <th>Email</th>
-                            <th>Rol</th>
-                            <th>Ultima autentificare</th>
-                            <th>Creat la</th>
-                            <th class="text-end">Acțiuni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($users as $user): ?>
-                        <tr>
-                            <td><?= $user['id'] ?></td>
-                            <td>
-                                <strong><?= Security::sanitizeInput($user['username']) ?></strong>
-                                <?php if (($user['id'] ?? 0) === ($_SESSION['user_id'] ?? 0)): ?>
-                                <span class="badge bg-info ms-1">Tu</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= Security::sanitizeInput($user['email'] ?? '-') ?></td>
-                            <td>
-                                <?php if ($user['role'] === 'admin'): ?>
-                                <span class="badge bg-danger"><i class="fas fa-crown me-1"></i>Admin</span>
-                                <?php else: ?>
-                                <span class="badge bg-secondary"><i class="fas fa-edit me-1"></i>Editor</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($user['last_login']): ?>
-                                <?= date('d.m.Y H:i', strtotime($user['last_login'])) ?>
-                                <?php else: ?>
-                                <span class="text-muted">Niciodată</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= date('d.m.Y', strtotime($user['created_at'])) ?></td>
-                            <td class="text-end">
-                                <button class="btn btn-sm btn-outline-primary" 
-                                        onclick="openEditModal(<?= htmlspecialchars(json_encode($user), ENT_QUOTES) ?>)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <?php if (($user['id'] ?? 0) !== ($_SESSION['user_id'] ?? 0)): ?>
-                                <button class="btn btn-sm btn-outline-danger" 
-                                        onclick="confirmDelete(<?= $user['id'] ?>, '<?= Security::sanitizeInput($user['username']) ?>')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <?php endif; ?>
+            <ul class="list-unstyled mb-0 p-3">
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Acces complet la toate funcțiile</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Poate gestiona utilizatori</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Poate modifica setările site-ului</li>
+                <li><i class="fas fa-check text-success me-2"></i>Poate șterge orice conținut</li>
+            </ul>
         </div>
     </div>
-    
-    <!-- Role Info -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <i class="fas fa-info-circle me-1"></i>Despre roluri
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <h6><span class="badge bg-danger"><i class="fas fa-crown me-1"></i>Administrator</span></h6>
-                    <ul class="small text-muted">
-                        <li>Acces complet la toate funcțiile</li>
-                        <li>Poate gestiona utilizatori</li>
-                        <li>Poate modifica setările site-ului</li>
-                        <li>Poate șterge orice conținut</li>
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <h6><span class="badge bg-secondary"><i class="fas fa-edit me-1"></i>Editor</span></h6>
-                    <ul class="small text-muted">
-                        <li>Poate crea și edita articole</li>
-                        <li>Poate gestiona comentariile</li>
-                        <li>Poate crea și edita sondaje</li>
-                        <li>Nu poate gestiona utilizatori sau setări</li>
-                    </ul>
-                </div>
+    <div class="col-md-6">
+        <div class="admin-card h-100">
+            <div class="admin-card-header">
+                <h2><span class="badge bg-secondary me-2"><i class="fas fa-edit"></i></span>Editor</h2>
             </div>
+            <ul class="list-unstyled mb-0 p-3">
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Poate crea și edita articole</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Poate gestiona comentariile</li>
+                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Poate crea și edita sondaje</li>
+                <li><i class="fas fa-times text-danger me-2"></i>Nu poate gestiona utilizatori sau setări</li>
+            </ul>
         </div>
     </div>
 </div>
@@ -364,4 +403,4 @@ function confirmDelete(id, username) {
 }
 </script>
 
-<?php include(__DIR__ . '/../includes/footer.php'); ?>
+<?php require_once(__DIR__ . '/admin-footer.php'); ?>

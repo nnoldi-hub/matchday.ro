@@ -19,143 +19,136 @@ $activePolls = array_filter($polls, fn($p) => $p['active'] == 1);
 $totalVotes = array_sum(array_column($polls, 'total_votes'));
 $avgVotes = count($polls) > 0 ? round($totalVotes / count($polls)) : 0;
 
-include(__DIR__ . '/../includes/header.php');
+$pageTitle = 'Sondaje';
+require_once(__DIR__ . '/admin-header.php');
 ?>
 
-<div class="container admin-card">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3">
-                    <i class="fas fa-poll me-2 text-primary"></i>
-                    Sondaje Interactive
-                </h1>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPollModal">
-                        <i class="fas fa-plus me-1"></i>Sondaj nou
-                    </button>
-                    <a href="dashboard.php" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Dashboard
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Page Header -->
+<div class="admin-page-header">
+    <h1><i class="fas fa-poll me-2"></i>Sondaje Interactive</h1>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPollModal">
+        <i class="fas fa-plus me-1"></i>Sondaj nou
+    </button>
+</div>
 
-    <!-- Stats -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card text-center bg-primary text-white">
-                <div class="card-body">
-                    <h3 class="h2"><?= count($polls) ?></h3>
-                    <p class="mb-0 opacity-75">Total sondaje</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center bg-success text-white">
-                <div class="card-body">
-                    <h3 class="h2"><?= count($activePolls) ?></h3>
-                    <p class="mb-0 opacity-75">Active</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center bg-warning text-white">
-                <div class="card-body">
-                    <h3 class="h2"><?= $totalVotes ?></h3>
-                    <p class="mb-0 opacity-75">Total voturi</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center bg-info text-white">
-                <div class="card-body">
-                    <h3 class="h2"><?= $avgVotes ?></h3>
-                    <p class="mb-0 opacity-75">Medie voturi/sondaj</p>
-                </div>
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon primary"><i class="fas fa-poll"></i></div>
+            <div class="stat-content">
+                <h3><?= count($polls) ?></h3>
+                <p>Total sondaje</p>
             </div>
         </div>
     </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon success"><i class="fas fa-play-circle"></i></div>
+            <div class="stat-content">
+                <h3><?= count($activePolls) ?></h3>
+                <p>Active</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon warning"><i class="fas fa-vote-yea"></i></div>
+            <div class="stat-content">
+                <h3><?= number_format($totalVotes) ?></h3>
+                <p>Total voturi</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon info"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-content">
+                <h3><?= $avgVotes ?></h3>
+                <p>Medie voturi/sondaj</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <!-- Polls List -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">Toate sondajele</h5>
-        </div>
-        <div class="card-body p-0">
-            <?php if (empty($polls)): ?>
-                <div class="text-center p-4">
-                    <i class="fas fa-poll fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">Nu există sondaje încă.</p>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPollModal">
-                        <i class="fas fa-plus me-1"></i>Creează primul sondaj
-                    </button>
-                </div>
-            <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Întrebare</th>
-                                <th>Status</th>
-                                <th>Voturi</th>
-                                <th>Creat</th>
-                                <th class="text-center">Acțiuni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($polls as $poll): ?>
-                            <tr>
-                                <td>
-                                    <strong><?= Security::sanitizeInput($poll['question']) ?></strong>
-                                    <?php if (!empty($poll['description'])): ?>
-                                        <br><small class="text-muted"><?= Security::sanitizeInput($poll['description']) ?></small>
-                                    <?php endif; ?>
-                                    <br><code class="small"><?= $poll['slug'] ?></code>
-                                </td>
-                                <td>
-                                    <?php if ($poll['active']): ?>
-                                        <span class="badge bg-success">Activ</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary">Inactiv</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <strong><?= $poll['total_votes'] ?></strong> voturi
-                                    <br><small class="text-muted"><?= count($poll['options']) ?> opțiuni</small>
-                                </td>
-                                <td>
-                                    <?= date('d.m.Y', strtotime($poll['created_at'])) ?>
-                                </td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" class="btn btn-outline-info" 
-                                                onclick="viewPollResults(<?= $poll['id'] ?>)">
-                                            <i class="fas fa-chart-bar"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-primary" 
-                                                onclick="editPoll(<?= $poll['id'] ?>)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-<?= $poll['active'] ? 'warning' : 'success' ?>" 
-                                                onclick="togglePollStatus(<?= $poll['id'] ?>, <?= $poll['active'] ? 'false' : 'true' ?>)">
-                                            <i class="fas fa-<?= $poll['active'] ? 'pause' : 'play' ?>"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-danger" 
-                                                onclick="deletePoll(<?= $poll['id'] ?>)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
+<!-- Polls List -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2>Toate sondajele</h2>
+        <span class="badge bg-primary"><?= count($polls) ?> sondaje</span>
     </div>
+    
+    <?php if (empty($polls)): ?>
+        <div class="text-center py-5">
+            <i class="fas fa-poll fa-3x text-muted mb-3"></i>
+            <p class="text-muted mb-3">Nu există sondaje încă.</p>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPollModal">
+                <i class="fas fa-plus me-1"></i>Creează primul sondaj
+            </button>
+        </div>
+    <?php else: ?>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Întrebare</th>
+                        <th>Status</th>
+                        <th>Voturi</th>
+                        <th>Creat</th>
+                        <th class="text-center">Acțiuni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($polls as $poll): ?>
+                    <tr>
+                        <td>
+                            <strong><?= Security::sanitizeInput($poll['question']) ?></strong>
+                            <?php if (!empty($poll['description'])): ?>
+                                <br><small class="text-muted"><?= Security::sanitizeInput($poll['description']) ?></small>
+                            <?php endif; ?>
+                            <br><code class="small"><?= $poll['slug'] ?></code>
+                        </td>
+                        <td>
+                            <?php if ($poll['active']): ?>
+                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Activ</span>
+                            <?php else: ?>
+                                <span class="badge bg-secondary"><i class="fas fa-pause me-1"></i>Inactiv</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <strong><?= $poll['total_votes'] ?></strong> voturi
+                            <br><small class="text-muted"><?= count($poll['options']) ?> opțiuni</small>
+                        </td>
+                        <td class="text-muted small">
+                            <?= date('d.m.Y', strtotime($poll['created_at'])) ?>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-info" 
+                                        onclick="viewPollResults(<?= $poll['id'] ?>)" title="Rezultate">
+                                    <i class="fas fa-chart-bar"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" 
+                                        onclick="editPoll(<?= $poll['id'] ?>)" title="Editează">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-<?= $poll['active'] ? 'warning' : 'success' ?>" 
+                                        onclick="togglePollStatus(<?= $poll['id'] ?>, <?= $poll['active'] ? 'false' : 'true' ?>)"
+                                        title="<?= $poll['active'] ? 'Dezactivează' : 'Activează' ?>">
+                                    <i class="fas fa-<?= $poll['active'] ? 'pause' : 'play' ?>"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" 
+                                        onclick="deletePoll(<?= $poll['id'] ?>)" title="Șterge">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
 </div>
 
 <!-- New Poll Modal -->
@@ -748,4 +741,4 @@ document.getElementById('pollQuestion').addEventListener('input', function() {
 });
 </script>
 
-<?php include(__DIR__ . '/../includes/footer.php'); ?>
+<?php require_once(__DIR__ . '/admin-footer.php'); ?>

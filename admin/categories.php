@@ -110,121 +110,113 @@ if (isset($_GET['edit'])) {
 $categories = Category::getAll();
 $icons = Category::getIconOptions();
 
-include(__DIR__ . '/../includes/header.php');
+$pageTitle = 'Categorii';
+require_once(__DIR__ . '/admin-header.php');
 ?>
 
-<div class="container admin-card">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">
-      <i class="fas fa-folder me-2"></i>Categorii
-    </h1>
-    <div class="d-flex gap-2">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal">
+<!-- Page Header -->
+<div class="admin-page-header">
+    <h1><i class="fas fa-folder me-2"></i>Categorii</h1>
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#categoryModal">
         <i class="fas fa-plus me-1"></i>Categorie nouă
-      </button>
-      <a href="dashboard.php" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Dashboard
-      </a>
-    </div>
-  </div>
-  
-  <?php if ($message): ?>
-    <div class="alert alert-<?= $messageType ?> alert-dismissible fade show">
-      <?= htmlspecialchars($message) ?>
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  <?php endif; ?>
-  
-  <!-- Sync Button -->
-  <div class="mb-4">
+    </button>
+</div>
+
+<?php if ($message): ?>
+<div class="alert alert-<?= $messageType ?> alert-dismissible fade show">
+    <?= htmlspecialchars($message) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+
+<!-- Sync Button -->
+<div class="mb-4">
     <form method="post" class="d-inline">
-      <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
-      <input type="hidden" name="action" value="sync">
-      <button type="submit" class="btn btn-outline-info btn-sm">
-        <i class="fas fa-sync me-1"></i>Sincronizează din config/categories.php
-      </button>
+        <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+        <input type="hidden" name="action" value="sync">
+        <button type="submit" class="btn btn-outline-info btn-sm">
+            <i class="fas fa-sync me-1"></i>Sincronizează din config/categories.php
+        </button>
     </form>
     <small class="text-muted ms-2">Importă categoriile din fișierul de configurare</small>
-  </div>
-  
-  <!-- Categories Table -->
-  <div class="card">
-    <div class="card-header">
-      <h5 class="mb-0">Toate categoriile (<?= count($categories) ?>)</h5>
+</div>
+
+<!-- Categories Table -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2>Toate categoriile (<?= count($categories) ?>)</h2>
     </div>
-    <div class="card-body">
-      <?php if (empty($categories)): ?>
-        <div class="text-center py-5">
-          <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
-          <p class="text-muted mb-3">Nu există categorii. Începe prin a sincroniza din config sau creează una nouă.</p>
-        </div>
-      <?php else: ?>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th style="width: 50px;">Ord.</th>
-                <th>Categorie</th>
-                <th>Slug</th>
-                <th>Articole</th>
-                <th>Culoare</th>
-                <th style="width: 150px;">Acțiuni</th>
-              </tr>
+    
+    <?php if (empty($categories)): ?>
+    <div class="text-center py-5">
+        <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+        <p class="text-muted mb-3">Nu există categorii. Începe prin a sincroniza din config sau creează una nouă.</p>
+    </div>
+    <?php else: ?>
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">Ord.</th>
+                    <th>Categorie</th>
+                    <th>Slug</th>
+                    <th>Articole</th>
+                    <th>Culoare</th>
+                    <th style="width: 150px;">Acțiuni</th>
+                </tr>
             </thead>
             <tbody>
-              <?php foreach ($categories as $cat): 
-                $postCount = Category::countPosts($cat['slug']);
-              ?>
-              <tr>
-                <td>
-                  <span class="badge bg-secondary"><?= $cat['sort_order'] ?></span>
-                </td>
-                <td>
-                  <i class="<?= htmlspecialchars($cat['icon']) ?> me-2" style="color: <?= htmlspecialchars($cat['color']) ?>"></i>
-                  <strong><?= htmlspecialchars($cat['name']) ?></strong>
-                  <?php if ($cat['description']): ?>
-                    <br><small class="text-muted"><?= htmlspecialchars(mb_strimwidth($cat['description'], 0, 60, '...')) ?></small>
-                  <?php endif; ?>
-                </td>
-                <td>
-                  <code><?= htmlspecialchars($cat['slug']) ?></code>
-                </td>
-                <td>
-                  <?php if ($postCount > 0): ?>
-                    <a href="posts.php?category=<?= urlencode($cat['slug']) ?>" class="text-decoration-none">
-                      <?= $postCount ?> <i class="fas fa-external-link-alt fa-xs"></i>
-                    </a>
-                  <?php else: ?>
-                    <span class="text-muted">0</span>
-                  <?php endif; ?>
-                </td>
-                <td>
-                  <span class="d-inline-block rounded" style="width: 24px; height: 24px; background-color: <?= htmlspecialchars($cat['color']) ?>"></span>
-                  <small class="ms-1"><?= htmlspecialchars($cat['color']) ?></small>
-                </td>
-                <td>
-                  <div class="btn-group btn-group-sm">
-                    <button type="button" class="btn btn-outline-primary" onclick="editCategory(<?= htmlspecialchars(json_encode($cat)) ?>)">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <form method="post" class="d-inline" onsubmit="return confirm('Sigur ștergi categoria \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?<?= $postCount > 0 ? "\\n\\n$postCount articole vor rămâne fără categorie." : '' ?>')">
-                      <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
-                      <input type="hidden" name="action" value="delete">
-                      <input type="hidden" name="id" value="<?= $cat['id'] ?>">
-                      <button type="submit" class="btn btn-outline-danger">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-              <?php endforeach; ?>
+                <?php foreach ($categories as $cat): 
+                    $postCount = Category::countPosts($cat['slug']);
+                ?>
+                <tr>
+                    <td>
+                        <span class="badge bg-secondary"><?= $cat['sort_order'] ?></span>
+                    </td>
+                    <td>
+                        <i class="<?= htmlspecialchars($cat['icon']) ?> me-2" style="color: <?= htmlspecialchars($cat['color']) ?>"></i>
+                        <strong><?= htmlspecialchars($cat['name']) ?></strong>
+                        <?php if ($cat['description']): ?>
+                            <br><small class="text-muted"><?= htmlspecialchars(mb_strimwidth($cat['description'], 0, 60, '...')) ?></small>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <code><?= htmlspecialchars($cat['slug']) ?></code>
+                    </td>
+                    <td>
+                        <?php if ($postCount > 0): ?>
+                            <a href="posts.php?category=<?= urlencode($cat['slug']) ?>" class="text-decoration-none">
+                                <?= $postCount ?> <i class="fas fa-external-link-alt fa-xs"></i>
+                            </a>
+                        <?php else: ?>
+                            <span class="text-muted">0</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <span class="d-inline-block rounded" style="width: 24px; height: 24px; background-color: <?= htmlspecialchars($cat['color']) ?>"></span>
+                        <small class="ms-1"><?= htmlspecialchars($cat['color']) ?></small>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary" onclick="editCategory(<?= htmlspecialchars(json_encode($cat)) ?>)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form method="post" class="d-inline" onsubmit="return confirm('Sigur ștergi categoria \'<?= htmlspecialchars(addslashes($cat['name'])) ?>\'?<?= $postCount > 0 ? "\\n\\n$postCount articole vor rămâne fără categorie." : '' ?>')">
+                                <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="<?= $cat['id'] ?>">
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
             </tbody>
-          </table>
-        </div>
-      <?php endif; ?>
+        </table>
     </div>
-  </div>
+    <?php endif; ?>
 </div>
 
 <!-- Category Modal (Create/Edit) -->
@@ -334,4 +326,4 @@ document.getElementById('categoryModal')?.addEventListener('hidden.bs.modal', fu
 });
 </script>
 
-<?php include(__DIR__ . '/../includes/footer.php'); ?>
+<?php require_once(__DIR__ . '/admin-footer.php'); ?>

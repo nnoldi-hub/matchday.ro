@@ -110,62 +110,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Get current settings
 $settings = Settings::getAll();
 
-include(__DIR__ . '/../includes/header.php');
+$pageTitle = 'Setări';
+require_once(__DIR__ . '/admin-header.php');
 ?>
 
-<div class="container admin-card">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3"><i class="fas fa-cog me-2"></i>Setări Site</h1>
-        <a href="dashboard.php" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>Înapoi
+<!-- Page Header -->
+<div class="admin-page-header">
+    <h1><i class="fas fa-cog me-2"></i>Setări Site</h1>
+</div>
+
+<?php if ($message): ?>
+<div class="alert alert-success alert-dismissible fade show">
+    <i class="fas fa-check-circle me-1"></i><?= Security::sanitizeInput($message) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+
+<?php if ($error): ?>
+<div class="alert alert-danger alert-dismissible fade show">
+    <i class="fas fa-exclamation-circle me-1"></i><?= Security::sanitizeInput($error) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link <?= $activeTab === 'general' ? 'active' : '' ?>" href="?tab=general">
+            <i class="fas fa-home me-1"></i>General
         </a>
-    </div>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <?= $activeTab === 'content' ? 'active' : '' ?>" href="?tab=content">
+            <i class="fas fa-newspaper me-1"></i>Conținut
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <?= $activeTab === 'social' ? 'active' : '' ?>" href="?tab=social">
+            <i class="fas fa-share-alt me-1"></i>Social Media
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <?= $activeTab === 'advanced' ? 'active' : '' ?>" href="?tab=advanced">
+            <i class="fas fa-tools me-1"></i>Avansat
+        </a>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="admin-card">
+    <div class="p-4">
     
-    <?php if ($message): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="fas fa-check-circle me-1"></i><?= Security::sanitizeInput($message) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <?php endif; ?>
-    
-    <?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="fas fa-exclamation-circle me-1"></i><?= Security::sanitizeInput($error) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <?php endif; ?>
-    
-    <!-- Tabs -->
-    <ul class="nav nav-tabs mb-4" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link <?= $activeTab === 'general' ? 'active' : '' ?>" href="?tab=general">
-                <i class="fas fa-home me-1"></i>General
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link <?= $activeTab === 'content' ? 'active' : '' ?>" href="?tab=content">
-                <i class="fas fa-newspaper me-1"></i>Conținut
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link <?= $activeTab === 'social' ? 'active' : '' ?>" href="?tab=social">
-                <i class="fas fa-share-alt me-1"></i>Social Media
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link <?= $activeTab === 'advanced' ? 'active' : '' ?>" href="?tab=advanced">
-                <i class="fas fa-tools me-1"></i>Avansat
-            </a>
-        </li>
-    </ul>
-    
-    <!-- Tab Content -->
-    <div class="card">
-        <div class="card-body">
-            
-            <?php if ($activeTab === 'general'): ?>
-            <!-- General Settings -->
-            <form method="post">
+    <?php if ($activeTab === 'general'): ?>
+    <!-- General Settings -->
+    <form method="post">
                 <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
                 <input type="hidden" name="tab" value="general">
                 
@@ -334,32 +332,31 @@ include(__DIR__ . '/../includes/header.php');
                 </button>
             </form>
             <?php endif; ?>
-            
-        </div>
+        
     </div>
-    
-    <!-- System Info -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <i class="fas fa-info-circle me-1"></i>Informații sistem
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <small class="text-muted">PHP Version</small>
-                    <div><?= phpversion() ?></div>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Bază de date</small>
-                    <div><?= Database::isMySQL() ? 'MySQL' : 'SQLite' ?></div>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted">Server</small>
-                    <div><?= $_SERVER['SERVER_SOFTWARE'] ?? 'N/A' ?></div>
-                </div>
+</div>
+
+<!-- System Info -->
+<div class="admin-card mt-4">
+    <div class="admin-card-header">
+        <h2><i class="fas fa-info-circle me-2"></i>Informații sistem</h2>
+    </div>
+    <div class="p-3">
+        <div class="row">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <small class="text-muted d-block">PHP Version</small>
+                <strong><?= phpversion() ?></strong>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <small class="text-muted d-block">Bază de date</small>
+                <strong><?= Database::isMySQL() ? 'MySQL' : 'SQLite' ?></strong>
+            </div>
+            <div class="col-md-4">
+                <small class="text-muted d-block">Server</small>
+                <strong><?= $_SERVER['SERVER_SOFTWARE'] ?? 'N/A' ?></strong>
             </div>
         </div>
     </div>
 </div>
 
-<?php include(__DIR__ . '/../includes/footer.php'); ?>
+<?php require_once(__DIR__ . '/admin-footer.php'); ?>

@@ -100,54 +100,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Get categories
 $categories = require(__DIR__ . '/../config/categories.php');
 
-include(__DIR__ . '/../includes/header.php');
+$pageTitle = 'Editare Articol';
+require_once(__DIR__ . '/admin-header.php');
 ?>
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <a href="posts.php" class="text-decoration-none text-muted">
-                <i class="fas fa-arrow-left me-1"></i> Înapoi la articole
-            </a>
-            <h1 class="h3 mb-0 mt-2">Editare articol</h1>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="../post.php?slug=<?= urlencode($post['slug']) ?>" class="btn btn-outline-secondary" target="_blank">
-                <i class="fas fa-eye me-1"></i> Vizualizează
-            </a>
-        </div>
-    </div>
+<!-- Page Header -->
+<div class="admin-page-header">
+    <h1><i class="fas fa-edit me-2"></i>Editare articol</h1>
+    <a href="../post.php?slug=<?= urlencode($post['slug']) ?>" class="btn btn-outline-primary btn-sm" target="_blank">
+        <i class="fas fa-eye me-1"></i> Vizualizează
+    </a>
+</div>
 
-    <?php if ($error): ?>
-    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
+<?php if ($error): ?>
+<div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+<?php endif; ?>
 
-    <?php if ($success): ?>
-    <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
-    <?php endif; ?>
+<?php if ($success): ?>
+<div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+<?php endif; ?>
 
-    <form method="post" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
-        
-        <div class="row">
-            <!-- Main Content -->
-            <div class="col-lg-8">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Titlu *</label>
-                            <input type="text" name="title" class="form-control form-control-lg" 
-                                   value="<?= htmlspecialchars($post['title']) ?>" required maxlength="200">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Slug</label>
-                            <input type="text" class="form-control" value="<?= htmlspecialchars($post['slug']) ?>" 
-                                   disabled readonly>
-                            <div class="form-text">Slug-ul nu poate fi modificat.</div>
-                        </div>
-                        
-                        <div class="mb-3">
+<form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+    
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <div class="admin-card mb-4">
+                <div class="p-4">
+                    <div class="mb-3">
+                        <label class="form-label">Titlu *</label>
+                        <input type="text" name="title" class="form-control form-control-lg" 
+                               value="<?= htmlspecialchars($post['title']) ?>" required maxlength="200">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Slug</label>
+                        <input type="text" class="form-control" value="<?= htmlspecialchars($post['slug']) ?>" 
+                               disabled readonly>
+                        <div class="form-text">Slug-ul nu poate fi modificat.</div>
+                    </div>
+                    
+                    <div class="mb-3">
                             <label class="form-label">Excerpt (rezumat)</label>
                             <textarea name="excerpt" class="form-control" rows="2" maxlength="500"><?= htmlspecialchars($post['excerpt'] ?? '') ?></textarea>
                         </div>
@@ -185,11 +179,11 @@ include(__DIR__ . '/../includes/header.php');
             <!-- Sidebar -->
             <div class="col-lg-4">
                 <!-- Publish Box -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header">
+                <div class="admin-card mb-4">
+                    <div class="admin-card-header">
                         <strong>Publicare</strong>
                     </div>
-                    <div class="card-body">
+                    <div class="p-4">
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select name="status" class="form-select">
@@ -218,11 +212,11 @@ include(__DIR__ . '/../includes/header.php');
                 </div>
                 
                 <!-- Category -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header">
+                <div class="admin-card mb-4">
+                    <div class="admin-card-header">
                         <strong>Categorie</strong>
                     </div>
-                    <div class="card-body">
+                    <div class="p-4">
                         <select name="category" class="form-select">
                             <option value="">Fără categorie</option>
                             <?php foreach ($categories as $key => $cat): ?>
@@ -236,11 +230,11 @@ include(__DIR__ . '/../includes/header.php');
                 </div>
                 
                 <!-- Tags -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header">
+                <div class="admin-card mb-4">
+                    <div class="admin-card-header">
                         <strong>Taguri</strong>
                     </div>
-                    <div class="card-body">
+                    <div class="p-4">
                         <input type="text" name="tags" class="form-control" 
                                value="<?= htmlspecialchars($post['tags'] ?? '') ?>"
                                placeholder="tag1, tag2, tag3">
@@ -249,11 +243,11 @@ include(__DIR__ . '/../includes/header.php');
                 </div>
                 
                 <!-- Cover Image -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header">
+                <div class="admin-card mb-4">
+                    <div class="admin-card-header">
                         <strong>Imagine cover</strong>
                     </div>
-                    <div class="card-body">
+                    <div class="p-4">
                         <?php if ($post['cover_image']): ?>
                         <div class="mb-3">
                             <img src="<?= htmlspecialchars($post['cover_image']) ?>" 
@@ -277,11 +271,11 @@ include(__DIR__ . '/../includes/header.php');
                 </div>
                 
                 <!-- Stats -->
-                <div class="card shadow-sm">
-                    <div class="card-header">
+                <div class="admin-card">
+                    <div class="admin-card-header">
                         <strong>Statistici</strong>
                     </div>
-                    <div class="card-body">
+                    <div class="p-4">
                         <div class="d-flex justify-content-between">
                             <span>Vizualizări:</span>
                             <strong><?= number_format($post['views'] ?? 0) ?></strong>
@@ -347,4 +341,4 @@ function addFormatting(type) {
 }
 </script>
 
-<?php include(__DIR__ . '/../includes/footer.php'); ?>
+<?php require_once(__DIR__ . '/admin-footer.php'); ?>
