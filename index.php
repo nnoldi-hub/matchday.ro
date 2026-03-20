@@ -311,7 +311,10 @@ if (isset($_GET['created'])) {
     </div>
     <?php endif; ?>
     
-    <div class="row g-4">
+    <div class="row">
+      <!-- Main Content -->
+      <div class="col-lg-8">
+        <div class="row g-4">
       <?php 
       $adInlineShown = false;
       foreach ($displayItems as $index => $item): 
@@ -325,7 +328,7 @@ if (isset($_GET['created'])) {
           <?= $inlineAd ?>
         </div>
       <?php endif; endif; ?>
-        <div class="col-12 col-md-6 col-lg-4">
+        <div class="col-12 col-md-6">
           <article class="card card-article h-100" itemscope itemtype="https://schema.org/Article">
             <a href="/<?php echo Security::sanitizeInput($item['file']); ?>" 
                class="text-decoration-none text-reset" 
@@ -387,7 +390,43 @@ if (isset($_GET['created'])) {
           </article>
         </div>
       <?php endforeach; ?>
-    </div>
+        </div>
+      </div><!-- /.col-lg-8 -->
+      
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <div class="sticky-top" style="top: 90px;">
+          <?= AdWidget::sidebar('Sponsor') ?>
+          
+          <!-- Newsletter Widget -->
+          <div class="card mb-4">
+            <div class="card-header"><strong><i class="fas fa-envelope me-2"></i>Newsletter</strong></div>
+            <div class="card-body">
+              <p class="small text-muted mb-3">Abonează-te pentru ultimele știri!</p>
+              <form>
+                <div class="mb-2">
+                  <input type="email" class="form-control form-control-sm" placeholder="Email...">
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Abonează-te</button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Social Widget -->
+          <div class="card mb-4">
+            <div class="card-header"><strong><i class="fas fa-share-alt me-2"></i>Urmărește-ne</strong></div>
+            <div class="card-body">
+              <div class="d-flex gap-2 justify-content-center">
+                <a href="#" class="btn btn-outline-primary btn-sm"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="btn btn-outline-info btn-sm"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="btn btn-outline-danger btn-sm"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="btn btn-outline-dark btn-sm"><i class="fab fa-tiktok"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.col-lg-4 sidebar -->
+    </div><!-- /.row -->
   <?php endif; ?>
 
   <!-- Pagination -->
