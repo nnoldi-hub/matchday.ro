@@ -25,7 +25,7 @@ $activePolls = Database::fetchValue("SELECT COUNT(*) FROM polls WHERE active = 1
 $totalViews = Database::fetchValue("SELECT COALESCE(SUM(views), 0) FROM posts");
 
 // Get recent posts from database
-$recentPosts = Post::getLatest(8);
+$recentPosts = Post::getLatest(8, false); // Show all recent, not just published
 ?>
 
 <!-- Page Header -->
@@ -158,7 +158,7 @@ $recentPosts = Post::getLatest(8);
                                     <?= date('d.m.Y', strtotime($post['published_at'] ?? $post['created_at'])) ?>
                                 </td>
                                 <td>
-                                    <a href="new-post.php?edit=<?= $post['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editează">
+                                    <a href="edit-post.php?id=<?= $post['id'] ?>" class="btn btn-sm btn-outline-primary" title="Editează">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <?php if ($post['status'] === 'published'): ?>

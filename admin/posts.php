@@ -181,7 +181,7 @@ require_once(__DIR__ . '/admin-header.php');
                 <?php foreach ($posts as $post): ?>
                 <tr>
                     <td>
-                        <a href="new-post.php?edit=<?= $post['id'] ?>" class="text-decoration-none fw-medium">
+                        <a href="edit-post.php?id=<?= $post['id'] ?>" class="text-decoration-none fw-medium">
                             <?= htmlspecialchars(mb_substr($post['title'], 0, 60)) ?><?= mb_strlen($post['title']) > 60 ? '...' : '' ?>
                         </a>
                         <br>
@@ -221,7 +221,7 @@ require_once(__DIR__ . '/admin-header.php');
                                 <i class="fas fa-external-link-alt"></i>
                             </a>
                             <?php endif; ?>
-                            <a href="new-post.php?edit=<?= $post['id'] ?>" 
+                            <a href="edit-post.php?id=<?= $post['id'] ?>" 
                                class="btn btn-outline-primary" title="Editează">
                                 <i class="fas fa-edit"></i>
                             </a>

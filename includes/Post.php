@@ -214,12 +214,13 @@ class Post {
     /**
      * Get latest posts
      */
-    public static function getLatest(int $limit = 5): array {
+    public static function getLatest(int $limit = 5, bool $onlyPublished = false): array {
+        $where = $onlyPublished ? "WHERE status = 'published'" : '';
         return Database::fetchAll(
-            "SELECT id, title, slug, excerpt, cover_image, category_slug, published_at 
+            "SELECT id, title, slug, excerpt, cover_image, category_slug, status, published_at, created_at 
              FROM posts 
-             WHERE status = 'published' 
-             ORDER BY published_at DESC 
+             $where
+             ORDER BY COALESCE(published_at, created_at) DESC 
              LIMIT :limit",
             ['limit' => $limit]
         );
