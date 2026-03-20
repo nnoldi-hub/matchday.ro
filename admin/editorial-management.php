@@ -8,12 +8,12 @@ if (!isset($_SESSION['david_logged']) || !$_SESSION['david_logged']) {
     exit;
 }
 
-// FuncÈ›ie pentru citirea planului editorial
+// Functie pentru citirea planului editorial
 function getEditorialPlan() {
     $planFile = __DIR__ . '/../data/editorial-plan.json';
     
     if (!file_exists($planFile)) {
-        // CreeazÄƒ planul iniÈ›ial dacÄƒ nu existÄƒ
+        // Creeaza planul initial daca nu exista
         $initialPlan = generateInitialPlan();
         file_put_contents($planFile, json_encode($initialPlan, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         return $initialPlan;
@@ -23,40 +23,40 @@ function getEditorialPlan() {
     return json_decode($content, true) ?: [];
 }
 
-// FuncÈ›ie pentru salvarea planului editorial
+// Functie pentru salvarea planului editorial
 function saveEditorialPlan($plan) {
     $planFile = __DIR__ . '/../data/editorial-plan.json';
     return file_put_contents($planFile, json_encode($plan, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 }
 
-// GenereazÄƒ planul iniÈ›ial
+// Genereaza planul initial
 function generateInitialPlan() {
     $plan = [];
     $startDate = new DateTime('2025-09-01');
     
-    for ($i = 0; $i < 28; $i++) { // 4 sÄƒptÄƒmÃ¢ni
+    for ($i = 0; $i < 28; $i++) { // 4 saptamani
         $currentDate = clone $startDate;
         $currentDate->add(new DateInterval('P' . $i . 'D'));
         
         $dayName = $currentDate->format('l');
         $dayNameRo = [
             'Monday' => 'Luni',
-            'Tuesday' => 'MarÈ›i', 
+            'Tuesday' => 'Marti', 
             'Wednesday' => 'Miercuri',
             'Thursday' => 'Joi',
             'Friday' => 'Vineri',
-            'Saturday' => 'SÃ¢mbÄƒtÄƒ',
-            'Sunday' => 'DuminicÄƒ'
+            'Saturday' => 'Sambata',
+            'Sunday' => 'Duminica'
         ][$dayName];
         
         $contentTypes = [
-            'Luni' => 'Rezumatul sÄƒptÄƒmÃ¢nii',
-            'MarÈ›i' => 'Analize tactice',
+            'Luni' => 'Rezumatul saptamanii',
+            'Marti' => 'Analize tactice',
             'Miercuri' => 'Interviuri & Reportaje',
-            'Joi' => 'È˜tiri & Transferuri',
+            'Joi' => 'Stiri & Transferuri',
             'Vineri' => 'Avanpremiere weekend',
-            'SÃ¢mbÄƒtÄƒ' => 'Live Updates & Cronici',
-            'DuminicÄƒ' => 'Cronici & ReacÈ›ii'
+            'Sambata' => 'Live Updates & Cronici',
+            'Duminica' => 'Cronici & Reactii'
         ];
         
         $plan[] = [
@@ -66,9 +66,9 @@ function generateInitialPlan() {
             'content_type' => $contentTypes[$dayNameRo],
             'title' => '',
             'description' => '',
-            'status' => 'planned', // planned, in_progress, review, published
-            'priority' => 'normal', // high, normal, low
-            'author' => 'David CocioabÄƒ',
+            'status' => 'planned',
+            'priority' => 'normal',
+            'author' => 'David Nyikora',
             'category' => '',
             'tags' => [],
             'notes' => '',
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             
-            echo json_encode(['success' => false, 'error' => 'Articolul nu a fost gÄƒsit']);
+            echo json_encode(['success' => false, 'error' => 'Articolul nu a fost gasit']);
             exit;
             
         case 'save_article':
@@ -228,7 +228,7 @@ require_once(__DIR__ . '/admin-header.php');
             <div class="stat-icon info"><i class="fas fa-spinner"></i></div>
             <div class="stat-content">
                 <h3 id="stat-in_progress">-</h3>
-                <p>ÃŽn progres</p>
+                <p>In progres</p>
             </div>
         </div>
     </div>
@@ -246,12 +246,12 @@ require_once(__DIR__ . '/admin-header.php');
 <!-- Editorial Plan Table -->
 <div class="admin-card">
     <div class="admin-card-header d-flex justify-content-between align-items-center flex-wrap">
-        <h2><i class="fas fa-list me-2"></i>Planul Editorial - UrmÄƒtoarele 4 sÄƒptÄƒmÃ¢ni</h2>
+        <h2><i class="fas fa-list me-2"></i>Planul Editorial - Urmatoarele 4 saptamani</h2>
         <div class="d-flex gap-2 mt-2 mt-md-0">
             <select class="form-select form-select-sm" id="filterStatus" onchange="filterTable()">
                 <option value="">Toate statusurile</option>
                 <option value="planned">Planificat</option>
-                <option value="in_progress">ÃŽn progres</option>
+                <option value="in_progress">In progres</option>
                 <option value="review">Review</option>
                 <option value="published">Publicat</option>
             </select>
@@ -262,75 +262,75 @@ require_once(__DIR__ . '/admin-header.php');
             <thead>
                 <tr>
                     <th style="width: 100px;">Data</th>
-                                    <th style="width: 80px;">Zi</th>
-                                    <th style="width: 150px;">Tip conÈ›inut</th>
-                                    <th>Titlu articol</th>
-                                    <th style="width: 100px;">Status</th>
-                                    <th style="width: 80px;">Prioritate</th>
-                                    <th style="width: 120px;">Categorie</th>
-                                    <th style="width: 100px;">AcÈ›iuni</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($editorialPlan as $article): ?>
-                                <tr class="article-row priority-<?= $article['priority'] ?>" data-article-id="<?= $article['id'] ?>">
-                                    <td class="small text-muted">
-                                        <?= date('d.m', strtotime($article['date'])) ?>
-                                    </td>
-                                    <td>
-                                        <small class="fw-medium"><?= $article['day_name'] ?></small>
-                                    </td>
-                                    <td>
-                                        <small class="text-primary"><?= $article['content_type'] ?></small>
-                                    </td>
-                                    <td>
-                                        <div class="editable" data-field="title" data-article="<?= $article['id'] ?>">
-                                            <?= !empty($article['title']) ? htmlspecialchars($article['title']) : '<em class="text-muted">Click pentru a adÄƒuga titlu...</em>' ?>
-                                        </div>
-                                        <?php if (!empty($article['description'])): ?>
-                                        <small class="text-muted d-block mt-1 editable" data-field="description" data-article="<?= $article['id'] ?>">
-                                            <?= htmlspecialchars($article['description']) ?>
-                                        </small>
-                                        <?php else: ?>
-                                        <small class="text-muted d-block mt-1 editable" data-field="description" data-article="<?= $article['id'] ?>">
-                                            <em>Click pentru descriere...</em>
-                                        </small>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <select class="form-select form-select-sm status-select" data-field="status" data-article="<?= $article['id'] ?>">
-                                            <option value="planned" <?= $article['status'] === 'planned' ? 'selected' : '' ?>>Planificat</option>
-                                            <option value="in_progress" <?= $article['status'] === 'in_progress' ? 'selected' : '' ?>>ÃŽn progres</option>
-                                            <option value="review" <?= $article['status'] === 'review' ? 'selected' : '' ?>>Review</option>
-                                            <option value="published" <?= $article['status'] === 'published' ? 'selected' : '' ?>>Publicat</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select class="form-select form-select-sm priority-select" data-field="priority" data-article="<?= $article['id'] ?>">
-                                            <option value="low" <?= $article['priority'] === 'low' ? 'selected' : '' ?>>ScÄƒzutÄƒ</option>
-                                            <option value="normal" <?= $article['priority'] === 'normal' ? 'selected' : '' ?>>NormalÄƒ</option>
-                                            <option value="high" <?= $article['priority'] === 'high' ? 'selected' : '' ?>>ÃŽnaltÄƒ</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <div class="editable small" data-field="category" data-article="<?= $article['id'] ?>">
-                                            <?= !empty($article['category']) ? htmlspecialchars($article['category']) : '<em class="text-muted">-</em>' ?>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary btn-sm" onclick="editArticle('<?= $article['id'] ?>')" title="EditeazÄƒ">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info btn-sm" onclick="viewDetails('<?= $article['id'] ?>')" title="Detalii">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                    <th style="width: 80px;">Zi</th>
+                    <th style="width: 150px;">Tip continut</th>
+                    <th>Titlu articol</th>
+                    <th style="width: 100px;">Status</th>
+                    <th style="width: 80px;">Prioritate</th>
+                    <th style="width: 120px;">Categorie</th>
+                    <th style="width: 100px;">Actiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($editorialPlan as $article): ?>
+                <tr class="article-row priority-<?= $article['priority'] ?>" data-article-id="<?= $article['id'] ?>">
+                    <td class="small text-muted">
+                        <?= date('d.m', strtotime($article['date'])) ?>
+                    </td>
+                    <td>
+                        <small class="fw-medium"><?= $article['day_name'] ?></small>
+                    </td>
+                    <td>
+                        <small class="text-primary"><?= $article['content_type'] ?></small>
+                    </td>
+                    <td>
+                        <div class="editable" data-field="title" data-article="<?= $article['id'] ?>">
+                            <?= !empty($article['title']) ? htmlspecialchars($article['title']) : '<em class="text-muted">Click pentru a adauga titlu...</em>' ?>
+                        </div>
+                        <?php if (!empty($article['description'])): ?>
+                        <small class="text-muted d-block mt-1 editable" data-field="description" data-article="<?= $article['id'] ?>">
+                            <?= htmlspecialchars($article['description']) ?>
+                        </small>
+                        <?php else: ?>
+                        <small class="text-muted d-block mt-1 editable" data-field="description" data-article="<?= $article['id'] ?>">
+                            <em>Click pentru descriere...</em>
+                        </small>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm status-select" data-field="status" data-article="<?= $article['id'] ?>">
+                            <option value="planned" <?= $article['status'] === 'planned' ? 'selected' : '' ?>>Plar</option>
+                            <option value="in_progress" <?= $article['status'] === 'in_progress' ? 'selected' : '' ?>>Inalt</option>
+                            <option value="review" <?= $article['status'] === 'review' ? 'selected' : '' ?>>Review</option>
+                            <option value="published" <?= $article['status'] === 'published' ? 'selected' : '' ?>>Publicat</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm priority-select" data-field="priority" data-article="<?= $article['id'] ?>">
+                            <option value="low" <?= $article['priority'] === 'low' ? 'selected' : '' ?>>Scazuta</option>
+                            <option value="normal" <?= $article['priority'] === 'normal' ? 'selected' : '' ?>>Nor</option>
+                            <option value="high" <?= $article['priority'] === 'high' ? 'selected' : '' ?>>Inalt</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div class="editable small" data-field="category" data-article="<?= $article['id'] ?>">
+                            <?= !empty($article['category']) ? htmlspecialchars($article['category']) : '<em class="text-muted">-</em>' ?>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary btn-sm" onclick="editArticle('<?= $article['id'] ?>')" title="Editeaza">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-info btn-sm" onclick="viewDetails('<?= $article['id'] ?>')" title="Detalii">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -341,7 +341,7 @@ require_once(__DIR__ . '/admin-header.php');
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="fas fa-edit me-2"></i>
-                    EditeazÄƒ articol
+                    Editeaza articol
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -366,7 +366,7 @@ require_once(__DIR__ . '/admin-header.php');
                                 </label>
                                 <select class="form-select" id="editStatus">
                                     <option value="planned">Planificat</option>
-                                    <option value="in_progress">ÃŽn progres</option>
+                                    <option value="in_progress">In progres</option>
                                     <option value="review">Review</option>
                                     <option value="published">Publicat</option>
                                 </select>
@@ -379,7 +379,7 @@ require_once(__DIR__ . '/admin-header.php');
                             <i class="fas fa-align-left me-1"></i>Descriere
                         </label>
                         <textarea class="form-control" id="editDescription" rows="4" 
-                                  placeholder="Descrie pe scurt conÈ›inutul articolului..."></textarea>
+                                  placeholder="Descrie pe scurt continutul articolului..."></textarea>
                     </div>
                     
                     <div class="row">
@@ -389,14 +389,14 @@ require_once(__DIR__ . '/admin-header.php');
                                     <i class="fas fa-folder me-1"></i>Categorie
                                 </label>
                                 <select class="form-select" id="editCategory">
-                                    <option value="">SelecteazÄƒ categoria</option>
+                                    <option value="">Selecteaza categoria</option>
+                                    <option value="statistici">Statistici</option>
+                                    <option value="champions-league">Champions League</option>
+                                    <option value="meciuri">Meciuri</option>
+                                    <option value="transferuri">Transferuri</option>
                                     <option value="opinii">Opinii</option>
-                                    <option value="analize">Analize</option>
                                     <option value="interviuri">Interviuri</option>
-                                    <option value="reportaje">Reportaje</option>
-                                    <option value="transfer">Transfer</option>
-                                    <option value="nacional">Fotbal NaÈ›ional</option>
-                                    <option value="international">Fotbal InternaÈ›ional</option>
+                                    <option value="competitii">Competitii</option>
                                 </select>
                             </div>
                         </div>
@@ -406,9 +406,9 @@ require_once(__DIR__ . '/admin-header.php');
                                     <i class="fas fa-exclamation-circle me-1"></i>Prioritate
                                 </label>
                                 <select class="form-select" id="editPriority">
-                                    <option value="low">ScÄƒzutÄƒ</option>
-                                    <option value="normal">NormalÄƒ</option>
-                                    <option value="high">ÃŽnaltÄƒ</option>
+                                    <option value="low">Scazuta</option>
+                                    <option value="normal">Normala</option>
+                                    <option value="high">Inalta</option>
                                 </select>
                             </div>
                         </div>
@@ -418,7 +418,7 @@ require_once(__DIR__ . '/admin-header.php');
                                     <i class="fas fa-user me-1"></i>Autor
                                 </label>
                                 <input type="text" class="form-control" id="editAuthor" 
-                                       value="David CocioabÄƒ" readonly>
+                                       value="David Nyikora" readonly>
                             </div>
                         </div>
                     </div>
@@ -426,7 +426,7 @@ require_once(__DIR__ . '/admin-header.php');
                     <div class="mb-3">
                         <label class="form-label fw-medium">
                             <i class="fas fa-tags me-1"></i>Tags
-                            <small class="text-muted">(separate prin virgulÄƒ)</small>
+                            <small class="text-muted">(separate prin virgula)</small>
                         </label>
                         <input type="text" class="form-control" id="editTags" 
                                placeholder="ex: analiza, transferuri, liga 1">
@@ -437,7 +437,7 @@ require_once(__DIR__ . '/admin-header.php');
                             <i class="fas fa-sticky-note me-1"></i>Note personale
                         </label>
                         <textarea class="form-control" id="editNotes" rows="3" 
-                                  placeholder="AdaugÄƒ note pentru tine sau echipÄƒ..."></textarea>
+                                  placeholder="Adauga note pentru tine sau echipa..."></textarea>
                     </div>
                     
                     <!-- Info display -->
@@ -445,13 +445,13 @@ require_once(__DIR__ . '/admin-header.php');
                         <div class="col-md-6">
                             <small class="text-muted">
                                 <i class="fas fa-calendar me-1"></i>
-                                Data publicÄƒrii: <span id="editDateDisplay"></span>
+                                Data publicarii: <span id="editDateDisplay"></span>
                             </small>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">
                                 <i class="fas fa-clock me-1"></i>
-                                Tip conÈ›inut: <span id="editContentType"></span>
+                                Tip continut: <span id="editContentType"></span>
                             </small>
                         </div>
                     </div>
@@ -459,10 +459,10 @@ require_once(__DIR__ . '/admin-header.php');
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>AnuleazÄƒ
+                    <i class="fas fa-times me-1"></i>Anuleaza
                 </button>
                 <button type="button" class="btn btn-primary" onclick="saveArticle()">
-                    <i class="fas fa-save me-1"></i>SalveazÄƒ modificÄƒrile
+                    <i class="fas fa-save me-1"></i>Salveaza modificarile
                 </button>
             </div>
         </div>
@@ -504,7 +504,7 @@ require_once(__DIR__ . '/admin-header.php');
                                 <td id="detailDay"></td>
                             </tr>
                             <tr>
-                                <td class="fw-medium"><i class="fas fa-file-alt me-1"></i>Tip conÈ›inut:</td>
+                                <td class="fw-medium"><i class="fas fa-file-alt me-1"></i>Tip continut:</td>
                                 <td id="detailContentTypeValue"></td>
                             </tr>
                             <tr>
@@ -544,10 +544,10 @@ require_once(__DIR__ . '/admin-header.php');
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>ÃŽnchide
+                    <i class="fas fa-times me-1"></i>Inchide
                 </button>
                 <button type="button" class="btn btn-primary" onclick="openEditFromDetails()">
-                    <i class="fas fa-edit me-1"></i>EditeazÄƒ
+                    <i class="fas fa-edit me-1"></i>Editeaza
                 </button>
             </div>
         </div>
@@ -674,7 +674,7 @@ function editArticle(articleId) {
             document.getElementById('editCategory').value = article.category || '';
             document.getElementById('editStatus').value = article.status || 'planned';
             document.getElementById('editPriority').value = article.priority || 'normal';
-            document.getElementById('editAuthor').value = article.author || 'David CocioabÄƒ';
+            document.getElementById('editAuthor').value = article.author || 'David Nyikora';
             document.getElementById('editTags').value = Array.isArray(article.tags) ? article.tags.join(', ') : '';
             document.getElementById('editNotes').value = article.notes || '';
             
@@ -686,12 +686,12 @@ function editArticle(articleId) {
             const modal = new bootstrap.Modal(document.getElementById('editModal'));
             modal.show();
         } else {
-            alert('Eroare la Ã®ncÄƒrcarea articolului: ' + result.error);
+            alert('Eroare la incarcarea articolului: ' + result.error);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Eroare la Ã®ncÄƒrcarea datelor');
+        alert('Eroare la incarcarea datelor');
     });
 }
 
@@ -708,8 +708,8 @@ function viewDetails(articleId) {
             const article = result.article;
             
             // Populate details modal
-            document.getElementById('detailTitle').textContent = article.title || 'FÄƒrÄƒ titlu';
-            document.getElementById('detailDescription').textContent = article.description || 'FÄƒrÄƒ descriere';
+            document.getElementById('detailTitle').textContent = article.title || 'Fara titlu';
+            document.getElementById('detailDescription').textContent = article.description || 'Fara descriere';
             
             // Status badge
             const statusBadge = document.getElementById('detailStatus');
@@ -721,7 +721,7 @@ function viewDetails(articleId) {
             };
             const statusTexts = {
                 'planned': 'Planificat',
-                'in_progress': 'ÃŽn progres',
+                'in_progress': 'In progres',
                 'review': 'Review',
                 'published': 'Publicat'
             };
@@ -730,9 +730,9 @@ function viewDetails(articleId) {
             
             // Priority
             const priorityTexts = {
-                'low': 'Prioritate scÄƒzutÄƒ',
-                'normal': 'Prioritate normalÄƒ',
-                'high': 'Prioritate Ã®naltÄƒ'
+                'low': 'Prioritate scazuta',
+                'normal': 'Prioritate normala',
+                'high': 'Prioritate inalta'
             };
             document.getElementById('detailPriority').textContent = priorityTexts[article.priority] || 'Normal';
             
@@ -741,14 +741,14 @@ function viewDetails(articleId) {
             document.getElementById('detailDay').textContent = article.day_name || '';
             document.getElementById('detailContentTypeValue').textContent = article.content_type || '';
             document.getElementById('detailCategoryValue').textContent = article.category || 'Necategorizat';
-            document.getElementById('detailAuthorValue').textContent = article.author || 'David CocioabÄƒ';
+            document.getElementById('detailAuthorValue').textContent = article.author || 'David Nyikora';
             document.getElementById('detailCreated').textContent = formatDateTime(article.created_at);
             document.getElementById('detailUpdated').textContent = formatDateTime(article.updated_at);
             
             // Tags
             const tagsText = Array.isArray(article.tags) && article.tags.length > 0 
                 ? article.tags.join(', ') 
-                : 'FÄƒrÄƒ tags';
+                : 'Fara tags';
             document.getElementById('detailTagsValue').textContent = tagsText;
             
             // Notes section
@@ -768,12 +768,12 @@ function viewDetails(articleId) {
             const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
             modal.show();
         } else {
-            alert('Eroare la Ã®ncÄƒrcarea detaliilor: ' + result.error);
+            alert('Eroare la incarcarea detaliilor: ' + result.error);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Eroare la Ã®ncÄƒrcarea datelor');
+        alert('Eroare la incarcarea datelor');
     });
 }
 
@@ -805,68 +805,55 @@ function saveArticle() {
     })
     .then(response => response.json())
     .then(result => {
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+        
         if (result.success) {
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-            modal.hide();
-            
-            // Refresh the page to show updated data
-            window.location.reload();
+            // Close modal and refresh
+            bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+            location.reload();
         } else {
             alert('Eroare la salvare: ' + result.error);
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Eroare la salvarea datelor');
-    })
-    .finally(() => {
-        // Restore button state
         saveBtn.innerHTML = originalText;
         saveBtn.disabled = false;
+        console.error('Error:', error);
+        alert('Eroare la salvarea datelor');
     });
 }
 
-// Open edit modal from details modal
+// Open edit from details modal
 function openEditFromDetails() {
     const articleId = document.getElementById('detailsModal').getAttribute('data-article-id');
-    
-    // Close details modal
-    const detailsModal = bootstrap.Modal.getInstance(document.getElementById('detailsModal'));
-    detailsModal.hide();
-    
-    // Open edit modal
-    setTimeout(() => {
-        editArticle(articleId);
-    }, 300); // Small delay to allow modal to close
+    bootstrap.Modal.getInstance(document.getElementById('detailsModal')).hide();
+    setTimeout(() => editArticle(articleId), 300);
 }
 
-// Helper function to format date
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ro-RO', {
-        day: '2-digit',
+// Export plan
+function exportPlan() {
+    window.location.href = '../data/editorial-plan.json';
+}
+
+// Format date helper
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+// Format datetime helper
+function formatDateTime(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleString('ro-RO', { 
+        day: '2-digit', 
         month: '2-digit', 
-        year: 'numeric'
-    });
-}
-
-// Helper function to format date and time
-function formatDateTime(dateTimeString) {
-    const date = new Date(dateTimeString);
-    return date.toLocaleDateString('ro-RO', {
-        day: '2-digit',
-        month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
     });
-}
-
-// Export plan (placeholder)
-function exportPlan() {
-    // TODO: Generate CSV or PDF export
-    alert('FuncÈ›ionalitatea de export va fi implementatÄƒ Ã®n curÃ¢nd.');
 }
 </script>
 
