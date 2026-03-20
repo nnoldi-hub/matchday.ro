@@ -8,6 +8,7 @@ require_once(__DIR__ . '/config/config.php');
 require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Post.php');
 require_once(__DIR__ . '/includes/Comment.php');
+require_once(__DIR__ . '/includes/Stats.php');
 
 // Get post slug
 $slug = isset($_GET['slug']) ? Security::sanitizeInput($_GET['slug']) : '';
@@ -40,7 +41,8 @@ if ($post['status'] !== 'published' && empty($_SESSION['david_logged'])) {
     exit;
 }
 
-// Increment view count
+// Track view with real visitor analytics
+Stats::trackView($post['id'], 'post');
 Post::incrementViews($post['id']);
 
 // Load categories for styling

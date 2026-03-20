@@ -3,6 +3,10 @@ require_once(__DIR__ . '/config/config.php');
 require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Post.php');
 require_once(__DIR__ . '/includes/Category.php');
+require_once(__DIR__ . '/includes/Stats.php');
+
+// Track category page visit
+Stats::trackView(null, 'category');
 
 // Get category from URL
 $categorySlug = $_GET['cat'] ?? '';

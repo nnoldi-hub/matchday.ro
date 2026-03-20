@@ -71,6 +71,9 @@ include(__DIR__ . '/../includes/header.php');
           <a href="users.php" class="btn btn-outline-danger">
             <i class="fas fa-users me-1"></i>Utilizatori
           </a>
+          <a href="stats.php" class="btn btn-outline-info">
+            <i class="fas fa-chart-line me-1"></i>Statistici
+          </a>
           <a href="settings.php" class="btn btn-outline-secondary">
             <i class="fas fa-cog me-1"></i>Setări
           </a>

@@ -14,14 +14,15 @@
 - Sondaje și comentarii interactive
 - **Bază de date MySQL** pe Hostico (SQLite local)
 - **Admin modern**: dashboard, CRUD articole, editor formatare
-- Structură MVC cu modele (Post, Poll, Comment)
+- Structură MVC cu modele (Post, Poll, Comment, User, Settings)
+- **Multi-user** cu roluri Admin/Editor
+- **Pagină setări** configurabilă din admin
+- Media Library cu upload și browse
 
 ### ❌ Probleme rămase:
-- Fără Media Library (browse imagini)
-- Fără CRUD categorii
-- Single admin (fără multi-user)
-- Comentarii - moderare limitată
-- Fără analytics/statistici avansate
+- Analytics/statistici vizitatori în timp real
+- Căutare full-text avansată
+- Newsletter integration
 
 ---
 
@@ -65,7 +66,7 @@
 
 ## 🎯 FAZA 3: Admin Panel Complet
 **Durată estimată:** 3-4 zile  
-**Status:** 🔄 În progres
+**Status:** ✅ COMPLETAT
 
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
@@ -76,26 +77,26 @@
 | 3.5 | Save articole în DB | ✅ DONE | admin/save-post.php refactorizat |
 | 3.6 | Media Library | ✅ DONE | Upload, browse, delete, copy URL |
 | 3.7 | CRUD Categorii din admin | ✅ DONE | Category model + admin/categories.php |
-| 3.8 | Sistem multi-user | ⬜ TODO | Admin/Editor roles |
+| 3.8 | Sistem multi-user | ✅ DONE | User.php + admin/users.php |
 | 3.9 | Dashboard comentarii | ✅ DONE | Bulk approve/delete, filtre |
-| 3.10 | Editor sondaje îmbunătățit | ⬜ TODO | |
-| 3.11 | Pagină setări site | ⬜ TODO | Configurare din admin |
-| 3.12 | Deploy Faza 3 | ⬜ TODO | git pull pe Hostico |
+| 3.10 | Editor sondaje îmbunătățit | ✅ DONE | Refactorizat cu Poll model DB |
+| 3.11 | Pagină setări site | ✅ DONE | Settings.php + admin/settings.php |
+| 3.12 | Deploy Faza 3 | ✅ DONE | Commit a7f2a31 |
 
 ---
 
 ## 🎯 FAZA 4: Features Avansate
 **Durată estimată:** 2-3 zile  
-**Status:** ⬜ Neînceput
+**Status:** 🔄 În progres
 
 | # | Task | Status | Notițe |
 |---|------|--------|--------|
-| 4.1 | Căutare full-text | ⬜ TODO | FTS5 SQLite |
-| 4.2 | Articole similare | ⬜ TODO | Bazat pe tags/categorie |
-| 4.3 | Newsletter integration | ⬜ TODO | MailerLite/Sendinblue |
-| 4.4 | Social auto-post | ⬜ TODO | Facebook/Twitter API |
-| 4.5 | PWA (Service Worker) | ⬜ TODO | Offline support |
-| 4.6 | Analytics dashboard | ⬜ TODO | Chart.js grafice |
+| 4.1 | **Analytics Dashboard** | 🔄 În progres | Stats model + visitor tracking |
+| 4.2 | Căutare full-text | ⬜ TODO | FTS5 SQLite / MySQL FULLTEXT |
+| 4.3 | Articole similare | ⬜ TODO | Bazat pe tags/categorie |
+| 4.4 | Newsletter integration | ⬜ TODO | MailerLite/Sendinblue |
+| 4.5 | Social auto-post | ⬜ TODO | Facebook/Twitter API |
+| 4.6 | PWA (Service Worker) | ⬜ TODO | Offline support |
 | 4.7 | Backup automat | ⬜ TODO | Export DB zilnic |
 | 4.8 | Testare completă | ⬜ TODO | |
 | 4.9 | Deploy final | ⬜ TODO | |

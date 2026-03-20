@@ -3,6 +3,10 @@ require_once(__DIR__ . '/config/config.php');
 require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Post.php');
 require_once(__DIR__ . '/includes/Poll.php');
+require_once(__DIR__ . '/includes/Stats.php');
+
+// Track homepage visit
+Stats::trackView(null, 'homepage');
 
 // SEO Configuration for homepage
 $pageTitle = SITE_NAME . ' - Jurnalul meciurilor și transferurilor';
