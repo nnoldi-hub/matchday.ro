@@ -85,21 +85,26 @@ class Ad {
      * Create new ad
      */
     public static function create(array $data): int {
-        $sql = "INSERT INTO ads (name, image, link, position, start_date, end_date, active, code, created_at) 
-                VALUES (:name, :image, :link, :position, :start_date, :end_date, :active, :code, NOW())";
-        
-        Database::getInstance()->prepare($sql)->execute([
-            'name' => $data['name'],
-            'image' => $data['image'] ?? null,
-            'link' => $data['link'] ?? null,
-            'position' => $data['position'] ?? 'sidebar',
-            'start_date' => !empty($data['start_date']) ? $data['start_date'] : null,
-            'end_date' => !empty($data['end_date']) ? $data['end_date'] : null,
-            'active' => $data['active'] ?? 1,
-            'code' => $data['code'] ?? null
-        ]);
-        
-        return (int) Database::getInstance()->lastInsertId();
+        try {
+            $sql = "INSERT INTO ads (name, image, link, position, start_date, end_date, active, code, created_at) 
+                    VALUES (:name, :image, :link, :position, :start_date, :end_date, :active, :code, NOW())";
+            
+            Database::getInstance()->prepare($sql)->execute([
+                'name' => $data['name'],
+                'image' => $data['image'] ?? null,
+                'link' => $data['link'] ?? null,
+                'position' => $data['position'] ?? 'sidebar',
+                'start_date' => !empty($data['start_date']) ? $data['start_date'] : null,
+                'end_date' => !empty($data['end_date']) ? $data['end_date'] : null,
+                'active' => $data['active'] ?? 1,
+                'code' => $data['code'] ?? null
+            ]);
+            
+            return (int) Database::getInstance()->lastInsertId();
+        } catch (Exception $e) {
+            error_log("Ad::create error: " . $e->getMessage());
+            throw $e;
+        }
     }
     
     /**
@@ -261,8 +266,10 @@ class Ad {
      */
     public static function migrate(): bool {
         try {
+            // Ensure connection is established first (sets isMySQL flag)
+            $db = Database::getInstance();
             $sql = self::createTable();
-            Database::getInstance()->exec($sql);
+            $db->exec($sql);
             return true;
         } catch (PDOException $e) {
             error_log("Ad table migration failed (PDO): " . $e->getMessage());

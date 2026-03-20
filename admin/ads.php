@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
         $error = 'Token CSRF invalid!';
     } else {
+        try {
         switch ($action) {
             case 'create':
                 $image = $_POST['image'] ?? '';
@@ -49,6 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $image = '/assets/uploads/ads/' . $filename;
                     }
                 }
+                
+                // Ensure table exists first
+                Ad::migrate();
                 
                 $id = Ad::create([
                     'name' => $_POST['name'] ?? '',
@@ -108,6 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Ad::toggleActive($id);
                 $message = 'Status reclamă actualizat!';
                 break;
+        }
+        } catch (Exception $e) {
+            $error = 'Eroare: ' . $e->getMessage();
+            error_log("Ads action error: " . $e->getMessage());
         }
     }
 }
