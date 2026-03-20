@@ -75,7 +75,7 @@
 | 3.4 | Editare articole existente | ✅ DONE | admin/edit-post.php |
 | 3.5 | Save articole în DB | ✅ DONE | admin/save-post.php refactorizat |
 | 3.6 | Media Library | ✅ DONE | Upload, browse, delete, copy URL |
-| 3.7 | CRUD Categorii din admin | ⬜ TODO | |
+| 3.7 | CRUD Categorii din admin | ✅ DONE | Category model + admin/categories.php |
 | 3.8 | Sistem multi-user | ⬜ TODO | Admin/Editor roles |
 | 3.9 | Dashboard comentarii | ✅ DONE | Bulk approve/delete, filtre |
 | 3.10 | Editor sondaje îmbunătățit | ⬜ TODO | |

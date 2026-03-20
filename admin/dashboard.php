@@ -47,6 +47,9 @@ include(__DIR__ . '/../includes/header.php');
           <a href="posts.php" class="btn btn-outline-primary">
             <i class="fas fa-newspaper me-1"></i>Articole
           </a>
+          <a href="categories.php" class="btn btn-outline-warning">
+            <i class="fas fa-folder me-1"></i>Categorii
+          </a>
           <a href="media.php" class="btn btn-outline-success">
             <i class="fas fa-images me-1"></i>Media
           </a>
