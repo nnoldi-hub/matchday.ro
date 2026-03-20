@@ -77,7 +77,7 @@
 | 3.6 | Media Library | ⬜ TODO | Upload, browse, delete |
 | 3.7 | CRUD Categorii din admin | ⬜ TODO | |
 | 3.8 | Sistem multi-user | ⬜ TODO | Admin/Editor roles |
-| 3.9 | Dashboard comentarii | ⬜ TODO | Bulk approve/delete |
+| 3.9 | Dashboard comentarii | ✅ DONE | Bulk approve/delete, filtre |
 | 3.10 | Editor sondaje îmbunătățit | ⬜ TODO | |
 | 3.11 | Pagină setări site | ⬜ TODO | Configurare din admin |
 | 3.12 | Deploy Faza 3 | ⬜ TODO | git pull pe Hostico |
