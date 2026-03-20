@@ -10,7 +10,58 @@ require_once(__DIR__ . '/config/database.php');
 require_once(__DIR__ . '/includes/Post.php');
 require_once(__DIR__ . '/includes/Category.php');
 
-echo "<h2>Debug Champions League</h2>";
+echo "<h2>Debug Champions League - Articol Raw Content</h2>";
+
+// Check for specific article ID
+if (isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $post = Post::getById($id);
+    if ($post) {
+        echo "<h3>Articol ID: $id</h3>";
+        echo "<h4>Titlu: " . htmlspecialchars($post['title']) . "</h4>";
+        echo "<h4>Content RAW (escaped):</h4>";
+        echo "<pre style='background:#f5f5f5;padding:10px;overflow:auto;max-height:500px;'>" . htmlspecialchars($post['content']) . "</pre>";
+        echo "<h4>Content LENGTH: " . strlen($post['content']) . " bytes</h4>";
+        
+        // Check for unclosed tags
+        echo "<h4>HTML Tag Analysis:</h4>";
+        $content = $post['content'];
+        preg_match_all('/<([a-z0-9]+)[^>]*>/i', $content, $openTags);
+        preg_match_all('/<\/([a-z0-9]+)>/i', $content, $closeTags);
+        
+        $openCounts = array_count_values($openTags[1]);
+        $closeCounts = array_count_values($closeTags[1]);
+        
+        echo "<pre>";
+        echo "Open tags: " . print_r($openCounts, true);
+        echo "Close tags: " . print_r($closeCounts, true);
+        
+        // Find mismatches
+        $allTags = array_unique(array_merge(array_keys($openCounts), array_keys($closeCounts)));
+        $selfClosing = ['br', 'img', 'hr', 'input', 'meta', 'link'];
+        foreach ($allTags as $tag) {
+            if (in_array(strtolower($tag), $selfClosing)) continue;
+            $open = $openCounts[$tag] ?? 0;
+            $close = $closeCounts[$tag] ?? 0;
+            if ($open !== $close) {
+                echo "<strong style='color:red;'>MISMATCH: &lt;$tag&gt; open=$open, close=$close</strong>\n";
+            }
+        }
+        echo "</pre>";
+        exit;
+    }
+}
+
+// List all Champions League posts with IDs
+echo "<h3>Toate articolele Champions League (click pentru detalii):</h3>";
+$posts = Post::getPublished(1, 20, 'champions-league', null);
+echo "<ul>";
+foreach ($posts as $p) {
+    echo "<li><a href='?id={$p['id']}'>{$p['title']}</a> (ID: {$p['id']}, Creat: {$p['created_at']})</li>";
+}
+echo "</ul>";
+
+echo "<hr><h2>Debug Champions League</h2>";
 
 // Check Champions League category
 echo "<h3>1. Category Check</h3>";
