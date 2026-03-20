@@ -143,7 +143,7 @@ require_once(__DIR__ . '/admin-header.php');
 <!-- Page Header -->
 <div class="admin-page-header">
     <h1><i class="fas fa-ad me-2"></i>Reclame & Sponsori</h1>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adModal">
+    <button type="button" class="btn btn-primary" id="btnNewAd">
         <i class="fas fa-plus me-1"></i>Reclamă nouă
     </button>
 </div>
@@ -481,10 +481,40 @@ require_once(__DIR__ . '/admin-header.php');
 <script>
 // Auto-open modal in edit mode
 document.addEventListener('DOMContentLoaded', function() {
-    var modal = new bootstrap.Modal(document.getElementById('adModal'));
+    var modalEl = document.getElementById('adModal');
+    var modal = new bootstrap.Modal(modalEl);
     modal.show();
+    
+    // On close, redirect to clean URL
+    modalEl.addEventListener('hidden.bs.modal', function () {
+        window.location.href = 'ads.php';
+    });
 });
 </script>
 <?php endif; ?>
+
+<script>
+// Handle "Reclamă nouă" button
+document.getElementById('btnNewAd').addEventListener('click', function() {
+    <?php if ($editAd): ?>
+    // We're in edit mode, redirect to clean URL then open modal
+    window.location.href = 'ads.php#add';
+    <?php else: ?>
+    // Not in edit mode, just open modal
+    var modal = new bootstrap.Modal(document.getElementById('adModal'));
+    modal.show();
+    <?php endif; ?>
+});
+
+// Check for #add hash on page load
+if (window.location.hash === '#add') {
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = new bootstrap.Modal(document.getElementById('adModal'));
+        modal.show();
+        // Clear hash
+        history.replaceState(null, null, 'ads.php');
+    });
+}
+</script>
 
 <?php require_once(__DIR__ . '/admin-footer.php'); ?>
