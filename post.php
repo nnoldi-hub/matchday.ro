@@ -11,6 +11,7 @@ require_once(__DIR__ . '/includes/Comment.php');
 require_once(__DIR__ . '/includes/Stats.php');
 require_once(__DIR__ . '/includes/Ad.php');
 require_once(__DIR__ . '/includes/AdWidget.php');
+require_once(__DIR__ . '/includes/seo.php');
 
 // Get post slug
 $slug = isset($_GET['slug']) ? Security::sanitizeInput($_GET['slug']) : '';
