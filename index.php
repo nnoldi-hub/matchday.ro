@@ -190,7 +190,7 @@ if (isset($_GET['created'])) {
           </div>
         </div>
         <div style="position:absolute; bottom:32px; right:32px; z-index:999; pointer-events:auto;">
-          <a href="/<?= htmlspecialchars($item['file']) ?>" class="btn btn-accent btn-lg">Citește articolul</a>
+          <a href="<?= htmlspecialchars($item['file']) ?>" class="btn btn-accent btn-lg">Citește articolul</a>
         </div>
       </div>
       <?php endforeach; ?>
@@ -339,7 +339,7 @@ if (isset($_GET['created'])) {
       <?php endif; endif; ?>
         <div class="col-12 col-md-6">
           <article class="card card-article h-100" itemscope itemtype="https://schema.org/Article">
-            <a href="/<?php echo Security::sanitizeInput($item['file']); ?>" 
+            <a href="<?php echo Security::sanitizeInput($item['file']); ?>" 
                class="text-decoration-none text-reset" 
                aria-label="Citește: <?php echo Security::sanitizeInput($item['title']); ?>">
                
