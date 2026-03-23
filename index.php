@@ -282,31 +282,6 @@ if (isset($_GET['created'])) {
           <?php endforeach; ?>
         </div>
         
-        <!-- Categorii în zona principală -->
-        <div class="categories-inline mt-4">
-          <h3 class="h6 mb-3 d-flex align-items-center">
-            <i class="fas fa-th-large me-2"></i>Categorii
-          </h3>
-          <div class="row g-2">
-            <?php 
-            $categories = require(__DIR__ . '/config/categories.php');
-            foreach ($categories as $key => $category): 
-            ?>
-            <div class="col-6 col-md-4">
-              <a href="<?= SEOManager::getCategoryUrl($key) ?>" class="category-card-inline">
-                <div class="category-icon" style="background: <?= $category['color'] ?>15; color: <?= $category['color'] ?>">
-                  <i class="<?= $category['icon'] ?>"></i>
-                </div>
-                <div class="category-info">
-                  <span class="category-name"><?= htmlspecialchars($category['name']) ?></span>
-                  <span class="category-count"><?= ($categoryCounts[$key] ?? 0) ?> articole</span>
-                </div>
-              </a>
-            </div>
-            <?php endforeach; ?>
-          </div>
-        </div>
-        
         <!-- Sondaje Interactive -->
         <?php
         // Load active polls from database
