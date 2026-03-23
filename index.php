@@ -335,49 +335,56 @@ if (isset($_GET['created'])) {
             <i class="fas fa-trophy me-2"></i>Clasament Liga 1
           </div>
           <div class="standings-card-body">
+            <div class="standings-subtitle">Play-off</div>
             <table class="standings-table">
               <thead>
                 <tr>
                   <th>#</th>
                   <th>Echipă</th>
-                  <th>M</th>
+                  <th>MJ</th>
                   <th>Pct</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class="top-team">
                   <td class="pos">1</td>
-                  <td class="team-name">FCSB</td>
-                  <td>28</td>
-                  <td class="points">62</td>
+                  <td class="team-name">"U" Cluj</td>
+                  <td>2</td>
+                  <td class="points">33</td>
                 </tr>
                 <tr class="top-team">
                   <td class="pos">2</td>
-                  <td class="team-name">CFR Cluj</td>
-                  <td>28</td>
-                  <td class="points">58</td>
+                  <td class="team-name">U Craiova</td>
+                  <td>2</td>
+                  <td class="points">33</td>
                 </tr>
                 <tr>
                   <td class="pos">3</td>
-                  <td class="team-name">U Craiova</td>
-                  <td>28</td>
-                  <td class="points">51</td>
+                  <td class="team-name">Rapid București</td>
+                  <td>2</td>
+                  <td class="points">31</td>
                 </tr>
                 <tr>
                   <td class="pos">4</td>
-                  <td class="team-name">Rapid</td>
-                  <td>28</td>
-                  <td class="points">48</td>
+                  <td class="team-name">CFR Cluj</td>
+                  <td>2</td>
+                  <td class="points">30</td>
                 </tr>
                 <tr>
                   <td class="pos">5</td>
-                  <td class="team-name">Dinamo</td>
-                  <td>28</td>
-                  <td class="points">45</td>
+                  <td class="team-name">Argeș Pitești</td>
+                  <td>2</td>
+                  <td class="points">28</td>
+                </tr>
+                <tr>
+                  <td class="pos">6</td>
+                  <td class="team-name">Dinamo București</td>
+                  <td>2</td>
+                  <td class="points">26</td>
                 </tr>
               </tbody>
             </table>
-            <a href="#" class="standings-full-link">
+            <a href="post.php?slug=clasament-liga-1-superliga-2025-2026" class="standings-full-link">
               Vezi clasamentul complet <i class="fas fa-arrow-right ms-1"></i>
             </a>
           </div>

@@ -533,6 +533,16 @@ footer .brand-band{display:inline-flex;align-items:center;gap:.5rem;background:#
   padding: 0;
 }
 
+.standings-subtitle {
+  background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
+  color: #fff;
+  padding: 0.4rem 1rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .standings-table {
   width: 100%;
   font-size: 0.8rem;
