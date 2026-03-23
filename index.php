@@ -148,6 +148,7 @@ if (isset($_GET['created'])) {
   
   <!-- CONȚINUT PRINCIPAL -->
   <main class="main-column">
+    <div class="main-column-inner">
 <?php endif; ?>
 
 <!-- Hero Carousel cu ultimele 3 articole (ascuns la căutare) -->
@@ -696,6 +697,7 @@ if (isset($_GET['created'])) {
 </div>
 
 <?php if (!$q): ?>
+    </div><!-- /.main-column-inner -->
   </main><!-- /.main-column -->
   
   <!-- SIDEBAR DREAPTA -->
