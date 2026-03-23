@@ -19,6 +19,7 @@ $breadcrumbs = [
 // Set proper HTTP status
 http_response_code(404);
 
+$pageBodyClass = 'page-article';
 include(__DIR__ . '/includes/header.php'); 
 ?>
 

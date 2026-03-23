@@ -38,6 +38,7 @@ if (empty($categorySlug) || !$currentCategory) {
     ['name' => '404 - Categoria nu a fost găsită']
   ];
     
+    $pageBodyClass = 'page-article';
     include(__DIR__ . '/includes/header.php');
   echo '<div class="container my-5"><h1>Categoria nu a fost găsită</h1><p>Categoria "' . htmlspecialchars($categorySlug) . '" nu există.</p><a href="/index.php">Înapoi la jurnal</a></div>';
     include(__DIR__ . '/includes/footer.php');
@@ -96,6 +97,7 @@ foreach ($posts as &$post) {
 }
 unset($post);
 
+$pageBodyClass = 'page-article';
 include(__DIR__ . '/includes/header.php');
 ?>
 

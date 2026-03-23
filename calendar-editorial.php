@@ -13,6 +13,7 @@ $breadcrumbs = [
     ['name' => 'Calendar Editorial']
 ];
 
+$pageBodyClass = 'page-article';
 include(__DIR__ . '/includes/header.php'); 
 
 // Citeste articolele din editorial-plan.json

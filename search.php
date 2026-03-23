@@ -47,6 +47,7 @@ $breadcrumbs = [
     ['name' => 'Căutare', 'url' => '/search.php']
 ];
 
+$pageBodyClass = 'page-article';
 include(__DIR__ . '/includes/header.php');
 
 $categories = require(__DIR__ . '/config/categories.php');

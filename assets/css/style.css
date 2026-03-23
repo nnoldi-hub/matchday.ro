@@ -12,7 +12,7 @@
 }
 *{box-sizing:border-box}
 
-/* Grass/Football Field Background */
+/* Grass/Football Field Background - only on homepage */
 body{
   font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;
   color:var(--ink);
@@ -26,6 +26,11 @@ body{
     );
   background-attachment: fixed;
   min-height: 100vh;
+}
+
+/* Clean background for article pages */
+body.page-article {
+  background: #f8fafd;
 }
 .hero{\n  background: #fff;\n  padding: 2rem 0 1rem;\n  box-shadow: 0 2px 10px rgba(0,0,0,0.1);\n}
 .brand-badge{display:inline-flex;align-items:center;gap:.5rem;background:#fff;border:1px solid rgba(14,77,146,.12);padding:.5rem 1rem;border-radius:999px;box-shadow: 0 6px 18px rgba(14,77,146,.08);}

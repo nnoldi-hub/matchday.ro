@@ -33,6 +33,7 @@ $menuItems = [
     ['page' => 'categories', 'icon' => 'fa-folder', 'label' => 'Categorii', 'admin_only' => false],
     ['page' => 'media', 'icon' => 'fa-images', 'label' => 'Media', 'admin_only' => false],
     ['page' => 'polls', 'icon' => 'fa-poll', 'label' => 'Sondaje', 'admin_only' => false],
+    ['page' => 'homepage-results', 'icon' => 'fa-futbol', 'label' => 'Rezultate', 'admin_only' => false],
     ['page' => 'comments', 'icon' => 'fa-comments', 'label' => 'Comentarii', 'admin_only' => false],
     ['divider' => true],
     ['page' => 'users', 'icon' => 'fa-users', 'label' => 'Utilizatori', 'admin_only' => true],

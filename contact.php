@@ -11,6 +11,7 @@ $breadcrumbs = [
     ['name' => 'Contact']
 ];
 
+$pageBodyClass = 'page-article';
 include(__DIR__ . '/includes/header.php'); 
 
 // Mesaje de feedback

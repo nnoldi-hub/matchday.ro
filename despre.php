@@ -13,6 +13,7 @@ $breadcrumbs = [
 
 $articleAuthor = 'David Nyikora';
 
+$pageBodyClass = 'page-article';
 include(__DIR__ . '/includes/header.php'); 
 ?>
 

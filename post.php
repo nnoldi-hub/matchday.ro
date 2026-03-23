@@ -85,6 +85,9 @@ if ($category) {
 }
 $breadcrumbs[] = ['name' => $post['title'], 'url' => SEOManager::getArticleUrl($post['slug'])];
 
+// Disable grass background for article pages
+$pageBodyClass = 'page-article';
+
 include(__DIR__ . '/includes/header.php');
 ?>
 

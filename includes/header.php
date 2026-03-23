@@ -74,7 +74,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
   </head>
-  <body class="bg-light"><?php if (isset($breadcrumbs) && is_array($breadcrumbs)): ?>
+  <body class="bg-light <?= isset($pageBodyClass) ? $pageBodyClass : '' ?>"><?php if (isset($breadcrumbs) && is_array($breadcrumbs)): ?>
     <?php echo $seo->generateBreadcrumbs($breadcrumbs); ?>
   <?php endif; ?>
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">

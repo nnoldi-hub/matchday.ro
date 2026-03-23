@@ -287,8 +287,15 @@ if (isset($_GET['created'])) {
       <div class="col-lg-4">
         <!-- Card Rezultate Importante -->
         <?php
-        // Preia rezultatele meciurilor din baza de date
-        $matchResults = Post::getMatchResults(3);
+        // Preia rezultatele featured din tabelul dedicat
+        $featuredResults = Database::fetchAll(
+            "SELECT fr.*, p.slug as post_slug 
+             FROM featured_results fr 
+             LEFT JOIN posts p ON fr.post_id = p.id 
+             WHERE fr.active = 1 
+             ORDER BY fr.sort_order ASC 
+             LIMIT 3"
+        );
         ?>
         
         <div class="results-card mb-3">
@@ -296,14 +303,18 @@ if (isset($_GET['created'])) {
             <i class="fas fa-futbol me-2"></i>Rezultate importante
           </div>
           <div class="results-card-body">
-            <?php if (empty($matchResults)): ?>
+            <?php if (empty($featuredResults)): ?>
               <div class="no-results p-3 text-center text-muted">
                 <i class="fas fa-calendar-times mb-2"></i><br>
                 Nu există rezultate recente
               </div>
             <?php else: ?>
-              <?php foreach ($matchResults as $match): ?>
-              <a href="post.php?slug=<?= htmlspecialchars($match['slug']) ?>" class="match-result-link">
+              <?php foreach ($featuredResults as $match): ?>
+              <?php if ($match['post_slug']): ?>
+              <a href="post.php?slug=<?= htmlspecialchars($match['post_slug']) ?>" class="match-result-link">
+              <?php else: ?>
+              <div class="match-result-link">
+              <?php endif; ?>
                 <div class="match-result">
                   <div class="match-teams">
                     <div class="team home">
@@ -317,10 +328,14 @@ if (isset($_GET['created'])) {
                     </div>
                   </div>
                   <div class="match-info">
-                    <span class="match-league"><?= htmlspecialchars($match['match_competition'] ?? 'Meci') ?></span>
+                    <span class="match-league"><?= htmlspecialchars($match['competition'] ?? '') ?></span>
                   </div>
                 </div>
+              <?php if ($match['post_slug']): ?>
               </a>
+              <?php else: ?>
+              </div>
+              <?php endif; ?>
               <?php endforeach; ?>
             <?php endif; ?>
           </div>
