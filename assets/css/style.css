@@ -435,6 +435,62 @@ footer .brand-band{display:inline-flex;align-items:center;gap:.5rem;background:#
   color: #6b7b99;
 }
 
+/* Categories Inline (in main content area) */
+.categories-inline {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.category-card-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.category-card-inline:hover {
+  background: #edf2f7;
+  transform: translateX(3px);
+}
+
+.category-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.category-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.category-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #2d3748;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.category-count {
+  font-size: 0.7rem;
+  color: #718096;
+}
+
 /* Results Card */
 .results-card {
   background: #fff;

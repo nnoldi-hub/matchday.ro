@@ -281,6 +281,31 @@ if (isset($_GET['created'])) {
           </div>
           <?php endforeach; ?>
         </div>
+        
+        <!-- Categorii în zona principală -->
+        <div class="categories-inline mt-4">
+          <h3 class="h6 mb-3 d-flex align-items-center">
+            <i class="fas fa-th-large me-2"></i>Categorii
+          </h3>
+          <div class="row g-2">
+            <?php 
+            $categories = require(__DIR__ . '/config/categories.php');
+            foreach ($categories as $key => $category): 
+            ?>
+            <div class="col-6 col-md-4">
+              <a href="<?= SEOManager::getCategoryUrl($key) ?>" class="category-card-inline">
+                <div class="category-icon" style="background: <?= $category['color'] ?>15; color: <?= $category['color'] ?>">
+                  <i class="<?= $category['icon'] ?>"></i>
+                </div>
+                <div class="category-info">
+                  <span class="category-name"><?= htmlspecialchars($category['name']) ?></span>
+                  <span class="category-count"><?= ($categoryCounts[$key] ?? 0) ?> articole</span>
+                </div>
+              </a>
+            </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
       </div>
       
       <!-- Coloana laterală: Rezultate + Clasament -->
@@ -508,40 +533,6 @@ if (isset($_GET['created'])) {
   </div>
 </section>
 <?php endif; ?>
-
-<!-- Categories Section -->
-<div class="container mb-4">
-  <div class="row">
-    <div class="col-12">
-      <h2 class="h5 mb-3 d-flex align-items-center">
-        <i class="fas fa-th-large me-2"></i>Categorii
-      </h2>
-      <div class="row g-3">
-        <?php 
-        $categories = require(__DIR__ . '/config/categories.php');
-        foreach ($categories as $key => $category): 
-        ?>
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="<?= SEOManager::getCategoryUrl($key) ?>" class="text-decoration-none">
-            <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.2s ease">
-              <div class="card-body text-center p-3" onmouseover="this.parentElement.style.transform='translateY(-2px)'" onmouseout="this.parentElement.style.transform='translateY(0)'">
-                <div class="d-flex align-items-center justify-content-center mb-2" 
-                     style="width: 40px; height: 40px; background: <?= $category['color'] ?>15; border-radius: 12px; color: <?= $category['color'] ?>; margin: 0 auto;">
-                  <i class="<?= $category['icon'] ?>"></i>
-                </div>
-                <h6 class="mb-1 small fw-bold"><?= htmlspecialchars($category['name']) ?></h6>
-                <div class="small text-muted">
-                  <?= ($categoryCounts[$key] ?? 0) . ' articole' ?>
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Interactive Polls Section -->
 <div class="container mb-4">
