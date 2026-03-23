@@ -129,8 +129,8 @@ class Post {
         $slug = $data['slug'] ?? self::generateSlug($data['title']);
         
         return Database::insert(
-            "INSERT INTO posts (title, slug, content, excerpt, category_slug, cover_image, tags, status, author, published_at, created_at) 
-             VALUES (:title, :slug, :content, :excerpt, :category, :cover, :tags, :status, :author, :published, CURRENT_TIMESTAMP)",
+            "INSERT INTO posts (title, slug, content, excerpt, category_slug, cover_image, tags, status, author, published_at, created_at, is_match_result, home_team, away_team, home_score, away_score, match_competition) 
+             VALUES (:title, :slug, :content, :excerpt, :category, :cover, :tags, :status, :author, :published, CURRENT_TIMESTAMP, :is_match_result, :home_team, :away_team, :home_score, :away_score, :match_competition)",
             [
                 'title' => $data['title'],
                 'slug' => $slug,
@@ -141,7 +141,13 @@ class Post {
                 'tags' => is_array($data['tags'] ?? []) ? implode(',', $data['tags']) : ($data['tags'] ?? ''),
                 'status' => $data['status'] ?? 'draft',
                 'author' => $data['author'] ?? 'Admin',
-                'published' => ($data['status'] ?? 'draft') === 'published' ? date('Y-m-d H:i:s') : null
+                'published' => ($data['status'] ?? 'draft') === 'published' ? date('Y-m-d H:i:s') : null,
+                'is_match_result' => $data['is_match_result'] ?? 0,
+                'home_team' => $data['home_team'] ?? null,
+                'away_team' => $data['away_team'] ?? null,
+                'home_score' => $data['home_score'] ?? null,
+                'away_score' => $data['away_score'] ?? null,
+                'match_competition' => $data['match_competition'] ?? null
             ]
         );
     }
@@ -153,7 +159,7 @@ class Post {
         $fields = [];
         $params = ['id' => $id];
         
-        $allowedFields = ['title', 'content', 'excerpt', 'category_slug', 'cover_image', 'tags', 'status', 'author'];
+        $allowedFields = ['title', 'content', 'excerpt', 'category_slug', 'cover_image', 'tags', 'status', 'author', 'is_match_result', 'home_team', 'away_team', 'home_score', 'away_score', 'match_competition'];
         
         foreach ($allowedFields as $field) {
             $dataKey = str_replace('_slug', '', $field);
@@ -221,6 +227,23 @@ class Post {
              FROM posts 
              $where
              ORDER BY COALESCE(published_at, created_at) DESC 
+             LIMIT :limit",
+            ['limit' => $limit]
+        );
+    }
+    
+    /**
+     * Get match results for homepage
+     */
+    public static function getMatchResults(int $limit = 3): array {
+        return Database::fetchAll(
+            "SELECT id, title, slug, home_team, away_team, home_score, away_score, match_competition, published_at 
+             FROM posts 
+             WHERE status = 'published' 
+               AND is_match_result = 1 
+               AND home_team IS NOT NULL 
+               AND away_team IS NOT NULL
+             ORDER BY published_at DESC 
              LIMIT :limit",
             ['limit' => $limit]
         );

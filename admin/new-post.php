@@ -59,6 +59,53 @@ require_once(__DIR__ . '/admin-header.php');
             <div class="form-text">Separate prin virgulă, maxim 10 taguri</div>
           </div>
           
+          <!-- Secțiune Rezultat Meci -->
+          <div class="col-12">
+            <div class="card border-warning">
+              <div class="card-header bg-warning bg-opacity-10 py-2">
+                <div class="form-check m-0">
+                  <input type="checkbox" class="form-check-input" name="is_match_result" 
+                         id="isMatchResult" value="1" onchange="toggleMatchFields()">
+                  <label class="form-check-label fw-bold" for="isMatchResult">
+                    <i class="fas fa-futbol me-1"></i>Articol despre un meci (rezultat)
+                  </label>
+                </div>
+              </div>
+              <div class="card-body py-3" id="matchFields" style="display: none;">
+                <div class="row g-3">
+                  <div class="col-5">
+                    <label class="form-label small">Echipa gazdă</label>
+                    <input type="text" name="home_team" class="form-control form-control-sm" 
+                           placeholder="Ex: FCSB">
+                  </div>
+                  <div class="col-2">
+                    <label class="form-label small">Scor</label>
+                    <div class="input-group input-group-sm">
+                      <input type="number" name="home_score" class="form-control text-center" 
+                             min="0" max="99" placeholder="0">
+                      <span class="input-group-text">-</span>
+                      <input type="number" name="away_score" class="form-control text-center" 
+                             min="0" max="99" placeholder="0">
+                    </div>
+                  </div>
+                  <div class="col-5">
+                    <label class="form-label small">Echipa oaspete</label>
+                    <input type="text" name="away_team" class="form-control form-control-sm" 
+                           placeholder="Ex: CFR Cluj">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label small">Competiție</label>
+                    <input type="text" name="match_competition" class="form-control form-control-sm" 
+                           placeholder="Ex: Liga 1 • Etapa 28 sau Champions League • Sferturi">
+                  </div>
+                </div>
+                <div class="form-text mt-2">
+                  <i class="fas fa-info-circle me-1"></i>Acest meci va apărea în secțiunea "Rezultate importante" de pe homepage.
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div class="col-12 col-md-6">
             <label class="form-label">Cover (URL imagine)</label>
             <input type="url" name="cover" class="form-control" 
@@ -227,6 +274,22 @@ function previewPost() {
     
     document.getElementById('previewContent').innerHTML = previewHtml;
     new bootstrap.Modal(document.getElementById('previewModal')).show();
+}
+
+// Toggle match result fields
+function toggleMatchFields() {
+    const checkbox = document.getElementById('isMatchResult');
+    const fields = document.getElementById('matchFields');
+    fields.style.display = checkbox.checked ? 'block' : 'none';
+    
+    // Clear fields if unchecked
+    if (!checkbox.checked) {
+        document.querySelector('[name="home_team"]').value = '';
+        document.querySelector('[name="away_team"]').value = '';
+        document.querySelector('[name="home_score"]').value = '';
+        document.querySelector('[name="away_score"]').value = '';
+        document.querySelector('[name="match_competition"]').value = '';
+    }
 }
 </script>
 <?php require_once(__DIR__ . '/admin-footer.php'); ?>

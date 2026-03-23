@@ -82,7 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'category_slug' => $category,
             'cover_image' => $cover ?: $post['cover_image'],
             'tags' => $tags,
-            'status' => $status
+            'status' => $status,
+            'is_match_result' => isset($_POST['is_match_result']) ? 1 : 0,
+            'home_team' => trim($_POST['home_team'] ?? ''),
+            'away_team' => trim($_POST['away_team'] ?? ''),
+            'home_score' => is_numeric($_POST['home_score'] ?? '') ? (int)$_POST['home_score'] : null,
+            'away_score' => is_numeric($_POST['away_score'] ?? '') ? (int)$_POST['away_score'] : null,
+            'match_competition' => trim($_POST['match_competition'] ?? '')
         ]);
         
         if ($updated) {
@@ -270,6 +276,47 @@ require_once(__DIR__ . '/admin-header.php');
                     </div>
                 </div>
                 
+                <!-- Rezultat Meci -->
+                <div class="admin-card mb-4">
+                    <div class="admin-card-header bg-warning bg-opacity-10">
+                        <div class="form-check m-0">
+                            <input type="checkbox" class="form-check-input" name="is_match_result" 
+                                   id="isMatchResult" value="1" onchange="toggleMatchFields()"
+                                   <?= !empty($post['is_match_result']) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="isMatchResult">
+                                <strong><i class="fas fa-futbol me-1"></i>Rezultat meci</strong>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="p-4" id="matchFields" style="display: <?= !empty($post['is_match_result']) ? 'block' : 'none' ?>;">
+                        <div class="row g-2 mb-2">
+                            <div class="col-5">
+                                <input type="text" name="home_team" class="form-control form-control-sm" 
+                                       placeholder="Echipa gazdă" value="<?= htmlspecialchars($post['home_team'] ?? '') ?>">
+                            </div>
+                            <div class="col-2">
+                                <div class="input-group input-group-sm">
+                                    <input type="number" name="home_score" class="form-control text-center p-1" 
+                                           min="0" max="99" value="<?= htmlspecialchars($post['home_score'] ?? '') ?>">
+                                    <span class="input-group-text p-1">-</span>
+                                    <input type="number" name="away_score" class="form-control text-center p-1" 
+                                           min="0" max="99" value="<?= htmlspecialchars($post['away_score'] ?? '') ?>">
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <input type="text" name="away_team" class="form-control form-control-sm" 
+                                       placeholder="Echipa oaspete" value="<?= htmlspecialchars($post['away_team'] ?? '') ?>">
+                            </div>
+                        </div>
+                        <input type="text" name="match_competition" class="form-control form-control-sm" 
+                               placeholder="Competiție (ex: Liga 1 • Etapa 28)" 
+                               value="<?= htmlspecialchars($post['match_competition'] ?? '') ?>">
+                        <div class="form-text mt-2">
+                            <small>Va apărea în "Rezultate importante"</small>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Stats -->
                 <div class="admin-card">
                     <div class="admin-card-header">
@@ -338,6 +385,13 @@ function addFormatting(type) {
         textarea.selectionStart = start + before.length;
         textarea.selectionEnd = start + before.length + selected.length;
     }
+}
+
+// Toggle match result fields
+function toggleMatchFields() {
+    const checkbox = document.getElementById('isMatchResult');
+    const fields = document.getElementById('matchFields');
+    fields.style.display = checkbox.checked ? 'block' : 'none';
 }
 </script>
 

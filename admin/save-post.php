@@ -99,6 +99,14 @@ try {
     $tagsArr = array_filter(array_map('trim', explode(',', $tags)));
     $tagsArr = array_slice($tagsArr, 0, 10);
     
+    // Match result data
+    $isMatchResult = isset($_POST['is_match_result']) ? 1 : 0;
+    $homeTeam = trim($_POST['home_team'] ?? '');
+    $awayTeam = trim($_POST['away_team'] ?? '');
+    $homeScore = is_numeric($_POST['home_score'] ?? '') ? (int)$_POST['home_score'] : null;
+    $awayScore = is_numeric($_POST['away_score'] ?? '') ? (int)$_POST['away_score'] : null;
+    $matchCompetition = trim($_POST['match_competition'] ?? '');
+    
     // Create post in database
     $postId = Post::create([
         'title' => $title,
@@ -108,7 +116,13 @@ try {
         'cover_image' => $cover,
         'tags' => $tagsArr,
         'status' => 'published',
-        'author' => 'Admin'
+        'author' => 'Admin',
+        'is_match_result' => $isMatchResult,
+        'home_team' => $homeTeam,
+        'away_team' => $awayTeam,
+        'home_score' => $homeScore,
+        'away_score' => $awayScore,
+        'match_competition' => $matchCompetition
     ]);
     
     if (!$postId) {

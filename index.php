@@ -287,45 +287,8 @@ if (isset($_GET['created'])) {
       <div class="col-lg-4">
         <!-- Card Rezultate Importante -->
         <?php
-        // Extrage rezultate din articole cu scoruri în titlu
-        function extractMatchResults($posts, $limit = 3) {
-            $results = [];
-            // Pattern: "Echipa1 scor1-scor2 Echipa2" sau "Echipa1 scor1 - scor2 Echipa2"
-            $pattern = '/^(.+?)\s+(\d+)\s*[-–]\s*(\d+)\s+(.+?)(?::|$)/u';
-            
-            foreach ($posts as $post) {
-                if (count($results) >= $limit) break;
-                
-                $title = $post['title'];
-                if (preg_match($pattern, $title, $matches)) {
-                    $homeTeam = trim($matches[1]);
-                    $homeScore = (int)$matches[2];
-                    $awayScore = (int)$matches[3];
-                    $awayTeam = trim($matches[4]);
-                    
-                    // Determină categoria/competiția
-                    $league = 'Champions League';
-                    if (!empty($post['category_name'])) {
-                        $league = $post['category_name'];
-                    }
-                    
-                    $results[] = [
-                        'home_team' => $homeTeam,
-                        'home_score' => $homeScore,
-                        'away_team' => $awayTeam,
-                        'away_score' => $awayScore,
-                        'league' => $league,
-                        'slug' => $post['slug'],
-                        'date' => $post['published_at'] ?? $post['created_at']
-                    ];
-                }
-            }
-            return $results;
-        }
-        
-        // Preia ultimele articole pentru a extrage rezultatele
-        $recentPosts = Post::getPublished(1, 20);
-        $matchResults = extractMatchResults($recentPosts, 3);
+        // Preia rezultatele meciurilor din baza de date
+        $matchResults = Post::getMatchResults(3);
         ?>
         
         <div class="results-card mb-3">
@@ -354,7 +317,7 @@ if (isset($_GET['created'])) {
                     </div>
                   </div>
                   <div class="match-info">
-                    <span class="match-league"><?= htmlspecialchars($match['league']) ?></span>
+                    <span class="match-league"><?= htmlspecialchars($match['match_competition'] ?? 'Meci') ?></span>
                   </div>
                 </div>
               </a>
