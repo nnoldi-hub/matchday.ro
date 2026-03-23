@@ -612,6 +612,197 @@ footer .brand-band{display:inline-flex;align-items:center;gap:.5rem;background:#
   color: #2a4365;
 }
 
+/* Top Scorers UCL Card */
+.top-scorers-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.top-scorers-header {
+  background: linear-gradient(135deg, #6b46c1 0%, #553c9a 100%);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.top-scorers-body {
+  padding: 0;
+}
+
+.top-scorers-table {
+  width: 100%;
+  font-size: 0.8rem;
+}
+
+.top-scorers-table th,
+.top-scorers-table td {
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.top-scorers-table th {
+  background: #f7fafc;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.top-scorers-table th:first-child,
+.top-scorers-table td.pos {
+  text-align: center;
+  width: 30px;
+}
+
+.top-scorers-table th:last-child,
+.top-scorers-table td.goals {
+  text-align: center;
+  width: 50px;
+  font-weight: 700;
+  color: #6b46c1;
+}
+
+.top-scorers-table td.pos {
+  font-weight: 700;
+  color: #718096;
+}
+
+.top-scorers-table td.player {
+  font-weight: 600;
+}
+
+.top-scorers-table .team-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #718096;
+  background: #edf2f7;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+.top-scorers-table tr.gold td.pos {
+  background: linear-gradient(135deg, #f6e05e 0%, #d69e2e 100%);
+  color: #744210;
+  border-radius: 4px;
+}
+
+.top-scorers-table tr.silver td.pos {
+  background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+  color: #2d3748;
+  border-radius: 4px;
+}
+
+.top-scorers-table tr.bronze td.pos {
+  background: linear-gradient(135deg, #ed8936 0%, #c05621 100%);
+  color: #fff;
+  border-radius: 4px;
+}
+
+.top-scorers-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.top-scorers-link {
+  display: block;
+  text-align: center;
+  padding: 0.6rem;
+  background: #f7fafc;
+  color: #6b46c1;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-top: 1px solid #edf2f7;
+}
+
+.top-scorers-link:hover {
+  background: #edf2f7;
+  color: #553c9a;
+}
+
+/* Liga 1 Program Card */
+.liga1-program-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.liga1-program-header {
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.liga1-program-body {
+  padding: 0;
+}
+
+.liga1-matches-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.liga1-matches-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.85rem;
+}
+
+.liga1-matches-list li:last-child {
+  border-bottom: none;
+}
+
+.liga1-matches-list li:hover {
+  background: #f7fafc;
+}
+
+.liga1-teams {
+  color: #2d3748;
+}
+
+.liga1-teams strong {
+  font-weight: 600;
+}
+
+.liga1-date {
+  font-size: 0.75rem;
+  color: #718096;
+  background: #fed7d7;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.liga1-full-link {
+  display: block;
+  text-align: center;
+  padding: 0.6rem;
+  background: #f7fafc;
+  color: #e53e3e;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-top: 1px solid #edf2f7;
+}
+
+.liga1-full-link:hover {
+  background: #edf2f7;
+  color: #c53030;
+}
+
 /* Standings Card */
 .standings-card {
   background: #fff;

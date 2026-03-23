@@ -429,6 +429,80 @@ if (isset($_GET['created'])) {
             </a>
           </div>
         </div>
+        
+        <!-- Card Top Marcatori UCL -->
+        <div class="top-scorers-card mb-3">
+          <div class="top-scorers-header">
+            <i class="fas fa-star me-2"></i>Top marcatori UCL
+          </div>
+          <div class="top-scorers-body">
+            <table class="top-scorers-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Jucător</th>
+                  <th>Goluri</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="gold">
+                  <td class="pos">1</td>
+                  <td class="player">Kylian Mbappé <span class="team-badge">Real Madrid</span></td>
+                  <td class="goals">13</td>
+                </tr>
+                <tr class="silver">
+                  <td class="pos">2</td>
+                  <td class="player">Anthony Gordon <span class="team-badge">Newcastle</span></td>
+                  <td class="goals">10</td>
+                </tr>
+                <tr class="bronze">
+                  <td class="pos">3</td>
+                  <td class="player">Harry Kane <span class="team-badge">Bayern</span></td>
+                  <td class="goals">10</td>
+                </tr>
+                <tr>
+                  <td class="pos">4</td>
+                  <td class="player">Erling Haaland <span class="team-badge">Man City</span></td>
+                  <td class="goals">8</td>
+                </tr>
+                <tr>
+                  <td class="pos">5</td>
+                  <td class="player">Julián Álvarez <span class="team-badge">Atletico</span></td>
+                  <td class="goals">8</td>
+                </tr>
+              </tbody>
+            </table>
+            <a href="post.php?slug=clasament-marcatori-ucl-2026" class="top-scorers-link">
+              Vezi topul complet <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Card Program Liga 1 -->
+        <div class="liga1-program-card mb-3">
+          <div class="liga1-program-header">
+            <i class="fas fa-calendar-alt me-2"></i>Program Liga 1 – Etapa următoare
+          </div>
+          <div class="liga1-program-body">
+            <ul class="liga1-matches-list">
+              <li>
+                <span class="liga1-teams"><strong>Dinamo</strong> vs <strong>Rapid</strong></span>
+                <span class="liga1-date">Vin, 28 mar, 20:30</span>
+              </li>
+              <li>
+                <span class="liga1-teams"><strong>U Cluj</strong> vs <strong>CFR Cluj</strong></span>
+                <span class="liga1-date">Sâm, 29 mar, 21:00</span>
+              </li>
+              <li>
+                <span class="liga1-teams"><strong>U Craiova</strong> vs <strong>Argeș</strong></span>
+                <span class="liga1-date">Dum, 30 mar, 20:30</span>
+              </li>
+            </ul>
+            <a href="post.php?slug=program-liga-1-etapa-urmatoare" class="liga1-full-link">
+              Vezi programul complet <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
