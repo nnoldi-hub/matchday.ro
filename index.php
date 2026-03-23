@@ -208,6 +208,168 @@ if (isset($_GET['created'])) {
   <?php endif; ?>
 </div>
 
+<!-- ========================================
+     SECȚIUNEA: Noutăți & Rezultate
+     ======================================== -->
+<?php if (!$q): ?>
+<section class="news-results-section py-4">
+  <div class="container">
+    <div class="section-header d-flex align-items-center justify-content-between mb-4">
+      <h2 class="h4 mb-0 d-flex align-items-center">
+        <i class="fas fa-bolt text-warning me-2"></i>Noutăți & Rezultate
+      </h2>
+      <a href="?q=" class="btn btn-sm btn-outline-primary">
+        Vezi toate articolele <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+    
+    <div class="row g-4">
+      <!-- Coloana principală: Ultimele articole -->
+      <div class="col-lg-8">
+        <div class="row g-3">
+          <?php 
+          // Fetch latest 6 published articles
+          $latestNews = Post::getLatest(6, true);
+          foreach ($latestNews as $newsIndex => $newsItem): 
+            $categories = require(__DIR__ . '/config/categories.php');
+            $newsCat = isset($newsItem['category_slug']) && isset($categories[$newsItem['category_slug']]) 
+                       ? $categories[$newsItem['category_slug']] : null;
+            $newsUrl = SEOManager::getArticleUrl($newsItem['slug']);
+            $newsDate = $newsItem['published_at'] ?? $newsItem['created_at'];
+          ?>
+          <div class="col-sm-6">
+            <article class="news-card h-100">
+              <a href="<?= htmlspecialchars($newsUrl) ?>" class="text-decoration-none text-reset d-flex h-100">
+                <?php if (!empty($newsItem['cover_image'])): ?>
+                <div class="news-card-img" style="background-image: url('<?= htmlspecialchars($newsItem['cover_image']) ?>')"></div>
+                <?php else: ?>
+                <div class="news-card-img news-card-img-placeholder">
+                  <i class="fas fa-futbol"></i>
+                </div>
+                <?php endif; ?>
+                <div class="news-card-body">
+                  <?php if ($newsCat): ?>
+                  <span class="news-cat-badge" style="background: <?= $newsCat['color'] ?>">
+                    <?= $newsCat['name'] ?>
+                  </span>
+                  <?php endif; ?>
+                  <h3 class="news-card-title"><?= htmlspecialchars($newsItem['title']) ?></h3>
+                  <div class="news-card-meta">
+                    <i class="far fa-clock me-1"></i><?= date('d.m.Y', strtotime($newsDate)) ?>
+                  </div>
+                </div>
+              </a>
+            </article>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+      
+      <!-- Coloana laterală: Rezultate + Clasament -->
+      <div class="col-lg-4">
+        <!-- Card Rezultate Importante -->
+        <div class="results-card mb-3">
+          <div class="results-card-header">
+            <i class="fas fa-futbol me-2"></i>Rezultate importante
+          </div>
+          <div class="results-card-body">
+            <!-- Rezultat 1 -->
+            <div class="match-result">
+              <div class="match-teams">
+                <div class="team home">
+                  <span class="team-name">FCSB</span>
+                  <span class="team-score win">3</span>
+                </div>
+                <span class="match-vs">-</span>
+                <div class="team away">
+                  <span class="team-score">1</span>
+                  <span class="team-name">CFR Cluj</span>
+                </div>
+              </div>
+              <div class="match-info">
+                <span class="match-league">Liga 1 • Etapa 28</span>
+              </div>
+            </div>
+            
+            <!-- Rezultat 2 -->
+            <div class="match-result">
+              <div class="match-teams">
+                <div class="team home">
+                  <span class="team-name">U Craiova</span>
+                  <span class="team-score">2</span>
+                </div>
+                <span class="match-vs">-</span>
+                <div class="team away">
+                  <span class="team-score win">2</span>
+                  <span class="team-name">Rapid</span>
+                </div>
+              </div>
+              <div class="match-info">
+                <span class="match-league">Liga 1 • Etapa 28</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card Clasament Liga 1 -->
+        <div class="standings-card">
+          <div class="standings-card-header">
+            <i class="fas fa-trophy me-2"></i>Clasament Liga 1
+          </div>
+          <div class="standings-card-body">
+            <table class="standings-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Echipă</th>
+                  <th>M</th>
+                  <th>Pct</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="top-team">
+                  <td class="pos">1</td>
+                  <td class="team-name">FCSB</td>
+                  <td>28</td>
+                  <td class="points">62</td>
+                </tr>
+                <tr class="top-team">
+                  <td class="pos">2</td>
+                  <td class="team-name">CFR Cluj</td>
+                  <td>28</td>
+                  <td class="points">58</td>
+                </tr>
+                <tr>
+                  <td class="pos">3</td>
+                  <td class="team-name">U Craiova</td>
+                  <td>28</td>
+                  <td class="points">51</td>
+                </tr>
+                <tr>
+                  <td class="pos">4</td>
+                  <td class="team-name">Rapid</td>
+                  <td>28</td>
+                  <td class="points">48</td>
+                </tr>
+                <tr>
+                  <td class="pos">5</td>
+                  <td class="team-name">Dinamo</td>
+                  <td>28</td>
+                  <td class="points">45</td>
+                </tr>
+              </tbody>
+            </table>
+            <a href="#" class="standings-full-link">
+              Vezi clasamentul complet <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
 <!-- Categories Section -->
 <div class="container mb-4">
   <div class="row">
