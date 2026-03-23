@@ -286,46 +286,80 @@ if (isset($_GET['created'])) {
       <!-- Coloana laterală: Rezultate + Clasament -->
       <div class="col-lg-4">
         <!-- Card Rezultate Importante -->
+        <?php
+        // Extrage rezultate din articole cu scoruri în titlu
+        function extractMatchResults($posts, $limit = 3) {
+            $results = [];
+            // Pattern: "Echipa1 scor1-scor2 Echipa2" sau "Echipa1 scor1 - scor2 Echipa2"
+            $pattern = '/^(.+?)\s+(\d+)\s*[-–]\s*(\d+)\s+(.+?)(?::|$)/u';
+            
+            foreach ($posts as $post) {
+                if (count($results) >= $limit) break;
+                
+                $title = $post['title'];
+                if (preg_match($pattern, $title, $matches)) {
+                    $homeTeam = trim($matches[1]);
+                    $homeScore = (int)$matches[2];
+                    $awayScore = (int)$matches[3];
+                    $awayTeam = trim($matches[4]);
+                    
+                    // Determină categoria/competiția
+                    $league = 'Champions League';
+                    if (!empty($post['category_name'])) {
+                        $league = $post['category_name'];
+                    }
+                    
+                    $results[] = [
+                        'home_team' => $homeTeam,
+                        'home_score' => $homeScore,
+                        'away_team' => $awayTeam,
+                        'away_score' => $awayScore,
+                        'league' => $league,
+                        'slug' => $post['slug'],
+                        'date' => $post['published_at'] ?? $post['created_at']
+                    ];
+                }
+            }
+            return $results;
+        }
+        
+        // Preia ultimele articole pentru a extrage rezultatele
+        $recentPosts = Post::getPublished(1, 20);
+        $matchResults = extractMatchResults($recentPosts, 3);
+        ?>
+        
         <div class="results-card mb-3">
           <div class="results-card-header">
             <i class="fas fa-futbol me-2"></i>Rezultate importante
           </div>
           <div class="results-card-body">
-            <!-- Rezultat 1 -->
-            <div class="match-result">
-              <div class="match-teams">
-                <div class="team home">
-                  <span class="team-name">FCSB</span>
-                  <span class="team-score win">3</span>
-                </div>
-                <span class="match-vs">-</span>
-                <div class="team away">
-                  <span class="team-score">1</span>
-                  <span class="team-name">CFR Cluj</span>
-                </div>
+            <?php if (empty($matchResults)): ?>
+              <div class="no-results p-3 text-center text-muted">
+                <i class="fas fa-calendar-times mb-2"></i><br>
+                Nu există rezultate recente
               </div>
-              <div class="match-info">
-                <span class="match-league">Liga 1 • Etapa 28</span>
-              </div>
-            </div>
-            
-            <!-- Rezultat 2 -->
-            <div class="match-result">
-              <div class="match-teams">
-                <div class="team home">
-                  <span class="team-name">U Craiova</span>
-                  <span class="team-score">2</span>
+            <?php else: ?>
+              <?php foreach ($matchResults as $match): ?>
+              <a href="post.php?slug=<?= htmlspecialchars($match['slug']) ?>" class="match-result-link">
+                <div class="match-result">
+                  <div class="match-teams">
+                    <div class="team home">
+                      <span class="team-name"><?= htmlspecialchars($match['home_team']) ?></span>
+                      <span class="team-score <?= $match['home_score'] > $match['away_score'] ? 'win' : '' ?>"><?= $match['home_score'] ?></span>
+                    </div>
+                    <span class="match-vs">-</span>
+                    <div class="team away">
+                      <span class="team-score <?= $match['away_score'] > $match['home_score'] ? 'win' : '' ?>"><?= $match['away_score'] ?></span>
+                      <span class="team-name"><?= htmlspecialchars($match['away_team']) ?></span>
+                    </div>
+                  </div>
+                  <div class="match-info">
+                    <span class="match-league"><?= htmlspecialchars($match['league']) ?></span>
+                  </div>
                 </div>
-                <span class="match-vs">-</span>
-                <div class="team away">
-                  <span class="team-score win">2</span>
-                  <span class="team-name">Rapid</span>
-                </div>
-              </div>
-              <div class="match-info">
-                <span class="match-league">Liga 1 • Etapa 28</span>
-              </div>
-            </div>
+              </a>
+              <?php endforeach; ?>
+            <?php endif; ?>
           </div>
         </div>
         

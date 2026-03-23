@@ -449,12 +449,27 @@ footer .brand-band{display:inline-flex;align-items:center;gap:.5rem;background:#
   padding: 0;
 }
 
+.match-result-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s ease;
+}
+
+.match-result-link:hover {
+  background-color: #f8f9fa;
+}
+
+.match-result-link:hover .team-name {
+  color: var(--brand);
+}
+
 .match-result {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #f0f0f0;
 }
 
-.match-result:last-child {
+.match-result-link:last-child .match-result {
   border-bottom: none;
 }
 
