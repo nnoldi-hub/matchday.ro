@@ -306,6 +306,29 @@ if (isset($_GET['created'])) {
             <?php endforeach; ?>
           </div>
         </div>
+        
+        <!-- Sondaje Interactive -->
+        <?php
+        // Load active polls from database
+        $activePolls = Poll::getActive(5);
+        ?>
+        <?php if (!empty($activePolls)): ?>
+        <div class="polls-inline mt-4">
+          <h3 class="h6 mb-3 d-flex align-items-center">
+            <i class="fas fa-poll me-2 text-primary"></i>Sondaje interactive
+          </h3>
+          <div class="row g-2">
+            <?php 
+            $displayPolls = array_slice($activePolls, 0, 2);
+            foreach ($displayPolls as $poll): 
+            ?>
+            <div class="col-md-6">
+              <div data-poll="<?= htmlspecialchars($poll['id']) ?>" class="poll-compact"></div>
+            </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; ?>
       </div>
       
       <!-- Coloana laterală: Rezultate + Clasament -->
@@ -533,44 +556,6 @@ if (isset($_GET['created'])) {
   </div>
 </section>
 <?php endif; ?>
-
-<!-- Interactive Polls Section -->
-<div class="container mb-4">
-  <?php
-  // Load active polls from database
-  $activePolls = Poll::getActive(5);
-  ?>
-  
-  <?php if (!empty($activePolls)): ?>
-  <div class="row">
-    <div class="col-12">
-      <h2 class="h5 mb-3 d-flex align-items-center">
-        <i class="fas fa-poll me-2 text-primary"></i>Sondaje interactive
-      </h2>
-      <div class="row g-4">
-        <?php 
-        // Display up to 2 active polls
-        $displayPolls = array_slice($activePolls, 0, 2);
-        $colClass = count($displayPolls) === 1 ? 'col-md-8 col-lg-6 mx-auto' : 'col-md-6';
-        ?>
-        <?php foreach ($displayPolls as $poll): ?>
-        <div class="<?= $colClass ?>">
-          <div data-poll="<?= htmlspecialchars($poll['id']) ?>"></div>
-        </div>
-        <?php endforeach; ?>
-      </div>
-      
-      <?php if (count($activePolls) > 2): ?>
-      <div class="text-center mt-3">
-        <a href="#" class="btn btn-outline-primary btn-sm" onclick="loadMorePolls(); return false;">
-          <i class="fas fa-plus me-1"></i>Vezi mai multe sondaje (<?= count($activePolls) - 2 ?>)
-        </a>
-      </div>
-      <?php endif; ?>
-    </div>
-  </div>
-  <?php endif; ?>
-</div>
 
 <div class="container my-4">
   <?php 
