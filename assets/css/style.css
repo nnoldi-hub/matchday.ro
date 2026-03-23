@@ -534,6 +534,84 @@ footer .brand-band{display:inline-flex;align-items:center;gap:.5rem;background:#
   color: #718096;
 }
 
+/* UCL Program Card */
+.ucl-program-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.ucl-program-header {
+  background: linear-gradient(135deg, #1a365d 0%, #2a4365 100%);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.ucl-program-body {
+  padding: 0;
+}
+
+.ucl-matches-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ucl-matches-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.85rem;
+}
+
+.ucl-matches-list li:last-child {
+  border-bottom: none;
+}
+
+.ucl-matches-list li:hover {
+  background: #f7fafc;
+}
+
+.ucl-teams {
+  color: #2d3748;
+}
+
+.ucl-teams strong {
+  font-weight: 600;
+}
+
+.ucl-date {
+  font-size: 0.75rem;
+  color: #718096;
+  background: #edf2f7;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.ucl-full-link {
+  display: block;
+  text-align: center;
+  padding: 0.6rem;
+  background: #f7fafc;
+  color: #1a365d;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-top: 1px solid #edf2f7;
+}
+
+.ucl-full-link:hover {
+  background: #edf2f7;
+  color: #2a4365;
+}
+
 /* Standings Card */
 .standings-card {
   background: #fff;

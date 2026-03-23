@@ -340,8 +340,36 @@ if (isset($_GET['created'])) {
             <?php endif; ?>
           </div>
         </div>
-        
-        <!-- Card Clasament Liga 1 -->
+                <!-- Card Program UCL -->
+        <div class="ucl-program-card mb-3">
+          <div class="ucl-program-header">
+            <i class="fas fa-calendar-alt me-2"></i>Program UCL – Săptămâna viitoare
+          </div>
+          <div class="ucl-program-body">
+            <ul class="ucl-matches-list">
+              <li>
+                <span class="ucl-teams"><strong>Sporting CP</strong> vs <strong>Arsenal</strong></span>
+                <span class="ucl-date">7 apr, 22:00</span>
+              </li>
+              <li>
+                <span class="ucl-teams"><strong>Real Madrid</strong> vs <strong>Bayern</strong></span>
+                <span class="ucl-date">7 apr, 22:00</span>
+              </li>
+              <li>
+                <span class="ucl-teams"><strong>PSG</strong> vs <strong>Liverpool</strong></span>
+                <span class="ucl-date">8 apr, 22:00</span>
+              </li>
+              <li>
+                <span class="ucl-teams"><strong>Barcelona</strong> vs <strong>Atletico</strong></span>
+                <span class="ucl-date">8 apr, 22:00</span>
+              </li>
+            </ul>
+            <a href="post.php?slug=program-champions-league-meciurile-urmatoare-sferturi-2026" class="ucl-full-link">
+              Vezi calendarul complet <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+                <!-- Card Clasament Liga 1 -->
         <div class="standings-card">
           <div class="standings-card-header">
             <i class="fas fa-trophy me-2"></i>Clasament Liga 1
