@@ -282,11 +282,11 @@ require_once(__DIR__ . '/admin-header.php');
                         <div class="col-12 col-md-2">
                             <label class="form-label">Scor</label>
                             <div class="d-flex align-items-center gap-1">
-                                <input type="number" name="home_score" class="form-control text-center fw-bold" 
-                                       min="0" max="99" value="0" style="width: 50px; font-size: 1.1rem;">
+                                <input type="number" name="home_score" class="form-control text-center fw-bold score-input" 
+                                       min="0" max="99" value="0">
                                 <span class="fw-bold">-</span>
-                                <input type="number" name="away_score" class="form-control text-center fw-bold" 
-                                       min="0" max="99" value="0" style="width: 50px; font-size: 1.1rem;">
+                                <input type="number" name="away_score" class="form-control text-center fw-bold score-input" 
+                                       min="0" max="99" value="0">
                             </div>
                         </div>
                         <div class="col-12 col-md-5">
@@ -349,10 +349,10 @@ require_once(__DIR__ . '/admin-header.php');
                             <label class="form-label">Scor</label>
                             <div class="d-flex align-items-center gap-1">
                                 <input type="number" name="home_score" id="edit_home_score" 
-                                       class="form-control text-center fw-bold" min="0" max="99" style="width: 50px; font-size: 1.1rem;">
+                                       class="form-control text-center fw-bold score-input" min="0" max="99">
                                 <span class="fw-bold">-</span>
                                 <input type="number" name="away_score" id="edit_away_score" 
-                                       class="form-control text-center fw-bold" min="0" max="99" style="width: 50px; font-size: 1.1rem;">
+                                       class="form-control text-center fw-bold score-input" min="0" max="99">
                             </div>
                         </div>
                         <div class="col-12 col-md-5">
@@ -387,6 +387,24 @@ require_once(__DIR__ . '/admin-header.php');
         </div>
     </div>
 </div>
+
+<style>
+/* Score input styling */
+.score-input {
+    width: 60px !important;
+    height: 40px !important;
+    font-size: 1.2rem !important;
+    color: #000 !important;
+    background-color: #fff !important;
+    padding: 5px !important;
+    -moz-appearance: textfield;
+}
+.score-input::-webkit-outer-spin-button,
+.score-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+</style>
 
 <script>
 function editResult(data) {
