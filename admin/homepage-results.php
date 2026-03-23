@@ -274,22 +274,22 @@ require_once(__DIR__ . '/admin-header.php');
                 
                 <div class="modal-body">
                     <div class="row g-3">
-                        <div class="col-5">
+                        <div class="col-12 col-md-5">
                             <label class="form-label">Echipa gazdă *</label>
                             <input type="text" name="home_team" class="form-control" required 
                                    placeholder="Ex: FCSB">
                         </div>
-                        <div class="col-2">
+                        <div class="col-12 col-md-2">
                             <label class="form-label">Scor</label>
-                            <div class="input-group">
-                                <input type="number" name="home_score" class="form-control text-center p-1" 
-                                       min="0" max="99" value="0">
-                                <span class="input-group-text p-1">-</span>
-                                <input type="number" name="away_score" class="form-control text-center p-1" 
-                                       min="0" max="99" value="0">
+                            <div class="d-flex align-items-center gap-1">
+                                <input type="number" name="home_score" class="form-control text-center fw-bold" 
+                                       min="0" max="99" value="0" style="width: 50px; font-size: 1.1rem;">
+                                <span class="fw-bold">-</span>
+                                <input type="number" name="away_score" class="form-control text-center fw-bold" 
+                                       min="0" max="99" value="0" style="width: 50px; font-size: 1.1rem;">
                             </div>
                         </div>
-                        <div class="col-5">
+                        <div class="col-12 col-md-5">
                             <label class="form-label">Echipa oaspete *</label>
                             <input type="text" name="away_team" class="form-control" required
                                    placeholder="Ex: CFR Cluj">
@@ -341,21 +341,21 @@ require_once(__DIR__ . '/admin-header.php');
                 
                 <div class="modal-body">
                     <div class="row g-3">
-                        <div class="col-5">
+                        <div class="col-12 col-md-5">
                             <label class="form-label">Echipa gazdă *</label>
                             <input type="text" name="home_team" id="edit_home_team" class="form-control" required>
                         </div>
-                        <div class="col-2">
+                        <div class="col-12 col-md-2">
                             <label class="form-label">Scor</label>
-                            <div class="input-group">
+                            <div class="d-flex align-items-center gap-1">
                                 <input type="number" name="home_score" id="edit_home_score" 
-                                       class="form-control text-center p-1" min="0" max="99">
-                                <span class="input-group-text p-1">-</span>
+                                       class="form-control text-center fw-bold" min="0" max="99" style="width: 50px; font-size: 1.1rem;">
+                                <span class="fw-bold">-</span>
                                 <input type="number" name="away_score" id="edit_away_score" 
-                                       class="form-control text-center p-1" min="0" max="99">
+                                       class="form-control text-center fw-bold" min="0" max="99" style="width: 50px; font-size: 1.1rem;">
                             </div>
                         </div>
-                        <div class="col-5">
+                        <div class="col-12 col-md-5">
                             <label class="form-label">Echipa oaspete *</label>
                             <input type="text" name="away_team" id="edit_away_team" class="form-control" required>
                         </div>
