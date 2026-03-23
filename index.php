@@ -135,20 +135,19 @@ if (isset($_GET['created'])) {
 </section>
 
 <!-- ========================================
-     SIDEBAR-URI LATERALE (doar pe desktop)
+     LAYOUT CU 3 COLOANE
      ======================================== -->
 <?php if (!$q): ?>
-<aside class="page-sidebar page-sidebar-left d-none d-xl-block">
-  <div class="sidebar-sticky">
-    <?php renderLeftSidebar(); ?>
-  </div>
-</aside>
-
-<aside class="page-sidebar page-sidebar-right d-none d-xl-block">
-  <div class="sidebar-sticky">
-    <?php renderRightSidebar(); ?>
-  </div>
-</aside>
+<div class="three-column-layout">
+  <!-- SIDEBAR STÂNGA -->
+  <aside class="sidebar-column sidebar-left d-none d-xl-block">
+    <div class="sidebar-sticky">
+      <?php renderLeftSidebar(); ?>
+    </div>
+  </aside>
+  
+  <!-- CONȚINUT PRINCIPAL -->
+  <main class="main-column">
 <?php endif; ?>
 
 <!-- Hero Carousel cu ultimele 3 articole (ascuns la căutare) -->
@@ -695,4 +694,17 @@ if (isset($_GET['created'])) {
     </div>
   <?php endif; ?>
 </div>
+
+<?php if (!$q): ?>
+  </main><!-- /.main-column -->
+  
+  <!-- SIDEBAR DREAPTA -->
+  <aside class="sidebar-column sidebar-right d-none d-xl-block">
+    <div class="sidebar-sticky">
+      <?php renderRightSidebar(); ?>
+    </div>
+  </aside>
+</div><!-- /.three-column-layout -->
+<?php endif; ?>
+
 <?php include(__DIR__ . '/includes/footer.php'); ?>
