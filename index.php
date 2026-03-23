@@ -6,6 +6,7 @@ require_once(__DIR__ . '/includes/Poll.php');
 require_once(__DIR__ . '/includes/Stats.php');
 require_once(__DIR__ . '/includes/Ad.php');
 require_once(__DIR__ . '/includes/AdWidget.php');
+require_once(__DIR__ . '/includes/sidebars.php');
 
 // Track homepage visit
 Stats::trackView(null, 'homepage');
@@ -132,6 +133,23 @@ if (isset($_GET['created'])) {
     <?php endif; ?>
   </div>
 </section>
+
+<!-- ========================================
+     SIDEBAR-URI LATERALE (doar pe desktop)
+     ======================================== -->
+<?php if (!$q): ?>
+<aside class="page-sidebar page-sidebar-left d-none d-xl-block">
+  <div class="sidebar-sticky">
+    <?php renderLeftSidebar(); ?>
+  </div>
+</aside>
+
+<aside class="page-sidebar page-sidebar-right d-none d-xl-block">
+  <div class="sidebar-sticky">
+    <?php renderRightSidebar(); ?>
+  </div>
+</aside>
+<?php endif; ?>
 
 <!-- Hero Carousel cu ultimele 3 articole (ascuns la căutare) -->
 <div class="container mb-4">
