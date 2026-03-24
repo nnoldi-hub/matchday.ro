@@ -21,19 +21,29 @@ class Category {
      * Get all top-level categories (no parent)
      */
     public static function getTopLevel(): array {
-        return Database::fetchAll(
-            "SELECT * FROM categories WHERE parent_slug IS NULL OR parent_slug = '' ORDER BY sort_order ASC, name ASC"
-        );
+        try {
+            return Database::fetchAll(
+                "SELECT * FROM categories WHERE parent_slug IS NULL OR parent_slug = '' ORDER BY sort_order ASC, name ASC"
+            );
+        } catch (Exception $e) {
+            // Fallback if parent_slug column doesn't exist yet
+            return self::getAll();
+        }
     }
     
     /**
      * Get children of a parent category
      */
     public static function getChildren(string $parentSlug): array {
-        return Database::fetchAll(
-            "SELECT * FROM categories WHERE parent_slug = :parent ORDER BY sort_order ASC, name ASC",
-            ['parent' => $parentSlug]
-        );
+        try {
+            return Database::fetchAll(
+                "SELECT * FROM categories WHERE parent_slug = :parent ORDER BY sort_order ASC, name ASC",
+                ['parent' => $parentSlug]
+            );
+        } catch (Exception $e) {
+            // Return empty if parent_slug column doesn't exist yet
+            return [];
+        }
     }
     
     /**

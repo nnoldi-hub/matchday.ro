@@ -103,7 +103,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
                 }
                 // Filter out child categories (those with parent_slug)
                 foreach ($navCategories as $category):
-                    if (!empty($category['parent_slug'])) continue;
+                    if (isset($category['parent_slug']) && !empty($category['parent_slug'])) continue;
                     // Skip "clasamente" as it has its own menu item
                     if ($category['slug'] === 'clasamente') continue;
                 ?>
@@ -131,8 +131,12 @@ if (isset($articleTags)) $seo->setTags($articleTags);
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <?php
-                // Get league categories (children of clasamente)
-                $leagueCategories = Category::getChildren('clasamente');
+                // Get league categories (children of clasamente) - safe call
+                try {
+                    $leagueCategories = Category::getChildren('clasamente');
+                } catch (Exception $e) {
+                    $leagueCategories = [];
+                }
                 foreach ($leagueCategories as $league):
                 ?>
                 <li>
