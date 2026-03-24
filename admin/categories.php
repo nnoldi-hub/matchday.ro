@@ -45,7 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'description' => $_POST['description'] ?? '',
                 'color' => $_POST['color'] ?? '#007bff',
                 'icon' => $_POST['icon'] ?? 'fas fa-folder',
-                'sort_order' => $_POST['sort_order'] ?? 0
+                'sort_order' => $_POST['sort_order'] ?? 0,
+                'parent_slug' => !empty($_POST['parent_slug']) ? $_POST['parent_slug'] : null
             ]);
             
             $message = 'Categoria a fost creată!';
@@ -62,7 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'description' => $_POST['description'] ?? '',
                 'color' => $_POST['color'] ?? '#007bff',
                 'icon' => $_POST['icon'] ?? 'fas fa-folder',
-                'sort_order' => $_POST['sort_order'] ?? 0
+                'sort_order' => $_POST['sort_order'] ?? 0,
+                'parent_slug' => !empty($_POST['parent_slug']) ? $_POST['parent_slug'] : null
             ]);
             
             $message = 'Categoria a fost actualizată!';
@@ -160,6 +162,7 @@ require_once(__DIR__ . '/admin-header.php');
                     <th style="width: 50px;">Ord.</th>
                     <th>Categorie</th>
                     <th>Slug</th>
+                    <th>Parent</th>
                     <th>Articole</th>
                     <th>Culoare</th>
                     <th style="width: 150px;">Acțiuni</th>
@@ -168,12 +171,20 @@ require_once(__DIR__ . '/admin-header.php');
             <tbody>
                 <?php foreach ($categories as $cat): 
                     $postCount = Category::countPosts($cat['slug']);
+                    $parentName = '';
+                    if (!empty($cat['parent_slug'])) {
+                        $parent = Category::getBySlug($cat['parent_slug']);
+                        $parentName = $parent ? $parent['name'] : $cat['parent_slug'];
+                    }
                 ?>
                 <tr>
                     <td>
                         <span class="badge bg-secondary"><?= $cat['sort_order'] ?></span>
                     </td>
                     <td>
+                        <?php if (!empty($cat['parent_slug'])): ?>
+                            <span class="text-muted">└</span>
+                        <?php endif; ?>
                         <i class="<?= htmlspecialchars($cat['icon']) ?> me-2" style="color: <?= htmlspecialchars($cat['color']) ?>"></i>
                         <strong><?= htmlspecialchars($cat['name']) ?></strong>
                         <?php if ($cat['description']): ?>
@@ -182,6 +193,13 @@ require_once(__DIR__ . '/admin-header.php');
                     </td>
                     <td>
                         <code><?= htmlspecialchars($cat['slug']) ?></code>
+                    </td>
+                    <td>
+                        <?php if ($parentName): ?>
+                            <span class="badge bg-info"><?= htmlspecialchars($parentName) ?></span>
+                        <?php else: ?>
+                            <span class="text-muted">—</span>
+                        <?php endif; ?>
                     </td>
                     <td>
                         <?php if ($postCount > 0): ?>
@@ -243,6 +261,20 @@ require_once(__DIR__ . '/admin-header.php');
           <div class="mb-3">
             <label class="form-label">Descriere</label>
             <textarea name="description" id="catDescription" class="form-control" rows="2" maxlength="500"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Categorie părinte</label>
+            <select name="parent_slug" id="catParent" class="form-select">
+              <option value="">— Nicio categorie părinte (top level) —</option>
+              <?php 
+              $topLevelCategories = Category::getTopLevel();
+              foreach ($topLevelCategories as $topCat): 
+              ?>
+                <option value="<?= htmlspecialchars($topCat['slug']) ?>"><?= htmlspecialchars($topCat['name']) ?></option>
+              <?php endforeach; ?>
+            </select>
+            <small class="text-muted">Selectează pentru a face această categorie sub-categorie</small>
           </div>
           
           <div class="row">
@@ -309,6 +341,7 @@ function editCategory(cat) {
   document.getElementById('catColorText').value = cat.color || '#007bff';
   document.getElementById('catOrder').value = cat.sort_order || 0;
   document.getElementById('catIcon').value = cat.icon || 'fas fa-folder';
+  document.getElementById('catParent').value = cat.parent_slug || '';
   document.getElementById('iconPreview').innerHTML = `<i class="${cat.icon || 'fas fa-folder'} fa-2x"></i>`;
   
   new bootstrap.Modal(document.getElementById('categoryModal')).show();
@@ -318,6 +351,7 @@ function editCategory(cat) {
 document.getElementById('categoryModal')?.addEventListener('hidden.bs.modal', function() {
   document.getElementById('modalTitle').innerHTML = '<i class="fas fa-folder me-2"></i>Categorie nouă';
   document.getElementById('formAction').value = 'create';
+  document.getElementById('catParent').value = '';
   document.getElementById('formId').value = '';
   document.getElementById('categoryForm').reset();
   document.getElementById('catColor').value = '#007bff';

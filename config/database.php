@@ -109,7 +109,9 @@ class Database {
                 color VARCHAR(20) DEFAULT '#007bff',
                 icon VARCHAR(50) DEFAULT 'fas fa-folder',
                 sort_order INT DEFAULT 0,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                parent_slug VARCHAR(100) DEFAULT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_parent (parent_slug)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             
             -- Articole
@@ -293,8 +295,11 @@ class Database {
                 color TEXT DEFAULT '#007bff',
                 icon TEXT DEFAULT 'fas fa-folder',
                 sort_order INTEGER DEFAULT 0,
+                parent_slug TEXT DEFAULT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
+            
+            CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_slug);
             
             -- Articole
             CREATE TABLE IF NOT EXISTS posts (

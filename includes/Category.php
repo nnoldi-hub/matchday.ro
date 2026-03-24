@@ -1,7 +1,7 @@
 <?php
 /**
  * Category Model
- * MatchDay.ro - Category Management
+ * MatchDay.ro - Category Management with Parent/Child Support
  */
 
 require_once(__DIR__ . '/../config/database.php');
@@ -14,6 +14,25 @@ class Category {
     public static function getAll(): array {
         return Database::fetchAll(
             "SELECT * FROM categories ORDER BY sort_order ASC, name ASC"
+        );
+    }
+    
+    /**
+     * Get all top-level categories (no parent)
+     */
+    public static function getTopLevel(): array {
+        return Database::fetchAll(
+            "SELECT * FROM categories WHERE parent_slug IS NULL OR parent_slug = '' ORDER BY sort_order ASC, name ASC"
+        );
+    }
+    
+    /**
+     * Get children of a parent category
+     */
+    public static function getChildren(string $parentSlug): array {
+        return Database::fetchAll(
+            "SELECT * FROM categories WHERE parent_slug = :parent ORDER BY sort_order ASC, name ASC",
+            ['parent' => $parentSlug]
         );
     }
     
@@ -42,15 +61,16 @@ class Category {
      */
     public static function create(array $data): int {
         return Database::insert(
-            "INSERT INTO categories (slug, name, description, color, icon, sort_order) 
-             VALUES (:slug, :name, :description, :color, :icon, :sort_order)",
+            "INSERT INTO categories (slug, name, description, color, icon, sort_order, parent_slug) 
+             VALUES (:slug, :name, :description, :color, :icon, :sort_order, :parent_slug)",
             [
                 'slug' => self::generateSlug($data['name']),
                 'name' => trim($data['name']),
                 'description' => trim($data['description'] ?? ''),
                 'color' => $data['color'] ?? '#007bff',
                 'icon' => $data['icon'] ?? 'fas fa-folder',
-                'sort_order' => intval($data['sort_order'] ?? 0)
+                'sort_order' => intval($data['sort_order'] ?? 0),
+                'parent_slug' => $data['parent_slug'] ?? null
             ]
         );
     }
@@ -90,6 +110,11 @@ class Category {
         if (isset($data['sort_order'])) {
             $fields[] = "sort_order = :sort_order";
             $params['sort_order'] = intval($data['sort_order']);
+        }
+        
+        if (array_key_exists('parent_slug', $data)) {
+            $fields[] = "parent_slug = :parent_slug";
+            $params['parent_slug'] = $data['parent_slug'];
         }
         
         if (empty($fields)) return false;
@@ -169,7 +194,13 @@ class Category {
             'fas fa-globe' => 'Internațional',
             'fas fa-home' => 'Liga 1',
             'fas fa-fire' => 'Hot',
-            'fas fa-bolt' => 'Breaking'
+            'fas fa-bolt' => 'Breaking',
+            'fas fa-list-ol' => 'Clasament',
+            'fas fa-crown' => 'Coroanǎ',
+            'fas fa-sun' => 'Soare',
+            'fas fa-shield-alt' => 'Scut',
+            'fas fa-anchor' => 'Ancoră',
+            'fas fa-landmark' => 'Monument'
         ];
     }
     
@@ -190,15 +221,16 @@ class Category {
             if (!$existing) {
                 try {
                     Database::insert(
-                        "INSERT INTO categories (slug, name, description, color, icon, sort_order) 
-                         VALUES (:slug, :name, :description, :color, :icon, :sort_order)",
+                        "INSERT INTO categories (slug, name, description, color, icon, sort_order, parent_slug) 
+                         VALUES (:slug, :name, :description, :color, :icon, :sort_order, :parent_slug)",
                         [
                             'slug' => $slug,
                             'name' => $data['name'],
                             'description' => $data['description'] ?? '',
                             'color' => $data['color'] ?? '#007bff',
                             'icon' => $data['icon'] ?? 'fas fa-folder',
-                            'sort_order' => $order
+                            'sort_order' => $order,
+                            'parent_slug' => $data['parent'] ?? null
                         ]
                     );
                     $count++;
@@ -210,5 +242,34 @@ class Category {
         }
         
         return $count;
+    }
+    
+    /**
+     * Get categories with their children (hierarchical)
+     */
+    public static function getHierarchical(): array {
+        $all = self::getAll();
+        $result = [];
+        $children = [];
+        
+        // Group children by parent
+        foreach ($all as $cat) {
+            if (!empty($cat['parent_slug'])) {
+                if (!isset($children[$cat['parent_slug']])) {
+                    $children[$cat['parent_slug']] = [];
+                }
+                $children[$cat['parent_slug']][] = $cat;
+            }
+        }
+        
+        // Build hierarchical structure
+        foreach ($all as $cat) {
+            if (empty($cat['parent_slug'])) {
+                $cat['children'] = $children[$cat['slug']] ?? [];
+                $result[] = $cat;
+            }
+        }
+        
+        return $result;
     }
 }

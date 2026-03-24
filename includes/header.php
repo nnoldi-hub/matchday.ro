@@ -101,7 +101,11 @@ if (isset($articleTags)) $seo->setTags($articleTags);
                         $navCategories[] = array_merge($cat, ['slug' => $key]);
                     }
                 }
+                // Filter out child categories (those with parent_slug)
                 foreach ($navCategories as $category):
+                    if (!empty($category['parent_slug'])) continue;
+                    // Skip "clasamente" as it has its own menu item
+                    if ($category['slug'] === 'clasamente') continue;
                 ?>
                 <li>
                   <a class="dropdown-item d-flex align-items-center" href="<?= SEOManager::getCategoryUrl($category['slug']) ?>">
@@ -112,6 +116,35 @@ if (isset($articleTags)) $seo->setTags($articleTags);
                 <?php endforeach; ?>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="/index.php">Toate articolele</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="fas fa-list-ol me-1"></i>Clasamente
+              </a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item d-flex align-items-center fw-bold" href="/clasamente.php">
+                    <i class="fas fa-globe me-2 text-primary"></i>
+                    Toate ligile
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <?php
+                // Get league categories (children of clasamente)
+                $leagueCategories = Category::getChildren('clasamente');
+                foreach ($leagueCategories as $league):
+                ?>
+                <li>
+                  <a class="dropdown-item d-flex align-items-center" href="/clasamente.php?liga=<?= urlencode($league['slug']) ?>">
+                    <i class="<?= $league['icon'] ?> me-2" style="color: <?= $league['color'] ?>"></i>
+                    <?= htmlspecialchars($league['name']) ?>
+                  </a>
+                </li>
+                <?php endforeach; ?>
+                <?php if (empty($leagueCategories)): ?>
+                <li><span class="dropdown-item text-muted small">Ligile vor fi disponibile în curând</span></li>
+                <?php endif; ?>
               </ul>
             </li>
             <li class="nav-item"><a class="nav-link" href="/despre.php">Despre</a></li>

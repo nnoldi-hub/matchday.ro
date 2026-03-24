@@ -68,6 +68,45 @@ class Post {
     }
     
     /**
+     * Get published posts from multiple categories
+     */
+    public static function getFromCategories(array $categorySlugs, int $page = 1, int $perPage = 10): array {
+        if (empty($categorySlugs)) {
+            return [];
+        }
+        
+        $offset = ($page - 1) * $perPage;
+        
+        // Build placeholders for IN clause
+        $placeholders = [];
+        $params = [];
+        foreach ($categorySlugs as $i => $slug) {
+            $key = "cat_$i";
+            $placeholders[] = ":$key";
+            $params[$key] = $slug;
+        }
+        
+        $sql = "SELECT p.*, c.name as category_name, c.color as category_color 
+                FROM posts p 
+                LEFT JOIN categories c ON p.category_slug = c.slug 
+                WHERE p.status = 'published' 
+                AND p.category_slug IN (" . implode(',', $placeholders) . ")
+                ORDER BY p.published_at DESC 
+                LIMIT :limit OFFSET :offset";
+        
+        $stmt = Database::getInstance()->prepare($sql);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(":$key", $value);
+        }
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+    
+    /**
      * Get single post by slug
      */
     public static function getBySlug(string $slug): ?array {
