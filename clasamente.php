@@ -15,6 +15,10 @@ require_once(__DIR__ . '/includes/seo.php');
 // Track page visit
 Stats::trackView(null, 'clasamente');
 
+// Load standings data
+$standingsFile = __DIR__ . '/data/standings.json';
+$standingsData = file_exists($standingsFile) ? json_decode(file_get_contents($standingsFile), true) : null;
+
 // Get league parameter if viewing specific league
 $leagueSlug = $_GET['liga'] ?? null;
 
@@ -30,7 +34,7 @@ if ($leagueSlug) {
     
     if (!$currentLeague || $currentLeague['parent_slug'] !== 'clasamente') {
         // Invalid league, redirect to main
-        header('Location: /clasamente.php');
+        header('Location: /clasamente');
         exit;
     }
     
@@ -41,7 +45,7 @@ if ($leagueSlug) {
     
     $breadcrumbs = [
         ['name' => 'Acasă', 'url' => '/index.php'],
-        ['name' => 'Clasamente', 'url' => '/clasamente.php'],
+        ['name' => 'Clasamente', 'url' => '/clasamente'],
         ['name' => $currentLeague['name']]
     ];
     
@@ -109,7 +113,7 @@ include(__DIR__ . '/includes/header.php');
                     </p>
                 </div>
                 <div class="card-footer bg-transparent border-0">
-                    <a href="/clasamente.php?liga=<?= urlencode($league['slug']) ?>" class="btn btn-outline-primary btn-sm w-100">
+                    <a href="/clasamente/<?= urlencode($league['slug']) ?>" class="btn btn-outline-primary btn-sm w-100">
                         <i class="fas fa-chart-bar me-1"></i> Vezi clasament
                     </a>
                 </div>
@@ -141,13 +145,126 @@ include(__DIR__ . '/includes/header.php');
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/index.php">Acasă</a></li>
-                <li class="breadcrumb-item"><a href="/clasamente.php">Clasamente</a></li>
+                <li class="breadcrumb-item"><a href="/clasamente">Clasamente</a></li>
                 <li class="breadcrumb-item active"><?= htmlspecialchars($currentLeague['name']) ?></li>
             </ol>
         </nav>
     </div>
     
-    <!-- League Standings Widget Placeholder -->
+    <!-- League Standings Widget -->
+    <?php 
+    $leagueStandings = null;
+    if ($standingsData && isset($standingsData['leagues'][$leagueSlug])) {
+        $leagueStandings = $standingsData['leagues'][$leagueSlug];
+    }
+    ?>
+    
+    <?php if ($leagueStandings): ?>
+    <div class="card mb-4 standings-widget shadow">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background: <?= htmlspecialchars($currentLeague['color']) ?>;">
+            <span class="text-white fw-bold">
+                <i class="fas fa-table me-2"></i>
+                Clasament <?= htmlspecialchars($currentLeague['name']) ?> 2025/2026
+            </span>
+            <span class="badge bg-light text-dark">Etapa <?= $leagueStandings['matchday'] ?></span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover standings-table mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-center" style="width: 40px;">#</th>
+                            <th>Echipă</th>
+                            <th class="text-center d-none d-md-table-cell">MJ</th>
+                            <th class="text-center d-none d-lg-table-cell">V</th>
+                            <th class="text-center d-none d-lg-table-cell">E</th>
+                            <th class="text-center d-none d-lg-table-cell">Î</th>
+                            <th class="text-center d-none d-md-table-cell">G</th>
+                            <th class="text-center d-none d-sm-table-cell">DG</th>
+                            <th class="text-center fw-bold">P</th>
+                            <th class="text-center d-none d-md-table-cell">Formă</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $zones = $leagueStandings['zones'] ?? [];
+                        foreach ($leagueStandings['standings'] as $team): 
+                            $pos = $team['pos'];
+                            $rowClass = '';
+                            $zoneIndicator = '';
+                            
+                            // Determine zone colors
+                            if (in_array($pos, $zones['champions_league'] ?? [])) {
+                                $rowClass = 'zone-ucl';
+                                $zoneIndicator = '<span class="zone-dot bg-primary" title="Champions League"></span>';
+                            } elseif (in_array($pos, $zones['champions_league_qual'] ?? [])) {
+                                $rowClass = 'zone-ucl-qual';
+                                $zoneIndicator = '<span class="zone-dot bg-info" title="UCL Calificare"></span>';
+                            } elseif (in_array($pos, $zones['europa_league'] ?? [])) {
+                                $rowClass = 'zone-uel';
+                                $zoneIndicator = '<span class="zone-dot bg-warning" title="Europa League"></span>';
+                            } elseif (in_array($pos, $zones['conference_league'] ?? []) || in_array($pos, $zones['conference_league_qual'] ?? [])) {
+                                $rowClass = 'zone-uecl';
+                                $zoneIndicator = '<span class="zone-dot bg-success" title="Conference League"></span>';
+                            } elseif (in_array($pos, $zones['relegation_playoff'] ?? [])) {
+                                $rowClass = 'zone-relegation-playoff';
+                                $zoneIndicator = '<span class="zone-dot bg-secondary" title="Baraj retrogradare"></span>';
+                            } elseif (in_array($pos, $zones['relegation'] ?? [])) {
+                                $rowClass = 'zone-relegation';
+                                $zoneIndicator = '<span class="zone-dot bg-danger" title="Retrogradare"></span>';
+                            }
+                        ?>
+                        <tr class="<?= $rowClass ?>">
+                            <td class="text-center position-cell">
+                                <?= $zoneIndicator ?>
+                                <span class="position-number"><?= $pos ?></span>
+                            </td>
+                            <td class="team-cell">
+                                <span class="team-name"><?= htmlspecialchars($team['team']) ?></span>
+                            </td>
+                            <td class="text-center d-none d-md-table-cell"><?= $team['played'] ?></td>
+                            <td class="text-center d-none d-lg-table-cell text-success"><?= $team['wins'] ?></td>
+                            <td class="text-center d-none d-lg-table-cell text-warning"><?= $team['draws'] ?></td>
+                            <td class="text-center d-none d-lg-table-cell text-danger"><?= $team['losses'] ?></td>
+                            <td class="text-center d-none d-md-table-cell">
+                                <small><?= $team['goals_for'] ?>:<?= $team['goals_against'] ?></small>
+                            </td>
+                            <td class="text-center d-none d-sm-table-cell <?= $team['gd'] >= 0 ? 'text-success' : 'text-danger' ?>">
+                                <?= $team['gd'] >= 0 ? '+' : '' ?><?= $team['gd'] ?>
+                            </td>
+                            <td class="text-center fw-bold points-cell"><?= $team['points'] ?></td>
+                            <td class="text-center d-none d-md-table-cell form-cell">
+                                <?php foreach ($team['form'] as $result): ?>
+                                    <?php 
+                                    $formClass = match($result) {
+                                        'V' => 'form-win',
+                                        'E' => 'form-draw', 
+                                        'I' => 'form-loss',
+                                        default => ''
+                                    };
+                                    ?>
+                                    <span class="form-badge <?= $formClass ?>"><?= $result ?></span>
+                                <?php endforeach; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-light">
+            <div class="d-flex flex-wrap gap-3 small">
+                <span><span class="zone-dot bg-primary"></span> Champions League</span>
+                <span><span class="zone-dot bg-warning"></span> Europa League</span>
+                <span><span class="zone-dot bg-success"></span> Conference League</span>
+                <span><span class="zone-dot bg-danger"></span> Retrogradare</span>
+            </div>
+            <div class="text-muted mt-2 small">
+                <i class="fas fa-sync-alt me-1"></i> Actualizat: <?= date('d.m.Y', strtotime($standingsData['last_updated'])) ?>
+            </div>
+        </div>
+    </div>
+    <?php else: ?>
     <div class="card mb-4 standings-widget">
         <div class="card-header bg-dark text-white">
             <i class="fas fa-table me-2"></i>
@@ -157,16 +274,12 @@ include(__DIR__ . '/includes/header.php');
             <div class="standings-placeholder text-center py-4">
                 <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
                 <p class="text-muted">
-                    Clasamentul va fi afișat aici.
-                    <br>
-                    <small>Poți integra date din API-uri externe pentru clasamente live.</small>
+                    Clasamentul pentru această ligă nu este disponibil momentan.
                 </p>
-                <a href="#articole" class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-newspaper me-1"></i> Vezi articolele
-                </a>
             </div>
         </div>
     </div>
+    <?php endif; ?>
     
     <!-- Quick stats -->
     <div class="row g-3 mb-4">
@@ -260,7 +373,7 @@ include(__DIR__ . '/includes/header.php');
             <ul class="pagination justify-content-center">
                 <?php if ($page > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?liga=<?= urlencode($leagueSlug) ?>&page=<?= $page - 1 ?>">
+                    <a class="page-link" href="/clasamente/<?= urlencode($leagueSlug) ?>?page=<?= $page - 1 ?>">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 </li>
@@ -268,13 +381,13 @@ include(__DIR__ . '/includes/header.php');
                 
                 <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
                 <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                    <a class="page-link" href="?liga=<?= urlencode($leagueSlug) ?>&page=<?= $i ?>"><?= $i ?></a>
+                    <a class="page-link" href="/clasamente/<?= urlencode($leagueSlug) ?>?page=<?= $i ?>"><?= $i ?></a>
                 </li>
                 <?php endfor; ?>
                 
                 <?php if ($page < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?liga=<?= urlencode($leagueSlug) ?>&page=<?= $page + 1 ?>">
+                    <a class="page-link" href="/clasamente/<?= urlencode($leagueSlug) ?>?page=<?= $page + 1 ?>">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
@@ -378,8 +491,127 @@ include(__DIR__ . '/includes/header.php');
     transform: translateY(-3px);
 }
 
-.standings-widget .card-header {
-    border-radius: 0;
+/* Standings Table Styles */
+.standings-table {
+    font-size: 0.9rem;
+}
+
+.standings-table th {
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.standings-table td {
+    vertical-align: middle;
+    padding: 0.6rem 0.5rem;
+}
+
+.standings-table tbody tr {
+    transition: background-color 0.15s;
+}
+
+.standings-table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05) !important;
+}
+
+/* Position cell */
+.position-cell {
+    position: relative;
+    font-weight: 700;
+}
+
+.position-number {
+    display: inline-block;
+    min-width: 24px;
+}
+
+/* Zone indicators */
+.zone-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
+/* Zone row colors */
+.zone-ucl {
+    border-left: 3px solid #0d6efd;
+}
+
+.zone-ucl-qual {
+    border-left: 3px solid #0dcaf0;
+}
+
+.zone-uel {
+    border-left: 3px solid #fd7e14;
+}
+
+.zone-uecl {
+    border-left: 3px solid #198754;
+}
+
+.zone-relegation-playoff {
+    border-left: 3px solid #6c757d;
+    background-color: rgba(108, 117, 125, 0.05);
+}
+
+.zone-relegation {
+    border-left: 3px solid #dc3545;
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+/* Team cell */
+.team-cell {
+    font-weight: 500;
+}
+
+.team-name {
+    white-space: nowrap;
+}
+
+/* Points cell */
+.points-cell {
+    font-size: 1rem;
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Form badges */
+.form-cell {
+    white-space: nowrap;
+}
+
+.form-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin: 0 1px;
+    color: white;
+}
+
+.form-win {
+    background-color: #198754;
+}
+
+.form-draw {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.form-loss {
+    background-color: #dc3545;
+}
+
+/* Card footer legend */
+.card-footer .zone-dot {
+    vertical-align: middle;
 }
 
 @media (max-width: 768px) {
@@ -390,6 +622,20 @@ include(__DIR__ . '/includes/header.php');
     .league-icon-large {
         width: 48px;
         height: 48px;
+    }
+    
+    .standings-table {
+        font-size: 0.85rem;
+    }
+    
+    .standings-table td {
+        padding: 0.5rem 0.3rem;
+    }
+    
+    .form-badge {
+        width: 18px;
+        height: 18px;
+        font-size: 0.65rem;
     }
 }
 </style>

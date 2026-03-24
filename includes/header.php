@@ -124,7 +124,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
               </a>
               <ul class="dropdown-menu">
                 <li>
-                  <a class="dropdown-item d-flex align-items-center fw-bold" href="/clasamente.php">
+                  <a class="dropdown-item d-flex align-items-center fw-bold" href="/clasamente">
                     <i class="fas fa-globe me-2 text-primary"></i>
                     Toate ligile
                   </a>
@@ -140,7 +140,7 @@ if (isset($articleTags)) $seo->setTags($articleTags);
                 foreach ($leagueCategories as $league):
                 ?>
                 <li>
-                  <a class="dropdown-item d-flex align-items-center" href="/clasamente.php?liga=<?= urlencode($league['slug']) ?>">
+                  <a class="dropdown-item d-flex align-items-center" href="/clasamente/<?= urlencode($league['slug']) ?>">
                     <i class="<?= $league['icon'] ?> me-2" style="color: <?= $league['color'] ?>"></i>
                     <?= htmlspecialchars($league['name']) ?>
                   </a>

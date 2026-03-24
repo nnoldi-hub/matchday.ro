@@ -118,6 +118,20 @@ DirectoryIndex index.php
     RewriteRule ^ /categorie/%1? [R=301,L]
     
     # ==========================
+    # SEO FRIENDLY STANDINGS URLs
+    # ==========================
+    
+    # Clean URL: /clasamente -> clasamente.php
+    RewriteRule ^clasamente/?$ clasamente.php [L,QSA]
+    
+    # Clean URL: /clasamente/liga-slug -> clasamente.php?liga=liga-slug
+    RewriteRule ^clasamente/([a-z0-9\-]+)/?$ clasamente.php?liga=$1 [L,QSA]
+    
+    # 301 Redirect old URLs with ?liga= to clean URLs
+    RewriteCond %{THE_REQUEST} \s/clasamente\.php\?liga=([a-z0-9\-]+) [NC]
+    RewriteRule ^ /clasamente/%1? [R=301,L]
+    
+    # ==========================
     # OTHER SEO REWRITES
     # ==========================
     
