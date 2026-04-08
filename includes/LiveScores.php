@@ -269,6 +269,35 @@ class LiveScores {
     }
     
     /**
+     * Get a single match by ID
+     */
+    public static function getMatchById(int $id): ?array {
+        $match = Database::fetchOne(
+            "SELECT lm.*, p.slug as article_slug, p.title as article_title 
+             FROM live_matches lm 
+             LEFT JOIN posts p ON lm.article_id = p.id 
+             WHERE lm.id = :id",
+            ['id' => $id]
+        );
+        
+        if (!$match) {
+            return null;
+        }
+        
+        // Decode JSON fields
+        $jsonFields = ['home_scorers', 'away_scorers', 'referee_team', 'yellow_cards_home', 'yellow_cards_away', 'red_cards_home', 'red_cards_away'];
+        foreach ($jsonFields as $field) {
+            if (!empty($match[$field])) {
+                $match[$field] = json_decode($match[$field], true) ?: [];
+            } else {
+                $match[$field] = [];
+            }
+        }
+        
+        return $match;
+    }
+    
+    /**
      * Add/update manual match
      */
     public static function saveManualMatch(array $data): int {

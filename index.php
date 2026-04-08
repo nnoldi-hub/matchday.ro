@@ -334,7 +334,7 @@ if (isset($_GET['created'])) {
               $kickoffTime = isset($match['kickoff']) ? date('H:i', strtotime($match['kickoff'])) : '';
               $liveStyle = $isLive ? 'background:linear-gradient(90deg,#fef2f2 0%,#fff 100%);border-left:3px solid #e53e3e;' : '';
             ?>
-            <div class="live-match" style="padding:0.6rem 1rem;border-bottom:1px solid #f0f0f0;<?= $liveStyle ?>">
+            <a href="match.php?id=<?= $match['id'] ?>" class="live-match-link" style="display:block;text-decoration:none;color:inherit;transition:background 0.2s;<?= $liveStyle ?>padding:0.6rem 1rem;border-bottom:1px solid #f0f0f0;">
               <div class="live-match-teams" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
                 <div class="live-team home" style="display:flex;align-items:center;gap:0.4rem;flex:1;">
                   <span class="team-name" style="font-weight:600;font-size:0.8rem;color:#1a202c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;"><?= htmlspecialchars($match['home_team']) ?></span>
@@ -367,7 +367,7 @@ if (isset($_GET['created'])) {
               <div class="live-match-competition" style="text-align:center;font-size:0.7rem;color:#a0aec0;margin-top:0.25rem;">
                 <?= htmlspecialchars($match['competition'] ?? '') ?>
               </div>
-            </div>
+            </a>
             <?php endforeach; ?>
           </div>
           <a href="live.php" class="live-matches-footer" style="display:block;text-align:center;padding:0.6rem;background:#f7fafc;color:#e53e3e;text-decoration:none;font-size:0.8rem;font-weight:600;">

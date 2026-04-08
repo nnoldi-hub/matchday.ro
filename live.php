@@ -60,7 +60,7 @@ $futureMatches = array_filter($upcomingMatches, fn($m) =>
                 </h5>
                 <div class="matches-grid">
                     <?php foreach ($liveMatches as $match): ?>
-                    <div class="match-card live">
+                    <a href="match.php?id=<?= $match['id'] ?>" class="match-card live">
                         <div class="match-card-header">
                             <span class="competition"><?= htmlspecialchars($match['competition'] ?? '') ?></span>
                             <span class="match-minute-badge"><?= $match['minute'] ?? '' ?>'</span>
@@ -84,7 +84,7 @@ $futureMatches = array_filter($upcomingMatches, fn($m) =>
                             <i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($match['venue']) ?>
                         </div>
                         <?php endif; ?>
-                    </div>
+                    </a>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -100,7 +100,7 @@ $futureMatches = array_filter($upcomingMatches, fn($m) =>
                     <?php foreach ($scheduledMatches as $match): 
                         $kickoff = isset($match['kickoff']) ? date('H:i', strtotime($match['kickoff'])) : '';
                     ?>
-                    <div class="match-card scheduled">
+                    <a href="match.php?id=<?= $match['id'] ?>" class="match-card scheduled">
                         <div class="match-card-header">
                             <span class="competition"><?= htmlspecialchars($match['competition'] ?? '') ?></span>
                             <span class="match-time-badge"><?= $kickoff ?></span>
@@ -119,7 +119,7 @@ $futureMatches = array_filter($upcomingMatches, fn($m) =>
                             <i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($match['venue']) ?>
                         </div>
                         <?php endif; ?>
-                    </div>
+                    </a>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -133,7 +133,7 @@ $futureMatches = array_filter($upcomingMatches, fn($m) =>
                 </h5>
                 <div class="matches-grid">
                     <?php foreach ($finishedMatches as $match): ?>
-                    <div class="match-card finished">
+                    <a href="match.php?id=<?= $match['id'] ?>" class="match-card finished">
                         <div class="match-card-header">
                             <span class="competition"><?= htmlspecialchars($match['competition'] ?? '') ?></span>
                             <span class="match-final-badge">Final</span>
@@ -152,7 +152,7 @@ $futureMatches = array_filter($upcomingMatches, fn($m) =>
                                 </span>
                             </div>
                         </div>
-                    </div>
+                    </a>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -227,6 +227,18 @@ $futureMatches = array_filter($upcomingMatches, fn($m) =>
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
+}
+
+a.match-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+a.match-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
 .match-card {
