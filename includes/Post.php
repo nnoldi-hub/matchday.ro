@@ -177,7 +177,7 @@ class Post {
                 'excerpt' => $data['excerpt'] ?? '',
                 'category' => $data['category'] ?? null,
                 'cover' => $data['cover_image'] ?? '',
-                'tags' => is_array($data['tags'] ?? []) ? implode(',', $data['tags']) : ($data['tags'] ?? ''),
+                'tags' => isset($data['tags']) && is_array($data['tags']) ? implode(',', $data['tags']) : ($data['tags'] ?? ''),
                 'status' => $data['status'] ?? 'draft',
                 'author' => $data['author'] ?? 'Admin',
                 'published' => ($data['status'] ?? 'draft') === 'published' ? date('Y-m-d H:i:s') : null,

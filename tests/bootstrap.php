@@ -25,9 +25,7 @@ if (!defined('CACHE_ENABLED')) {
     define('CACHE_ENABLED', false);
 }
 
-if (!defined('USE_MYSQL')) {
-    define('USE_MYSQL', false);
-}
+// USE_MYSQL will be defined by database.php
 
 // Set include path
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__DIR__));
@@ -38,6 +36,7 @@ ini_set('display_errors', '1');
 
 // Load classes
 require_once dirname(__DIR__) . '/config/security.php';
+require_once dirname(__DIR__) . '/config/database.php';
 require_once dirname(__DIR__) . '/includes/Logger.php';
 
 // Suppress output during tests
