@@ -320,50 +320,57 @@ if (isset($_GET['created'])) {
         ?>
         
         <?php if (!empty($todayMatches)): ?>
-        <div class="live-matches-card mb-3">
-          <div class="live-matches-header">
+        <div class="live-matches-card mb-3" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(229,62,62,0.15);border:2px solid #e53e3e;">
+          <div class="live-matches-header" style="background:linear-gradient(135deg,#e53e3e 0%,#c53030 100%);color:#fff;padding:0.75rem 1rem;font-weight:600;font-size:0.9rem;display:flex;align-items:center;gap:0.5rem;">
             <?php if (!empty($liveMatches)): ?>
-            <span class="live-badge pulse"><i class="fas fa-circle"></i> LIVE</span>
+            <span class="live-badge pulse" style="display:inline-flex;align-items:center;gap:0.3rem;background:#fff;color:#e53e3e;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.7rem;font-weight:700;"><i class="fas fa-circle" style="font-size:0.5rem;"></i> LIVE</span>
             <?php endif; ?>
             <i class="fas fa-broadcast-tower me-2"></i>Meciuri Azi
           </div>
-          <div class="live-matches-body">
+          <div class="live-matches-body" style="padding:0;max-height:300px;overflow-y:auto;">
             <?php foreach ($todayMatches as $match): 
               $isLive = in_array($match['status'] ?? '', ['live', '1H', '2H', 'HT', 'ET', 'P']);
               $isScheduled = ($match['status'] ?? '') === 'scheduled';
               $kickoffTime = isset($match['kickoff']) ? date('H:i', strtotime($match['kickoff'])) : '';
+              $liveStyle = $isLive ? 'background:linear-gradient(90deg,#fef2f2 0%,#fff 100%);border-left:3px solid #e53e3e;' : '';
             ?>
-            <div class="live-match <?= $isLive ? 'is-live' : '' ?>">
-              <div class="live-match-teams">
-                <div class="live-team home">
-                  <span class="team-name"><?= htmlspecialchars($match['home_team']) ?></span>
-                  <?php if (!$isScheduled): ?>
-                  <span class="team-score <?= ($match['home_score'] ?? 0) > ($match['away_score'] ?? 0) ? 'winning' : '' ?>"><?= $match['home_score'] ?? 0 ?></span>
+            <div class="live-match" style="padding:0.6rem 1rem;border-bottom:1px solid #f0f0f0;<?= $liveStyle ?>">
+              <div class="live-match-teams" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                <div class="live-team home" style="display:flex;align-items:center;gap:0.4rem;flex:1;">
+                  <span class="team-name" style="font-weight:600;font-size:0.8rem;color:#1a202c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;"><?= htmlspecialchars($match['home_team']) ?></span>
+                  <?php if (!$isScheduled): 
+                    $homeWin = ($match['home_score'] ?? 0) > ($match['away_score'] ?? 0);
+                    $scoreStyle = $homeWin ? 'background:#48bb78;color:#fff;' : 'background:#e2e8f0;';
+                  ?>
+                  <span class="team-score" style="<?= $scoreStyle ?>padding:0.15rem 0.4rem;border-radius:4px;font-weight:700;font-size:0.85rem;min-width:24px;text-align:center;"><?= $match['home_score'] ?? 0 ?></span>
                   <?php endif; ?>
                 </div>
-                <div class="live-match-status">
+                <div class="live-match-status" style="flex-shrink:0;text-align:center;min-width:45px;">
                   <?php if ($isLive): ?>
-                    <span class="match-minute"><?= $match['minute'] ?? '' ?>'</span>
+                    <span class="match-minute" style="background:#e53e3e;color:#fff;padding:0.1rem 0.4rem;border-radius:4px;font-size:0.7rem;font-weight:700;"><?= $match['minute'] ?? '' ?>'</span>
                   <?php elseif ($isScheduled): ?>
-                    <span class="match-time"><?= $kickoffTime ?></span>
+                    <span class="match-time" style="color:#718096;font-size:0.75rem;font-weight:600;"><?= $kickoffTime ?></span>
                   <?php else: ?>
-                    <span class="match-final">Final</span>
+                    <span class="match-final" style="color:#a0aec0;font-size:0.7rem;font-weight:500;">Final</span>
                   <?php endif; ?>
                 </div>
-                <div class="live-team away">
-                  <?php if (!$isScheduled): ?>
-                  <span class="team-score <?= ($match['away_score'] ?? 0) > ($match['home_score'] ?? 0) ? 'winning' : '' ?>"><?= $match['away_score'] ?? 0 ?></span>
+                <div class="live-team away" style="display:flex;align-items:center;gap:0.4rem;flex:1;flex-direction:row-reverse;text-align:right;">
+                  <?php if (!$isScheduled): 
+                    $awayWin = ($match['away_score'] ?? 0) > ($match['home_score'] ?? 0);
+                    $scoreStyleAway = $awayWin ? 'background:#48bb78;color:#fff;' : 'background:#e2e8f0;';
+                  ?>
+                  <span class="team-score" style="<?= $scoreStyleAway ?>padding:0.15rem 0.4rem;border-radius:4px;font-weight:700;font-size:0.85rem;min-width:24px;text-align:center;"><?= $match['away_score'] ?? 0 ?></span>
                   <?php endif; ?>
-                  <span class="team-name"><?= htmlspecialchars($match['away_team']) ?></span>
+                  <span class="team-name" style="font-weight:600;font-size:0.8rem;color:#1a202c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;"><?= htmlspecialchars($match['away_team']) ?></span>
                 </div>
               </div>
-              <div class="live-match-competition">
+              <div class="live-match-competition" style="text-align:center;font-size:0.7rem;color:#a0aec0;margin-top:0.25rem;">
                 <?= htmlspecialchars($match['competition'] ?? '') ?>
               </div>
             </div>
             <?php endforeach; ?>
           </div>
-          <a href="live.php" class="live-matches-footer">
+          <a href="live.php" class="live-matches-footer" style="display:block;text-align:center;padding:0.6rem;background:#f7fafc;color:#e53e3e;text-decoration:none;font-size:0.8rem;font-weight:600;">
             <i class="fas fa-external-link-alt me-1"></i> Vezi toate meciurile
           </a>
         </div>
