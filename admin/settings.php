@@ -97,6 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                     $message = 'Setări avansate salvate!';
                     break;
+                    
+                case 'integrations':
+                    Settings::saveMultiple([
+                        'livescores_enabled' => isset($_POST['livescores_enabled']) ? '1' : '0',
+                        'livescores_provider' => Security::sanitizeInput($_POST['livescores_provider'] ?? 'manual'),
+                        'livescores_api_key' => Security::sanitizeInput($_POST['livescores_api_key'] ?? ''),
+                        'livescores_cache_minutes' => max(1, min(60, (int) ($_POST['livescores_cache_minutes'] ?? 1))),
+                        'submissions_enabled' => isset($_POST['submissions_enabled']) ? '1' : '0',
+                        'submissions_moderation' => isset($_POST['submissions_moderation']) ? '1' : '0',
+                        'submissions_notify_email' => filter_var($_POST['submissions_notify_email'] ?? '', FILTER_SANITIZE_EMAIL),
+                    ]);
+                    $message = 'Setări integrări salvate!';
+                    break;
             }
             
             $activeTab = $tab;
@@ -153,6 +166,11 @@ require_once(__DIR__ . '/admin-header.php');
     <li class="nav-item">
         <a class="nav-link <?= $activeTab === 'advanced' ? 'active' : '' ?>" href="?tab=advanced">
             <i class="fas fa-tools me-1"></i>Avansat
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <?= $activeTab === 'integrations' ? 'active' : '' ?>" href="?tab=integrations">
+            <i class="fas fa-plug me-1"></i>Integrări
         </a>
     </li>
 </ul>
@@ -323,6 +341,90 @@ require_once(__DIR__ . '/admin-header.php');
                         <div class="form-text text-warning">
                             <i class="fas fa-info-circle me-1"></i>
                             Când este activ, doar administratorii pot accesa site-ul.
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-accent">
+                    <i class="fas fa-save me-1"></i>Salvează
+                </button>
+            </form>
+            <?php endif; ?>
+            
+            <?php if ($activeTab === 'integrations'): ?>
+            <!-- Integrations Settings -->
+            <form method="post">
+                <input type="hidden" name="csrf_token" value="<?= Security::generateCSRFToken() ?>">
+                <input type="hidden" name="tab" value="integrations">
+                
+                <!-- Live Scores Section -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success bg-opacity-10">
+                        <h6 class="mb-0 text-success"><i class="fas fa-stopwatch me-2"></i>Scoruri Live</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" name="livescores_enabled" id="livescoresEnabled"
+                                   <?= ($settings['livescores_enabled'] ?? '1') === '1' ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="livescoresEnabled">
+                                Afișează widget scoruri live pe site
+                            </label>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Provider date</label>
+                            <select name="livescores_provider" class="form-select" style="max-width: 300px;">
+                                <option value="manual" <?= ($settings['livescores_provider'] ?? 'manual') === 'manual' ? 'selected' : '' ?>>Manual (Admin)</option>
+                                <option value="api-football" <?= ($settings['livescores_provider'] ?? '') === 'api-football' ? 'selected' : '' ?>>API-Football.com</option>
+                                <option value="football-data" <?= ($settings['livescores_provider'] ?? '') === 'football-data' ? 'selected' : '' ?>>Football-Data.org</option>
+                            </select>
+                            <div class="form-text">Pentru API extern, introdu cheia API mai jos</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Cheie API (opțional)</label>
+                            <input type="text" name="livescores_api_key" class="form-control" style="max-width: 400px;"
+                                   value="<?= Security::sanitizeInput($settings['livescores_api_key'] ?? '') ?>"
+                                   placeholder="Introdu cheia API dacă folosești un provider extern">
+                        </div>
+                        
+                        <div class="mb-0">
+                            <label class="form-label">Cache (minute)</label>
+                            <input type="number" name="livescores_cache_minutes" class="form-control" style="max-width: 100px;"
+                                   value="<?= (int) ($settings['livescores_cache_minutes'] ?? 1) ?>" min="1" max="60">
+                            <div class="form-text">Cât timp să păstreze datele în cache</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Submissions Section -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary bg-opacity-10">
+                        <h6 class="mb-0 text-primary"><i class="fas fa-user-edit me-2"></i>Contribuții Externe</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" name="submissions_enabled" id="submissionsEnabled"
+                                   <?= ($settings['submissions_enabled'] ?? '1') === '1' ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="submissionsEnabled">
+                                Permite trimiterea de articole de către cititori
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" name="submissions_moderation" id="submissionsModeration"
+                                   <?= ($settings['submissions_moderation'] ?? '1') === '1' ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="submissionsModeration">
+                                Moderare obligatorie (aprobate manual)
+                            </label>
+                        </div>
+                        
+                        <div class="mb-0">
+                            <label class="form-label">Email notificări</label>
+                            <input type="email" name="submissions_notify_email" class="form-control" style="max-width: 300px;"
+                                   value="<?= Security::sanitizeInput($settings['submissions_notify_email'] ?? '') ?>"
+                                   placeholder="admin@matchday.ro">
+                            <div class="form-text">Primește notificare când se trimite o contribuție nouă</div>
                         </div>
                     </div>
                 </div>
