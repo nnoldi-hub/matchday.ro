@@ -15,7 +15,7 @@ Transformarea MatchDay.ro dintr-un CMS funcțional într-o **platformă profesio
 | Faza 8: CI/CD Pipeline | 1-2 săptămâni | 🟠 Înaltă | ✅ 80% (GitHub Actions) |
 | Faza 9: Design System | 2 săptămâni | 🟡 Medie | ✅ 100% Complet |
 | Faza 10: KPIs & Analytics | 1 săptămână | 🟡 Medie | ✅ 100% |
-| Faza 11: Strategie Editorială | 1 săptămână | 🟡 Medie | ⬜ 0% |
+| Faza 11: Strategie Editorială | 1 săptămână | 🟡 Medie | ✅ 100% |
 | Faza 12: Monetizare | 1-2 săptămâni | 🟢 Normală | ⬜ 0% |
 | Faza 13: Documentație Arhitectură | 1 săptămână | 🟢 Normală | ⬜ 0% |
 | Faza 14: Plan Scalare | 1 săptămână | 🟢 Normală | ⬜ 0% |
@@ -1001,11 +1001,12 @@ function imageUrl($path) {
 - [x] Alerting pentru thresholds (via Logger alerts)
 
 ### Faza 11 - Editorial
-- [ ] Tipuri articole definite
-- [ ] Șabloane create
-- [ ] Ghid ton & stil
-- [ ] Calendar editorial template
-- [ ] SEO checklist
+- [x] Tipuri articole definite (7 tipuri)
+- [x] Șabloane create (`/data/templates/`)
+- [x] Ghid ton & stil (`GHID-EDITORIAL.md`)
+- [x] Calendar editorial template
+- [x] SEO checklist
+- [x] Admin page (`/admin/editorial-guide.php`)
 
 ### Faza 12 - Monetizare
 - [ ] Pachete sponsori definite
