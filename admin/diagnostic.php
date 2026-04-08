@@ -67,11 +67,12 @@ $missingInConfig = array_diff($dbSlugs, $configSlugs);
 
 if (!empty($missingInDb)) {
     $warnings[] = "⚠️ Categorii din config care LIPSESC din DB: " . implode(', ', $missingInDb);
+    $warnings[] = "→ Rulează 'Sincronizează Categorii' de mai jos pentru a le importa.";
 }
 
 if (!empty($missingInConfig)) {
-    $warnings[] = "⚠️ Categorii din DB care LIPSESC din config: " . implode(', ', $missingInConfig);
-    $warnings[] = "→ Aceasta este problema ta! Categoriile create în admin nu apar în formular pentru că formularul citește din config/categories.php, nu din DB!";
+    $success[] = "✅ Categorii create în admin (doar în DB): " . implode(', ', $missingInConfig);
+    $success[] = "→ Acestea vor apărea normal în formularul de articol (formularele citesc din DB).";
 }
 
 // ============================================
