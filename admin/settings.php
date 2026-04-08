@@ -7,6 +7,7 @@ session_start();
 require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/Settings.php');
+require_once(__DIR__ . '/../includes/Logger.php');
 
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
@@ -66,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'contact_email' => filter_var($_POST['contact_email'] ?? '', FILTER_SANITIZE_EMAIL),
                         'footer_text' => Security::sanitizeInput($_POST['footer_text'] ?? ''),
                     ]);
+                    Logger::audit('SETTINGS_CHANGE', $_SESSION['user_id'] ?? 0, ['tab' => 'general']);
                     $message = 'Setări generale salvate!';
                     break;
                     
@@ -76,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'comments_moderation' => isset($_POST['comments_moderation']) ? '1' : '0',
                         'polls_enabled' => isset($_POST['polls_enabled']) ? '1' : '0',
                     ]);
+                    Logger::audit('SETTINGS_CHANGE', $_SESSION['user_id'] ?? 0, ['tab' => 'content']);
                     $message = 'Setări conținut salvate!';
                     break;
                     
@@ -86,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'social_instagram' => filter_var($_POST['social_instagram'] ?? '', FILTER_SANITIZE_URL),
                         'social_youtube' => filter_var($_POST['social_youtube'] ?? '', FILTER_SANITIZE_URL),
                     ]);
+                    Logger::audit('SETTINGS_CHANGE', $_SESSION['user_id'] ?? 0, ['tab' => 'social']);
                     $message = 'Linkuri sociale salvate!';
                     break;
                     
@@ -95,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'maintenance_mode' => isset($_POST['maintenance_mode']) ? '1' : '0',
                         'maintenance_message' => Security::sanitizeInput($_POST['maintenance_message'] ?? ''),
                     ]);
+                    Logger::audit('SETTINGS_CHANGE', $_SESSION['user_id'] ?? 0, ['tab' => 'advanced']);
                     $message = 'Setări avansate salvate!';
                     break;
                     

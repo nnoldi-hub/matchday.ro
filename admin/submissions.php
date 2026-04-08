@@ -9,6 +9,7 @@ require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/User.php');
 require_once(__DIR__ . '/../includes/Submission.php');
 require_once(__DIR__ . '/../includes/Category.php');
+require_once(__DIR__ . '/../includes/Logger.php');
 
 // Check admin access
 session_start();
@@ -35,6 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $submission = Submission::getById($submissionId);
                 Submission::notifyContributor($submission, 'approved');
                 
+                Logger::audit('SUBMISSION_APPROVE', $_SESSION['user_id'], [
+                    'submission_id' => $submissionId,
+                    'title' => $submission['title'] ?? ''
+                ]);
+                
                 $message = 'Articolul a fost aprobat!';
                 $messageType = 'success';
                 break;
@@ -47,6 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $submission = Submission::getById($submissionId);
                 Submission::notifyContributor($submission, 'rejected');
                 
+                Logger::audit('SUBMISSION_REJECT', $_SESSION['user_id'], [
+                    'submission_id' => $submissionId,
+                    'feedback' => substr($feedback, 0, 100)
+                ]);
+                
                 $message = 'Articolul a fost respins.';
                 $messageType = 'warning';
                 break;
@@ -56,6 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $postId = Submission::publish($submissionId, $authorId);
                 
                 if ($postId) {
+                    Logger::audit('SUBMISSION_PUBLISH', $_SESSION['user_id'], [
+                        'submission_id' => $submissionId,
+                        'post_id' => $postId
+                    ]);
                     $message = 'Articolul a fost publicat cu succes!';
                     $messageType = 'success';
                 } else {
@@ -65,6 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
             case 'delete':
                 Submission::delete($submissionId);
+                Logger::audit('SUBMISSION_DELETE', $_SESSION['user_id'], [
+                    'submission_id' => $submissionId
+                ]);
                 $message = 'Articolul a fost șters.';
                 $messageType = 'info';
                 break;
