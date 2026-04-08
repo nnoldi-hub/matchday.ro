@@ -119,9 +119,14 @@ require_once('admin-header.php');
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1><i class="bi bi-broadcast me-2"></i>Scoruri Live</h1>
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMatchModal">
-                    <i class="bi bi-plus-lg me-1"></i>Adaugă Meci
-                </button>
+                <div class="d-flex gap-2">
+                    <a href="match-comments.php" class="btn btn-outline-info">
+                        <i class="bi bi-chat-dots me-1"></i>Comentarii Meciuri
+                    </a>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addMatchModal">
+                        <i class="bi bi-plus-lg me-1"></i>Adaugă Meci
+                    </button>
+                </div>
             </div>
             
             <?php if ($message): ?>
