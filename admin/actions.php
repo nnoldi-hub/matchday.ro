@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . '/../config/config.php');
+require_once(__DIR__ . '/../includes/Logger.php');
 
 // Verifică autentificarea admin
 session_start();
@@ -76,6 +77,13 @@ function deletePost() {
     
     // Golește cache-ul pentru refresh
     clearCache();
+    
+    // Audit log the deletion
+    $userId = $_SESSION['user_id'] ?? 0;
+    Logger::audit('POST_DELETE', $userId, [
+        'filename' => $filename,
+        'slug' => $slug
+    ]);
     
     echo json_encode([
         'success' => true, 

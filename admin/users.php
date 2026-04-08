@@ -7,6 +7,7 @@ session_start();
 require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/User.php');
+require_once(__DIR__ . '/../includes/Logger.php');
 
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
@@ -51,6 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $id = User::create($username, $email, $password, $role);
                     if ($id) {
+                        Logger::audit('USER_CREATE', $_SESSION['user_id'] ?? 0, [
+                            'new_user_id' => $id,
+                            'username' => $username,
+                            'role' => $role
+                        ]);
                         $message = 'Utilizator creat cu succes!';
                     } else {
                         $error = 'Eroare la crearea utilizatorului.';
@@ -84,6 +90,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     
                     if (User::update($userId, $data)) {
+                        Logger::audit('USER_UPDATE', $_SESSION['user_id'] ?? 0, [
+                            'target_user_id' => $userId,
+                            'username' => $username,
+                            'role' => $role
+                        ]);
                         $message = 'Utilizator actualizat!';
                     } else {
                         $error = 'Eroare la actualizarea utilizatorului.';
@@ -101,6 +112,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Nu te poți șterge pe tine însuți.';
                 } else {
                     if (User::delete($userId)) {
+                        Logger::audit('USER_DELETE', $_SESSION['user_id'] ?? 0, [
+                            'deleted_user_id' => $userId
+                        ]);
                         $message = 'Utilizator șters!';
                     } else {
                         $error = 'Nu se poate șterge. Posibil ultimul admin.';

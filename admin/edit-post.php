@@ -6,6 +6,7 @@
 require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/Post.php');
+require_once(__DIR__ . '/../includes/Logger.php');
 
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
@@ -92,6 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         
         if ($updated) {
+            // Audit log the update
+            $userId = $_SESSION['user_id'] ?? 0;
+            Logger::audit('POST_UPDATE', $userId, [
+                'post_id' => $postId,
+                'title' => $title,
+                'status' => $status
+            ]);
+            
             $success = 'Articolul a fost actualizat cu succes!';
             $post = Post::getById($postId); // Refresh data
         } else {

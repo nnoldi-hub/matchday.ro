@@ -3,6 +3,7 @@ session_start();
 require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/User.php');
+require_once(__DIR__ . '/../includes/Logger.php');
 
 $error = '';
 $clientIP = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
@@ -37,6 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['login_time'] = time();
             // Clear rate limit on successful login
             Cache::delete("login_$clientIP");
+            
+            // Audit log successful login
+            Logger::audit('LOGIN_SUCCESS', $user['id'], [
+                'username' => $user['username'],
+                'ip' => $clientIP
+            ]);
+            
             header('Location: dashboard.php');
             exit;
         }
@@ -54,6 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         throw new Exception('Utilizator sau parolă incorectă.');
     } catch (Exception $e) {
+        // Audit log failed login
+        Logger::audit('LOGIN_FAILED', 0, [
+            'username' => $username ?? 'unknown',
+            'ip' => $clientIP,
+            'reason' => $e->getMessage()
+        ]);
+        
         $error = $e->getMessage();
     }
 }

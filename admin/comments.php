@@ -7,6 +7,7 @@ session_start();
 require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/Comment.php');
+require_once(__DIR__ . '/../includes/Logger.php');
 
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
@@ -33,16 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 switch ($action) {
                     case 'approve':
                         Comment::approve($id);
+                        Logger::audit('COMMENT_APPROVE', $_SESSION['user_id'] ?? 0, ['comment_id' => $id]);
                         $message = 'Comentariu aprobat!';
                         $messageType = 'success';
                         break;
                     case 'reject':
                         Comment::reject($id);
+                        Logger::audit('COMMENT_REJECT', $_SESSION['user_id'] ?? 0, ['comment_id' => $id]);
                         $message = 'Comentariu respins.';
                         $messageType = 'warning';
                         break;
                     case 'delete':
                         Comment::delete($id);
+                        Logger::audit('COMMENT_DELETE', $_SESSION['user_id'] ?? 0, ['comment_id' => $id]);
                         $message = 'Comentariu șters!';
                         $messageType = 'success';
                         break;
@@ -58,11 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             switch ($bulkAction) {
                 case 'approve':
                     $count = Comment::bulkApprove($ids);
+                    Logger::audit('COMMENTS_BULK_APPROVE', $_SESSION['user_id'] ?? 0, ['count' => $count, 'ids' => $ids]);
                     $message = "$count comentarii aprobate!";
                     $messageType = 'success';
                     break;
                 case 'delete':
                     $count = Comment::bulkDelete($ids);
+                    Logger::audit('COMMENTS_BULK_DELETE', $_SESSION['user_id'] ?? 0, ['count' => $count, 'ids' => $ids]);
                     $message = "$count comentarii șterse!";
                     $messageType = 'success';
                     break;

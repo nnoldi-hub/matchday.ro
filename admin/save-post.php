@@ -6,6 +6,7 @@
 require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/Post.php');
+require_once(__DIR__ . '/../includes/Logger.php');
 
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
@@ -134,8 +135,13 @@ try {
         Cache::clear();
     }
     
-    // Log the action
-    error_log("Article created: ID $postId by IP: $userIP");
+    // Audit log the action
+    $userId = $_SESSION['user_id'] ?? 0;
+    Logger::audit('POST_CREATE', $userId, [
+        'post_id' => $postId,
+        'title' => $title,
+        'category' => $category
+    ]);
     
     $_SESSION['flash_success'] = 'Articolul a fost creat cu succes!';
     header('Location: posts.php');
