@@ -10,7 +10,7 @@ Transformarea MatchDay.ro dintr-un CMS funcțional într-o **platformă profesio
 
 | Fază | Durată | Prioritate | Status |
 |------|--------|------------|--------|
-| Faza 6: Testing & QA | 2-3 săptămâni | 🔴 Critică | ✅ 100% Unit Tests |
+| Faza 6: Testing & QA | 2-3 săptămâni | 🔴 Critică | ✅ Unit+Integration (281 tests) |
 | Faza 7: Logging & Monitoring | 1-2 săptămâni | 🔴 Critică | 🟡 60% (Logger+Health) |
 | Faza 8: CI/CD Pipeline | 1-2 săptămâni | 🟠 Înaltă | ✅ 80% (GitHub Actions) |
 | Faza 9: Design System | 2 săptămâni | 🟡 Medie | ⬜ 0% |
@@ -91,6 +91,15 @@ tests/
 | `/polls_api.php` | POST, GET | Vote, Results |
 | `/livescores_api.php` | GET | List, Filter by competition |
 | `/search-suggestions.php` | GET | Query, Empty results |
+
+**Fișiere create:**
+- [x] `tests/Integration/ApiTestCase.php` - Base class cu helpers
+- [x] `tests/Integration/CommentWorkflowTest.php` - Comment lifecycle
+- [x] `tests/Integration/PollWorkflowTest.php` - Poll voting workflow
+- [x] `tests/Integration/SubmissionWorkflowTest.php` - Article submission
+- [x] `tests/Integration/AuthenticationTest.php` - Auth workflow
+
+**📊 Progres Integration Testing: 45 tests, 143 assertions - PASS ✅**
 
 ### 6.3 UI Testing (Playwright)
 
