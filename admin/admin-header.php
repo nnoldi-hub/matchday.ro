@@ -46,6 +46,7 @@ $menuItems = [
     ['page' => 'backup', 'icon' => 'fa-database', 'label' => 'Backup', 'admin_only' => true],
     ['page' => 'logs', 'icon' => 'fa-file-alt', 'label' => 'Logs', 'admin_only' => true],
     ['page' => 'audit-log', 'icon' => 'fa-clipboard-list', 'label' => 'Audit Log', 'admin_only' => true],
+    ['page' => 'style-guide', 'icon' => 'fa-palette', 'label' => 'Style Guide', 'admin_only' => true],
     ['page' => 'settings', 'icon' => 'fa-cog', 'label' => 'Setări', 'admin_only' => true],
     ['page' => 'editorial-management', 'icon' => 'fa-calendar-alt', 'label' => 'Plan Editorial', 'admin_only' => false],
 ];
