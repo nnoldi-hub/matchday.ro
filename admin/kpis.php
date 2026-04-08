@@ -129,20 +129,37 @@ $avgApiLatency = count($apiLatency) > 0 ? round(array_sum($apiLatency) / count($
 $cacheDir = __DIR__ . '/../data/cache';
 $cacheFiles = is_dir($cacheDir) ? count(glob($cacheDir . '/*.cache')) : 0;
 
-// Health check
-$healthFile = __DIR__ . '/../health.php';
+// Health check - make HTTP request to health.php
 $healthStatus = 'unknown';
-if (file_exists($healthFile)) {
-    ob_start();
-    $_SERVER['REQUEST_METHOD'] = 'GET';
-    include($healthFile);
-    $healthOutput = ob_get_clean();
-    if (strpos($healthOutput, '"status":"healthy"') !== false) {
-        $healthStatus = 'healthy';
-    } elseif (strpos($healthOutput, '"status":"degraded"') !== false) {
-        $healthStatus = 'degraded';
-    } else {
-        $healthStatus = 'unhealthy';
+$healthUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . 
+             '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . 
+             dirname($_SERVER['REQUEST_URI']) . '/../health.php';
+
+// Try to get health status
+$healthContext = stream_context_create(['http' => ['timeout' => 5, 'ignore_errors' => true]]);
+$healthOutput = @file_get_contents($healthUrl, false, $healthContext);
+
+if ($healthOutput !== false) {
+    $healthData = json_decode($healthOutput, true);
+    if ($healthData && isset($healthData['status'])) {
+        $healthStatus = $healthData['status'];
+    }
+} else {
+    // Fallback: try to include directly
+    $healthFile = __DIR__ . '/../health.php';
+    if (file_exists($healthFile)) {
+        ob_start();
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        include($healthFile);
+        $healthOutput = ob_get_clean();
+        // More flexible pattern matching (with or without spaces)
+        if (preg_match('/"status"\s*:\s*"healthy"/', $healthOutput)) {
+            $healthStatus = 'healthy';
+        } elseif (preg_match('/"status"\s*:\s*"degraded"/', $healthOutput)) {
+            $healthStatus = 'degraded';
+        } else {
+            $healthStatus = 'unhealthy';
+        }
     }
 }
 
