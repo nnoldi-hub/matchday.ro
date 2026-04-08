@@ -19,6 +19,7 @@ Transformarea MatchDay.ro dintr-un CMS funcțional într-o **platformă profesio
 | Faza 12: Monetizare | 1-2 săptămâni | 🟢 Normală | ✅ 100% |
 | Faza 13: Documentație Arhitectură | 1 săptămână | 🟢 Normală | ✅ 100% |
 | Faza 14: Plan Scalare | 1 săptămână | 🟢 Normală | ✅ 100% |
+| Faza 15: Scoruri Live & Meciuri | 1 săptămână | 🟢 Normală | ✅ 100% |
 
 **Total estimat: 10-14 săptămâni**
 
@@ -773,18 +774,25 @@ jobs:
 └─────────────┘
 
 ┌─────────────┐     ┌─────────────┐
-│SUBMISSIONS  │     │LIVE_MATCHES │
-├─────────────┤     ├─────────────┤
-│ id (PK)     │     │ id (PK)     │
-│ title       │     │ competition │
-│ content     │     │ home_team   │
-│ author_name │     │ away_team   │
-│ author_email│     │ home_score  │
-│ status      │     │ away_score  │
-│ token       │     │ status      │
+│SUBMISSIONS  │     │LIVE_MATCHES │     │MATCH_COMMENTS│
+├─────────────┤     ├─────────────┤     ├──────────────┤
+│ id (PK)     │     │ id (PK)     │◄────│ match_id(FK) │
+│ title       │     │ competition │     │ author_name  │
+│ content     │     │ home_team   │     │ content      │
+│ author_name │     │ away_team   │     │ status       │
+│ author_email│     │ home_score  │     │ ip_address   │
+│ status      │     │ away_score  │     │ created_at   │
+│ token       │     │ status      │     └──────────────┘
 │ reviewer_id │     │ kickoff     │
-│ created_at  │     │ created_at  │
-└─────────────┘     └─────────────┘
+│ created_at  │     │ venue       │
+└─────────────┘     │ referee     │
+                    │ referee_team│
+                    │ yellow_cards│
+                    │ red_cards   │
+                    │ substitutions│
+                    │ article_id  │
+                    │ created_at  │
+                    └─────────────┘
 ```
 
 ### 13.2 Fluxuri Vizuale
@@ -1027,6 +1035,87 @@ function imageUrl($path) {
 - [x] Fallback strategies (SCALING.md - API fallback)
 - [x] Growth planning (SCALING.md - niveluri scalare)
 
+### Faza 15 - Scoruri Live & Meciuri
+- [x] Pagină publică meciuri live (`/live.php`)
+- [x] Pagină detalii meci (`/match.php`)
+- [x] Widget "Meciuri Azi" pe homepage
+- [x] Admin câmpuri extinse (venue, arbitri, cartonașe, schimbări)
+- [x] Comentarii pe meciuri cu moderare
+- [x] Admin panel comentarii (`/admin/match-comments.php`)
+- [x] Legătură meci-articol
+- [x] Setare configurabilă rezultate afișate
+
+---
+
+## ⚽ Faza 15: Scoruri Live & Detalii Meciuri (ADĂUGAT)
+
+### ✅ 15.1 Pagină Publică Meciuri - COMPLET
+
+**Pagini implementate:**
+- ✅ `/live.php` - Lista toate meciurile de azi + următoarele 7 zile
+- ✅ `/match.php?id=X` - Detalii complete meci individual
+
+**Funcționalități match.php:**
+| Secțiune | Descriere | Status |
+|----------|-----------|--------|
+| Header | Competiție, status (LIVE/Terminat/Programat) | ✅ |
+| Teams & Score | Echipe, scor, VS pentru programate | ✅ |
+| Scorers | Marcatori pentru fiecare echipă | ✅ |
+| Cards | Cartonașe galbene/roșii per echipă | ✅ |
+| Substitutions | Schimbări efectuate | ✅ |
+| Referees | Brigada de arbitri | ✅ |
+| Venue | Stadion | ✅ |
+| Comments | Comentarii vizitatori cu moderare | ✅ |
+| Related Article | Link către articol asociat | ✅ |
+
+### ✅ 15.2 Widget Homepage - COMPLET
+
+**Implementat în index.php:**
+- Widget "Meciuri Azi" în coloana principală
+- LIVE badge animat pentru meciuri în desfășurare
+- Clickable către match.php
+- Inline styles pentru compatibilitate
+
+### ✅ 15.3 Admin Livescores Extins - COMPLET
+
+**Câmpuri noi în admin/livescores.php:**
+- ✅ Stadion (venue)
+- ✅ Arbitru principal (referee)
+- ✅ Brigada de arbitri (referee_team) - JSON
+- ✅ Cartonașe galbene acasă/deplasare
+- ✅ Cartonașe roșii acasă/deplasare  
+- ✅ Schimbări acasă/deplasare
+- ✅ Legătură cu articol (article_id)
+
+### ✅ 15.4 Comentarii Meciuri - COMPLET
+
+**Sistem implementat:**
+- ✅ Formular pe match.php (nume + comentariu)
+- ✅ Validare (2-50 chars nume, 5-1000 chars conținut)
+- ✅ Rate limiting (max 5/IP/oră)
+- ✅ Status: pending → approved/rejected
+- ✅ Admin panel: `/admin/match-comments.php`
+
+**Admin Match Comments features:**
+- Statistici (în așteptare/aprobate/respinse)
+- Filtrare pe status
+- Acțiuni: aprobare/respingere/ștergere
+- Acțiuni în masă
+- Paginare
+
+### ✅ 15.5 Setări Configurabile - COMPLET
+
+**În admin/settings.php:**
+- ✅ `featured_results_count` - Număr rezultate afișate (1-10)
+
+### 15.6 Migrații Necesare pe Live
+
+```bash
+# În ordinea corectă:
+https://matchday.ro/migrate-livescores-extra.php  # venue, referee, cards
+https://matchday.ro/migrate-match-subs.php        # substitutions + match_comments table
+```
+
 ---
 
 ## 🎯 Priorități Recomandate
@@ -1054,4 +1143,14 @@ function imageUrl($path) {
 ---
 
 *Plan creat: 8 Aprilie 2026*
-*Status: În așteptare aprobare*
+*Ultima actualizare: 8 Aprilie 2026*
+*Status: ✅ Complet (toate fazele finalizate)*
+
+---
+
+## 🐛 Bug Fixes Recente
+
+| Data | Fix | Fișier |
+|------|-----|--------|
+| 08.04.2026 | Sondaje: API acceptă atât ID numeric cât și slug pentru votare | `polls_api.php` |
+| 08.04.2026 | Categorii: Se încarcă din DB, nu din config | `admin/new-post.php`, `edit-post.php` |
