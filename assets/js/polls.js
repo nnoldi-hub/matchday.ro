@@ -60,6 +60,7 @@ class PollsSystem {
     }
 
     renderVotingForm(poll) {
+        const totalVotes = poll.total_votes || 0;
         return `
             <form class="poll-form" onsubmit="pollsSystem.submitVote(event, '${poll.id}')">
                 ${poll.options.map(option => `
@@ -71,12 +72,59 @@ class PollsSystem {
                     </div>
                 `).join('')}
                 
-                <button type="submit" class="btn btn-primary mt-3">
-                    <i class="fas fa-vote-yea me-1"></i>
-                    Votează
-                </button>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-vote-yea me-1"></i>
+                        Votează
+                    </button>
+                    <span class="poll-see-results" onclick="pollsSystem.showResultsPreview('${poll.id}')">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        Vezi rezultate (${totalVotes} voturi)
+                    </span>
+                </div>
             </form>
         `;
+    }
+
+    showResultsPreview(pollId) {
+        // Find the poll in loaded data and show results without voting
+        fetch(`${this.apiUrl}?poll_id=${pollId}`)
+            .then(response => response.json())
+            .then(poll => {
+                if (poll && poll.id) {
+                    const container = document.querySelector(`[data-poll="${pollId}"]`);
+                    if (container) {
+                        const totalVotes = poll.total_votes || 0;
+                        container.innerHTML = `
+                            <div class="poll-container border rounded-3 p-4 bg-white shadow-sm">
+                                <div class="poll-header mb-3">
+                                    <h4 class="poll-question h5 mb-2">
+                                        <i class="fas fa-poll me-2 text-primary"></i>
+                                        ${this.escapeHtml(poll.question)}
+                                    </h4>
+                                    ${poll.description ? `<p class="text-muted small mb-0">${this.escapeHtml(poll.description)}</p>` : ''}
+                                </div>
+                                
+                                <div class="poll-options">
+                                    ${this.renderResults(poll)}
+                                </div>
+                                
+                                <div class="poll-footer mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-users me-1"></i>
+                                        ${totalVotes} ${totalVotes === 1 ? 'vot' : 'voturi'}
+                                    </small>
+                                    <span class="poll-see-results" onclick="pollsSystem.renderPoll(${JSON.stringify(poll).replace(/"/g, '&quot;')})">
+                                        <i class="fas fa-vote-yea me-1"></i>
+                                        Vreau să votez
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(error => console.error('Error loading poll results:', error));
     }
 
     renderResults(poll) {
