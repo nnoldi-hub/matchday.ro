@@ -1,5 +1,7 @@
 <?php
 require_once(__DIR__ . '/../config/config.php');
+require_once(__DIR__ . '/../includes/Category.php');
+
 if (empty($_SESSION['david_logged'])) { 
     header('Location: login.php'); 
     exit; 
@@ -44,10 +46,11 @@ require_once(__DIR__ . '/admin-header.php');
             <select name="category" class="form-select" required>
               <option value="">Selectează categoria</option>
               <?php
-              $categories = require(__DIR__ . '/../config/categories.php');
-              foreach ($categories as $key => $category):
+              // Load categories from database (not static config)
+              $categories = Category::getAll();
+              foreach ($categories as $category):
               ?>
-              <option value="<?= htmlspecialchars($key) ?>"><?= htmlspecialchars($category['name']) ?></option>
+              <option value="<?= htmlspecialchars($category['slug']) ?>"><?= htmlspecialchars($category['name']) ?></option>
               <?php endforeach; ?>
             </select>
           </div>

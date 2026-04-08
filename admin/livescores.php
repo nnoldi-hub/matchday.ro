@@ -8,6 +8,7 @@ require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/User.php');
 require_once(__DIR__ . '/../includes/LiveScores.php');
+require_once(__DIR__ . '/../includes/Post.php');
 
 // Check admin access
 session_start();
@@ -36,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'minute' => $_POST['minute'] ?: null,
             'kickoff' => $_POST['kickoff_date'] . ' ' . $_POST['kickoff_time'],
             'home_scorers' => array_filter(explode(',', $_POST['home_scorers'] ?? '')),
-            'away_scorers' => array_filter(explode(',', $_POST['away_scorers'] ?? ''))
+            'away_scorers' => array_filter(explode(',', $_POST['away_scorers'] ?? '')),
+            'article_id' => !empty($_POST['article_id']) ? (int)$_POST['article_id'] : null
         ];
         
         $id = LiveScores::saveManualMatch($matchData);
@@ -83,6 +85,11 @@ $upcomingMatches = Database::fetchAll(
 $recentMatches = Database::fetchAll(
     "SELECT * FROM live_matches WHERE DATE(kickoff) < :today ORDER BY kickoff DESC LIMIT 10",
     ['today' => date('Y-m-d')]
+);
+
+// Get recent articles for linking
+$recentArticles = Database::fetchAll(
+    "SELECT id, title, published_at FROM posts WHERE status = 'published' ORDER BY published_at DESC LIMIT 50"
 );
 
 // Edit mode
@@ -338,6 +345,20 @@ require_once('admin-header.php');
                             <input type="text" class="form-control" name="away_scorers" id="awayScorers" 
                                    placeholder="Nume 30'">
                         </div>
+                        
+                        <div class="col-md-12 mt-3">
+                            <label class="form-label"><i class="bi bi-newspaper me-1"></i>Articol asociat</label>
+                            <select class="form-select" name="article_id" id="articleId">
+                                <option value="">-- Fără articol --</option>
+                                <?php foreach ($recentArticles as $article): ?>
+                                <option value="<?= $article['id'] ?>">
+                                    <?= htmlspecialchars(mb_substr($article['title'], 0, 60)) ?><?= mb_strlen($article['title']) > 60 ? '...' : '' ?>
+                                    (<?= date('d.m.Y', strtotime($article['published_at'] ?? '')) ?>)
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="form-text">Leagă acest meci de un articol existent.</div>
+                        </div>
                     </div>
                 </div>
                 
@@ -371,6 +392,7 @@ function editMatch(matchData) {
     document.getElementById('awayScore').value = match.away_score || 0;
     document.getElementById('status').value = match.status || 'scheduled';
     document.getElementById('minute').value = match.minute || '';
+    document.getElementById('articleId').value = match.article_id || '';
     
     if (match.kickoff) {
         const dt = new Date(match.kickoff);

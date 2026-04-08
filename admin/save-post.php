@@ -6,6 +6,7 @@
 require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/Post.php');
+require_once(__DIR__ . '/../includes/Category.php');
 require_once(__DIR__ . '/../includes/Logger.php');
 
 if (empty($_SESSION['david_logged'])) { 
@@ -37,8 +38,9 @@ try {
     $tags = Validator::maxLength($tags, 500, 'Tagurile');
     
     $category = Validator::required($_POST['category'] ?? '', 'Categoria');
-    $categories = require(__DIR__ . '/../config/categories.php');
-    if (!isset($categories[$category])) {
+    // Validate category exists in database
+    $categoryData = Category::getBySlug($category);
+    if (!$categoryData) {
         throw new Exception('Categoria selectată nu este validă.');
     }
     

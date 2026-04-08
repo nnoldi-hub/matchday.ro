@@ -6,6 +6,7 @@
 require_once(__DIR__ . '/../config/config.php');
 require_once(__DIR__ . '/../config/database.php');
 require_once(__DIR__ . '/../includes/Post.php');
+require_once(__DIR__ . '/../includes/Category.php');
 require_once(__DIR__ . '/../includes/Logger.php');
 
 if (empty($_SESSION['david_logged'])) { 
@@ -112,8 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get categories
-$categories = require(__DIR__ . '/../config/categories.php');
+// Get categories from database
+$categories = Category::getAll();
 
 $pageTitle = 'Editare Articol';
 require_once(__DIR__ . '/admin-header.php');
@@ -234,9 +235,9 @@ require_once(__DIR__ . '/admin-header.php');
                     <div class="p-4">
                         <select name="category" class="form-select">
                             <option value="">Fără categorie</option>
-                            <?php foreach ($categories as $key => $cat): ?>
-                            <option value="<?= htmlspecialchars($key) ?>" 
-                                    <?= $post['category_slug'] === $key ? 'selected' : '' ?>>
+                            <?php foreach ($categories as $cat): ?>
+                            <option value="<?= htmlspecialchars($cat['slug']) ?>" 
+                                    <?= $post['category_slug'] === $cat['slug'] ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($cat['name']) ?>
                             </option>
                             <?php endforeach; ?>

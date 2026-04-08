@@ -290,6 +290,7 @@ class LiveScores {
                     kickoff = :kickoff,
                     home_scorers = :home_scorers,
                     away_scorers = :away_scorers,
+                    article_id = :article_id,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = :id",
                 [
@@ -303,16 +304,17 @@ class LiveScores {
                     'minute' => $data['minute'] ?? null,
                     'kickoff' => $data['kickoff'],
                     'home_scorers' => json_encode($data['home_scorers'] ?? []),
-                    'away_scorers' => json_encode($data['away_scorers'] ?? [])
+                    'away_scorers' => json_encode($data['away_scorers'] ?? []),
+                    'article_id' => !empty($data['article_id']) ? (int)$data['article_id'] : null
                 ]
             );
             return $data['id'];
         } else {
             return Database::insert(
                 "INSERT INTO live_matches 
-                    (competition, home_team, away_team, home_score, away_score, status, minute, kickoff, home_scorers, away_scorers, created_at) 
+                    (competition, home_team, away_team, home_score, away_score, status, minute, kickoff, home_scorers, away_scorers, article_id, created_at) 
                 VALUES 
-                    (:competition, :home_team, :away_team, :home_score, :away_score, :status, :minute, :kickoff, :home_scorers, :away_scorers, CURRENT_TIMESTAMP)",
+                    (:competition, :home_team, :away_team, :home_score, :away_score, :status, :minute, :kickoff, :home_scorers, :away_scorers, :article_id, CURRENT_TIMESTAMP)",
                 [
                     'competition' => $data['competition'] ?? '',
                     'home_team' => $data['home_team'],
@@ -323,7 +325,8 @@ class LiveScores {
                     'minute' => $data['minute'] ?? null,
                     'kickoff' => $data['kickoff'],
                     'home_scorers' => json_encode($data['home_scorers'] ?? []),
-                    'away_scorers' => json_encode($data['away_scorers'] ?? [])
+                    'away_scorers' => json_encode($data['away_scorers'] ?? []),
+                    'article_id' => !empty($data['article_id']) ? (int)$data['article_id'] : null
                 ]
             );
         }

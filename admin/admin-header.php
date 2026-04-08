@@ -47,6 +47,7 @@ $menuItems = [
     ['page' => 'backup', 'icon' => 'fa-database', 'label' => 'Backup', 'admin_only' => true],
     ['page' => 'logs', 'icon' => 'fa-file-alt', 'label' => 'Logs', 'admin_only' => true],
     ['page' => 'audit-log', 'icon' => 'fa-clipboard-list', 'label' => 'Audit Log', 'admin_only' => true],
+    ['page' => 'diagnostic', 'icon' => 'fa-stethoscope', 'label' => 'Diagnostic', 'admin_only' => true],
     ['page' => 'style-guide', 'icon' => 'fa-palette', 'label' => 'Style Guide', 'admin_only' => true],
     ['page' => 'editorial-guide', 'icon' => 'fa-book-open', 'label' => 'Ghid Editorial', 'admin_only' => false],
     ['page' => 'settings', 'icon' => 'fa-cog', 'label' => 'Setări', 'admin_only' => true],
