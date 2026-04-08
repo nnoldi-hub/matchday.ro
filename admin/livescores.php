@@ -38,7 +38,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'kickoff' => $_POST['kickoff_date'] . ' ' . $_POST['kickoff_time'],
             'home_scorers' => array_filter(explode(',', $_POST['home_scorers'] ?? '')),
             'away_scorers' => array_filter(explode(',', $_POST['away_scorers'] ?? '')),
-            'article_id' => !empty($_POST['article_id']) ? (int)$_POST['article_id'] : null
+            'article_id' => !empty($_POST['article_id']) ? (int)$_POST['article_id'] : null,
+            'venue' => trim($_POST['venue'] ?? ''),
+            'referee' => trim($_POST['referee'] ?? ''),
+            'referee_team' => array_filter(array_map('trim', explode(',', $_POST['referee_team'] ?? ''))),
+            'yellow_cards_home' => array_filter(array_map('trim', explode(',', $_POST['yellow_cards_home'] ?? ''))),
+            'yellow_cards_away' => array_filter(array_map('trim', explode(',', $_POST['yellow_cards_away'] ?? ''))),
+            'red_cards_home' => array_filter(array_map('trim', explode(',', $_POST['red_cards_home'] ?? ''))),
+            'red_cards_away' => array_filter(array_map('trim', explode(',', $_POST['red_cards_away'] ?? '')))
         ];
         
         $id = LiveScores::saveManualMatch($matchData);
@@ -346,6 +353,61 @@ require_once('admin-header.php');
                                    placeholder="Nume 30'">
                         </div>
                         
+                        <!-- Stadion și Arbitraj -->
+                        <div class="col-12 mt-3">
+                            <hr>
+                            <h6 class="text-muted"><i class="bi bi-geo-alt me-1"></i>Locație & Arbitraj</h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Stadion</label>
+                            <input type="text" class="form-control" name="venue" id="venue" 
+                                   placeholder="ex: Arena Națională, București">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Arbitru Principal</label>
+                            <input type="text" class="form-control" name="referee" id="referee" 
+                                   placeholder="ex: István Kovács">
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <label class="form-label">Echipa de Arbitraj</label>
+                            <input type="text" class="form-control" name="referee_team" id="refereeTeam" 
+                                   placeholder="ex: Asistent 1, Asistent 2, Arbitru VAR">
+                            <div class="form-text">Separate prin virgulă</div>
+                        </div>
+                        
+                        <!-- Cartonașe -->
+                        <div class="col-12 mt-3">
+                            <hr>
+                            <h6 class="text-muted"><i class="bi bi-card-heading me-1"></i>Cartonașe</h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label"><span class="badge bg-warning text-dark">🟨</span> Galbene Acasă</label>
+                            <input type="text" class="form-control" name="yellow_cards_home" id="yellowCardsHome" 
+                                   placeholder="ex: Popescu 23', Ionescu 67'">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label"><span class="badge bg-warning text-dark">🟨</span> Galbene Deplasare</label>
+                            <input type="text" class="form-control" name="yellow_cards_away" id="yellowCardsAway" 
+                                   placeholder="ex: Dumitrescu 45'">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label"><span class="badge bg-danger">🟥</span> Roșii Acasă</label>
+                            <input type="text" class="form-control" name="red_cards_home" id="redCardsHome" 
+                                   placeholder="ex: Georgescu 89'">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label"><span class="badge bg-danger">🟥</span> Roșii Deplasare</label>
+                            <input type="text" class="form-control" name="red_cards_away" id="redCardsAway" 
+                                   placeholder="ex: Popa 55'">
+                        </div>
+                        
                         <div class="col-md-12 mt-3">
                             <label class="form-label"><i class="bi bi-newspaper me-1"></i>Articol asociat</label>
                             <select class="form-select" name="article_id" id="articleId">
@@ -393,6 +455,26 @@ function editMatch(matchData) {
     document.getElementById('status').value = match.status || 'scheduled';
     document.getElementById('minute').value = match.minute || '';
     document.getElementById('articleId').value = match.article_id || '';
+    
+    // Stadion și arbitraj
+    document.getElementById('venue').value = match.venue || '';
+    document.getElementById('referee').value = match.referee || '';
+    
+    const refereeTeam = match.referee_team ? JSON.parse(match.referee_team) : [];
+    document.getElementById('refereeTeam').value = refereeTeam.join(', ');
+    
+    // Cartonașe
+    const yellowHome = match.yellow_cards_home ? JSON.parse(match.yellow_cards_home) : [];
+    document.getElementById('yellowCardsHome').value = yellowHome.join(', ');
+    
+    const yellowAway = match.yellow_cards_away ? JSON.parse(match.yellow_cards_away) : [];
+    document.getElementById('yellowCardsAway').value = yellowAway.join(', ');
+    
+    const redHome = match.red_cards_home ? JSON.parse(match.red_cards_home) : [];
+    document.getElementById('redCardsHome').value = redHome.join(', ');
+    
+    const redAway = match.red_cards_away ? JSON.parse(match.red_cards_away) : [];
+    document.getElementById('redCardsAway').value = redAway.join(', ');
     
     if (match.kickoff) {
         const dt = new Date(match.kickoff);
