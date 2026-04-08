@@ -15,13 +15,14 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if ($method === 'GET') {
     try {
-        // Support both slug (poll=xxx) and numeric ID (id=123)
-        $pollSlug = Security::sanitizeInput($_GET['poll'] ?? '');
-        $pollSlug = preg_replace('/[^a-z0-9\-_]/', '', $pollSlug);
+        // Support both slug and numeric ID in 'poll' parameter
+        $pollIdentifier = Security::sanitizeInput($_GET['poll'] ?? $_GET['poll_id'] ?? '');
+        $pollIdentifier = preg_replace('/[^a-z0-9\-_]/', '', $pollIdentifier);
         
+        // Also support separate 'id' parameter
         $pollId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         
-        if ($pollSlug === '' && $pollId === 0) {
+        if ($pollIdentifier === '' && $pollId === 0) {
             // Return all active polls
             $polls = Poll::getActive(10);
             
@@ -39,8 +40,11 @@ if ($method === 'GET') {
         // Get poll by slug or ID
         if ($pollId > 0) {
             $poll = Poll::getById($pollId);
+        } elseif (ctype_digit($pollIdentifier)) {
+            // Numeric string in poll parameter - treat as ID
+            $poll = Poll::getById((int)$pollIdentifier);
         } else {
-            $poll = Poll::getBySlug($pollSlug);
+            $poll = Poll::getBySlug($pollIdentifier);
         }
         
         if (!$poll) {
@@ -71,18 +75,24 @@ if ($method === 'POST') {
     try {
         $clientIP = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         
-        $pollSlug = Security::sanitizeInput($_POST['poll'] ?? '');
-        $pollSlug = preg_replace('/[^a-z0-9\-_]/', '', $pollSlug);
+        $pollIdentifier = Security::sanitizeInput($_POST['poll'] ?? '');
+        $pollIdentifier = preg_replace('/[^a-z0-9\-_]/', '', $pollIdentifier);
         
         $optionId = Security::sanitizeInput($_POST['option'] ?? '');
         // Extract numeric ID from "option_X" format
         $optionId = preg_replace('/[^0-9]/', '', $optionId);
         
-        if ($pollSlug === '' || $optionId === '') {
+        if ($pollIdentifier === '' || $optionId === '') {
             throw new Exception('Date invalide');
         }
         
-        $poll = Poll::getBySlug($pollSlug);
+        // Support both numeric ID and slug
+        if (ctype_digit($pollIdentifier)) {
+            $poll = Poll::getById((int)$pollIdentifier);
+        } else {
+            $poll = Poll::getBySlug($pollIdentifier);
+        }
+        
         if (!$poll) {
             throw new Exception('Sondaj nu a fost găsit');
         }
