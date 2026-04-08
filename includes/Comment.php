@@ -14,25 +14,66 @@ class Comment {
         'bitcoin', 'crypto scam', 'click here', 'buy now'
     ];
     
+    // Flag to track if new columns exist
+    private static $hasNewColumns = null;
+    
+    /**
+     * Check if new columns (parent_id, likes) exist in database
+     */
+    private static function checkNewColumns(): bool {
+        if (self::$hasNewColumns !== null) {
+            return self::$hasNewColumns;
+        }
+        
+        try {
+            // Try to query with new columns
+            Database::fetchValue("SELECT COUNT(*) FROM comments WHERE parent_id IS NULL LIMIT 1");
+            self::$hasNewColumns = true;
+        } catch (Exception $e) {
+            self::$hasNewColumns = false;
+        }
+        
+        return self::$hasNewColumns;
+    }
+    
     /**
      * Get approved comments for a post (with replies nested)
      */
     public static function getByPost(string $postSlug, int $page = 1, int $perPage = 20): array {
         $offset = ($page - 1) * $perPage;
         
-        // Get top-level comments
-        $comments = Database::fetchAll(
-            "SELECT id, author_name, content, created_at, likes, parent_id
-             FROM comments 
-             WHERE post_slug = :slug AND approved = 1 AND parent_id IS NULL
-             ORDER BY created_at DESC 
-             LIMIT :limit OFFSET :offset",
-            ['slug' => $postSlug, 'limit' => $perPage, 'offset' => $offset]
-        );
+        // Check if we have the new columns
+        $hasNewCols = self::checkNewColumns();
         
-        // Get replies for each comment
-        foreach ($comments as &$comment) {
-            $comment['replies'] = self::getReplies($comment['id']);
+        if ($hasNewCols) {
+            // Get top-level comments only (no parent)
+            $comments = Database::fetchAll(
+                "SELECT id, author_name, content, created_at, likes, parent_id
+                 FROM comments 
+                 WHERE post_slug = :slug AND approved = 1 AND parent_id IS NULL
+                 ORDER BY created_at DESC 
+                 LIMIT :limit OFFSET :offset",
+                ['slug' => $postSlug, 'limit' => $perPage, 'offset' => $offset]
+            );
+            
+            // Get replies for each comment
+            foreach ($comments as &$comment) {
+                $comment['replies'] = self::getReplies($comment['id']);
+            }
+        } else {
+            // Fallback: get all comments without nesting
+            $comments = Database::fetchAll(
+                "SELECT id, author_name, content, created_at, 0 as likes, NULL as parent_id
+                 FROM comments 
+                 WHERE post_slug = :slug AND approved = 1
+                 ORDER BY created_at DESC 
+                 LIMIT :limit OFFSET :offset",
+                ['slug' => $postSlug, 'limit' => $perPage, 'offset' => $offset]
+            );
+            
+            foreach ($comments as &$comment) {
+                $comment['replies'] = [];
+            }
         }
         
         return $comments;
@@ -42,6 +83,10 @@ class Comment {
      * Get replies for a comment
      */
     public static function getReplies(int $parentId): array {
+        if (!self::checkNewColumns()) {
+            return [];
+        }
+        
         return Database::fetchAll(
             "SELECT id, author_name, content, created_at, likes
              FROM comments 
