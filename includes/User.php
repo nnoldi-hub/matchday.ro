@@ -52,6 +52,16 @@ class User {
     }
     
     /**
+     * Get users by role
+     */
+    public static function getByRole(string $role): array {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT id, username, email, role, last_login, created_at FROM users WHERE role = :role ORDER BY username ASC");
+        $stmt->execute(['role' => $role]);
+        return $stmt->fetchAll();
+    }
+    
+    /**
      * Create new user
      */
     public static function create(string $username, string $email, string $password, string $role = self::ROLE_EDITOR): ?int {

@@ -309,10 +309,10 @@ require_once('admin-header.php');
                         <div class="mb-3">
                             <label class="form-label">Atribuie unui autor din echipă</label>
                             <select name="author_id" class="form-select">
-                                <option value="<?= $_SESSION['user_id'] ?>">Eu (<?= $user['name'] ?>)</option>
+                                <option value="<?= $_SESSION['user_id'] ?>">Eu (<?= $user['username'] ?>)</option>
                                 <?php foreach ($authors as $author): ?>
                                 <?php if ($author['id'] != $_SESSION['user_id']): ?>
-                                <option value="<?= $author['id'] ?>"><?= htmlspecialchars($author['name']) ?></option>
+                                <option value="<?= $author['id'] ?>"><?= htmlspecialchars($author['username']) ?></option>
                                 <?php endif; ?>
                                 <?php endforeach; ?>
                             </select>
