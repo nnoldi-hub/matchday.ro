@@ -60,24 +60,93 @@ $categories = require(__DIR__ . '/config/categories.php');
             <!-- Search Form -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <form method="get" action="search.php" class="d-flex gap-2">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white">
-                                <i class="fas fa-search text-muted"></i>
-                            </span>
-                            <input type="text" name="q" class="form-control form-control-lg" 
-                                   placeholder="Caută articole..." 
-                                   value="<?= Security::sanitizeInput($query) ?>"
-                                   autocomplete="off"
-                                   id="searchInput">
+                    <form method="get" action="search.php" id="searchForm">
+                        <div class="d-flex gap-2 mb-3">
+                            <div class="input-group flex-grow-1 position-relative">
+                                <span class="input-group-text bg-white">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" name="q" class="form-control form-control-lg" 
+                                       placeholder="Caută articole, echipe, jucători..." 
+                                       value="<?= Security::sanitizeInput($query) ?>"
+                                       autocomplete="off"
+                                       id="searchInput">
+                                <!-- Search Suggestions -->
+                                <div id="searchSuggestions" class="list-group position-absolute w-100 shadow-lg" style="z-index: 1050; top: 100%; display: none; max-height: 400px; overflow-y: auto;"></div>
+                            </div>
+                            <button type="submit" class="btn btn-accent btn-lg px-4">
+                                <i class="fas fa-search d-md-none"></i>
+                                <span class="d-none d-md-inline">Caută</span>
+                            </button>
                         </div>
-                        <button type="submit" class="btn btn-accent btn-lg px-4">
-                            Caută
-                        </button>
+                        
+                        <!-- Advanced Filters Toggle -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="filterToggle">
+                                <i class="fas fa-filter me-1"></i>Filtre avansate
+                                <i class="fas fa-chevron-down ms-1"></i>
+                            </button>
+                            <?php 
+                            $hasFilters = !empty($_GET['category']) || !empty($_GET['from']) || !empty($_GET['to']) || !empty($_GET['sort']);
+                            if ($hasFilters): ?>
+                            <button type="button" class="btn btn-sm btn-link text-danger" id="clearFilters">
+                                <i class="fas fa-times me-1"></i>Șterge filtrele
+                            </button>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- Filter Panel (collapsible) -->
+                        <div id="filterPanel" class="collapse <?= $hasFilters ? 'show' : '' ?> mt-3">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted">Categorie</label>
+                                    <select name="category" id="filterCategory" class="form-select filter-select">
+                                        <option value="">Toate categoriile</option>
+                                        <?php foreach ($categories as $slug => $cat): ?>
+                                        <option value="<?= $slug ?>" <?= ($_GET['category'] ?? '') === $slug ? 'selected' : '' ?>>
+                                            <?= $cat['name'] ?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted">De la data</label>
+                                    <input type="date" name="from" id="dateFrom" class="form-control filter-select" 
+                                           value="<?= Security::sanitizeInput($_GET['from'] ?? '') ?>">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted">Până la data</label>
+                                    <input type="date" name="to" id="dateTo" class="form-control filter-select" 
+                                           value="<?= Security::sanitizeInput($_GET['to'] ?? '') ?>">
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted">Sortare</label>
+                                    <select name="sort" id="sortBy" class="form-select filter-select">
+                                        <option value="relevance" <?= ($_GET['sort'] ?? '') === 'relevance' ? 'selected' : '' ?>>Relevanță</option>
+                                        <option value="newest" <?= ($_GET['sort'] ?? '') === 'newest' ? 'selected' : '' ?>>Cele mai noi</option>
+                                        <option value="oldest" <?= ($_GET['sort'] ?? '') === 'oldest' ? 'selected' : '' ?>>Cele mai vechi</option>
+                                        <option value="views" <?= ($_GET['sort'] ?? '') === 'views' ? 'selected' : '' ?>>Cele mai citite</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted">Interval rapid</label>
+                                    <div class="btn-group w-100" role="group">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" data-date-preset="today">Azi</button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" data-date-preset="week">7 zile</button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" data-date-preset="month">30 zile</button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" data-date-preset="year">1 an</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-accent">
+                                    <i class="fas fa-search me-1"></i>Aplică filtrele
+                                </button>
+                            </div>
+                        </div>
                     </form>
-                    
-                    <!-- Search Suggestions (populated by JS) -->
-                    <div id="searchSuggestions" class="list-group position-absolute w-100 shadow-sm" style="z-index: 1000; display: none;"></div>
                 </div>
             </div>
             
@@ -91,6 +160,9 @@ $categories = require(__DIR__ . '/config/categories.php');
                     <small class="text-muted">
                         <?= number_format($total) ?> rezultat<?= $total !== 1 ? 'e' : '' ?> 
                         (<?= $searchTime ?> ms)
+                        <?php if ($hasFilters): ?>
+                        <span class="badge bg-secondary ms-2">Filtrate</span>
+                        <?php endif; ?>
                     </small>
                 </div>
                 <?php if ($total > $perPage): ?>
@@ -350,5 +422,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Advanced Filters JS -->
+<script src="<?= BASE_URL ?>/assets/js/filters.js"></script>
 
 <?php include(__DIR__ . '/includes/footer.php'); ?>

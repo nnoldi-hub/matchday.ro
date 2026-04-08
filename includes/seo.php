@@ -100,7 +100,15 @@ class SEOManager {
     }
     
     public function setArticleType($type) {
-        $this->articleType = $type; // article, blog, news, sport
+        $this->articleType = $type; // article, blog, news, sport, NewsArticle
+        return $this;
+    }
+    
+    /**
+     * Set sports event data for Schema.org SportsEvent
+     */
+    public function setSportsEvent($data) {
+        $this->sportsEvent = $data;
         return $this;
     }
     
@@ -198,31 +206,42 @@ class SEOManager {
             ]
         ];
         
-        // Article schema (if it's an article)
-        if ($this->articleType === 'article' && !empty($this->publishedTime)) {
+        // Article schema (if it's an article) - Use NewsArticle for sports news
+        if (in_array($this->articleType, ['article', 'NewsArticle', 'news']) && !empty($this->publishedTime)) {
+            // Use NewsArticle for better SEO in Google News
+            $articleType = ($this->articleType === 'NewsArticle' || $this->articleType === 'news') 
+                ? 'NewsArticle' 
+                : 'Article';
+            
             $article = [
-                '@type' => 'Article',
+                '@type' => $articleType,
                 '@id' => $this->canonicalUrl . '#article',
                 'url' => $this->canonicalUrl,
-                'headline' => $this->title,
+                'headline' => mb_substr($this->title, 0, 110), // Google requires max 110 chars
                 'description' => $this->description,
                 'datePublished' => $this->publishedTime,
+                'inLanguage' => 'ro-RO',
                 'author' => [
                     '@type' => 'Person',
-                    'name' => $this->author
+                    'name' => $this->author,
+                    'url' => $this->getBaseUrl() . 'author.php'
                 ],
                 'publisher' => [
                     '@type' => 'Organization',
                     'name' => SITE_NAME,
+                    '@id' => $this->getBaseUrl() . '#organization',
                     'logo' => [
                         '@type' => 'ImageObject',
-                        'url' => $this->getBaseUrl() . 'assets/images/logo.png'
+                        'url' => $this->getBaseUrl() . 'assets/images/logo.png',
+                        'width' => 600,
+                        'height' => 60
                     ]
                 ],
                 'mainEntityOfPage' => [
                     '@type' => 'WebPage',
                     '@id' => $this->canonicalUrl
-                ]
+                ],
+                'isAccessibleForFree' => true
             ];
             
             if ($this->modifiedTime) {
