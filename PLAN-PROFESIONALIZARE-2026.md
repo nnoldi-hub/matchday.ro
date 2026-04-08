@@ -10,9 +10,9 @@ Transformarea MatchDay.ro dintr-un CMS funcțional într-o **platformă profesio
 
 | Fază | Durată | Prioritate | Status |
 |------|--------|------------|--------|
-| Faza 6: Testing & QA | 2-3 săptămâni | 🔴 Critică | 🟡 75% (173 tests) |
+| Faza 6: Testing & QA | 2-3 săptămâni | 🔴 Critică | ✅ 100% Unit Tests |
 | Faza 7: Logging & Monitoring | 1-2 săptămâni | 🔴 Critică | 🟡 60% (Logger+Health) |
-| Faza 8: CI/CD Pipeline | 1-2 săptămâni | 🟠 Înaltă | ⬜ 0% |
+| Faza 8: CI/CD Pipeline | 1-2 săptămâni | 🟠 Înaltă | ✅ 80% (GitHub Actions) |
 | Faza 9: Design System | 2 săptămâni | 🟡 Medie | ⬜ 0% |
 | Faza 10: KPIs & Analytics | 1 săptămână | 🟡 Medie | ⬜ 0% |
 | Faza 11: Strategie Editorială | 1 săptămână | 🟡 Medie | ⬜ 0% |
@@ -55,11 +55,11 @@ tests/
 - [x] `CommentTest` - creare, nested replies, likes, spam detection ✅ (27 tests, 51 assertions)
 - [x] `UserTest` - autentificare, roluri, parole ✅ (33 tests, 53 assertions)
 - [x] `PollTest` - vot, prevenire vot dublu ✅ (33 tests, 83 assertions)
-- [ ] `SubmissionTest` - workflow pending→approved→published
-- [ ] `LiveScoresTest` - cache, API fallback
+- [x] `SubmissionTest` - workflow pending→approved→published ✅ (35 tests, 91 assertions)
+- [x] `LiveScoresTest` - cache, API fallback ✅ (28 tests, 52 assertions)
 - [x] `CacheTest` - get/set, TTL, expiration ✅ (22 tests, 39 assertions)
 
-**📊 Progres Unit Testing: 173 tests, 335 assertions - PASS ✅**
+**📊 Progres Unit Testing: 236 tests, 477 assertions - PASS ✅**
 
 **Configurare PHPUnit:**
 ```xml
@@ -233,7 +233,23 @@ data/logs/
 
 ## 🚀 Faza 8: CI/CD Pipeline
 
-### 8.1 Git Flow
+### ✅ 8.1 GitHub Actions - IMPLEMENTAT
+
+**Workflow:** `.github/workflows/tests.yml` ✅
+- Rulează pe push/PR la `main` și `develop`
+- Testează pe PHP 8.1, 8.2, 8.3
+- Instalează dependențe via Composer
+- Creează baza de date SQLite pentru teste
+- Rulează toate 173 testele PHPUnit
+- Generează coverage report (PHP 8.3)
+- Verifică sintaxa PHP
+
+**Workflow:** `.github/workflows/deploy.yml` ✅
+- Deploy automat pe Hostico via SSH/rsync
+- Exclude fișiere de development
+- Verifică health.php după deploy
+
+### 8.2 Git Flow
 
 ```
 main          ────●────●────●────●──── (production)
