@@ -48,6 +48,66 @@ $breadcrumbs = [
     ['name' => $match['home_team'] . ' vs ' . $match['away_team'], 'url' => '#']
 ];
 
+// Handle comment submission
+$commentMessage = '';
+$commentError = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
+    $authorName = trim($_POST['author_name'] ?? '');
+    $content = trim($_POST['content'] ?? '');
+    
+    // Validate
+    if (empty($authorName) || strlen($authorName) < 2) {
+        $commentError = 'Te rugăm să introduci un nume valid (minim 2 caractere).';
+    } elseif (empty($content) || strlen($content) < 5) {
+        $commentError = 'Comentariul trebuie să aibă cel puțin 5 caractere.';
+    } elseif (strlen($content) > 1000) {
+        $commentError = 'Comentariul nu poate depăși 1000 de caractere.';
+    } else {
+        // Rate limiting - max 5 comments per IP per hour
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '';
+        $db = Database::getInstance();
+        $hourAgo = date('Y-m-d H:i:s', strtotime('-1 hour'));
+        
+        $stmt = $db->prepare('SELECT COUNT(*) FROM match_comments WHERE ip_address = :ip AND created_at > :time');
+        $stmt->execute([':ip' => $ipAddress, ':time' => $hourAgo]);
+        $recentComments = $stmt->fetchColumn();
+        
+        if ($recentComments >= 5) {
+            $commentError = 'Ai trimis prea multe comentarii. Te rugăm să aștepți puțin.';
+        } else {
+            // Insert comment (pending approval)
+            $stmt = $db->prepare('INSERT INTO match_comments (match_id, author_name, content, status, ip_address, user_agent, created_at) VALUES (:match_id, :author, :content, :status, :ip, :ua, :created)');
+            $result = $stmt->execute([
+                ':match_id' => $matchId,
+                ':author' => htmlspecialchars($authorName, ENT_QUOTES, 'UTF-8'),
+                ':content' => htmlspecialchars($content, ENT_QUOTES, 'UTF-8'),
+                ':status' => 'pending',
+                ':ip' => $ipAddress,
+                ':ua' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+                ':created' => date('Y-m-d H:i:s')
+            ]);
+            
+            if ($result) {
+                $commentMessage = 'Comentariul tău a fost trimis și așteaptă aprobare. Mulțumim!';
+            } else {
+                $commentError = 'A apărut o eroare. Te rugăm să încerci din nou.';
+            }
+        }
+    }
+}
+
+// Fetch approved comments for this match
+$matchComments = [];
+try {
+    $db = Database::getInstance();
+    $stmt = $db->prepare('SELECT * FROM match_comments WHERE match_id = :match_id AND status = :status ORDER BY created_at DESC LIMIT 50');
+    $stmt->execute([':match_id' => $matchId, ':status' => 'approved']);
+    $matchComments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    // Table might not exist yet
+    $matchComments = [];
+}
+
 include(__DIR__ . '/includes/header.php');
 ?>
 
@@ -165,6 +225,52 @@ include(__DIR__ . '/includes/header.php');
             </div>
             <?php endif; ?>
             
+            <!-- Substitutions Section -->
+            <?php 
+            $hasSubsHome = !empty($match['substitutions_home']);
+            $hasSubsAway = !empty($match['substitutions_away']);
+            if ($hasSubsHome || $hasSubsAway): 
+            ?>
+            <div class="match-section-card">
+                <h5 class="section-title"><i class="fas fa-exchange-alt me-2"></i>Schimburi</h5>
+                <div class="subs-grid">
+                    <!-- Home Team -->
+                    <div class="subs-team">
+                        <div class="subs-team-name"><?= htmlspecialchars($match['home_team']) ?></div>
+                        <?php if ($hasSubsHome): ?>
+                        <div class="subs-list">
+                            <?php foreach ($match['substitutions_home'] as $sub): ?>
+                            <div class="sub-item">
+                                <i class="fas fa-sync-alt text-primary"></i>
+                                <span><?= htmlspecialchars($sub) ?></span>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php else: ?>
+                        <div class="text-muted small">Fără schimbări</div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Away Team -->
+                    <div class="subs-team">
+                        <div class="subs-team-name"><?= htmlspecialchars($match['away_team']) ?></div>
+                        <?php if ($hasSubsAway): ?>
+                        <div class="subs-list">
+                            <?php foreach ($match['substitutions_away'] as $sub): ?>
+                            <div class="sub-item">
+                                <i class="fas fa-sync-alt text-primary"></i>
+                                <span><?= htmlspecialchars($sub) ?></span>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php else: ?>
+                        <div class="text-muted small">Fără schimbări</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+            
             <!-- Referee Section -->
             <?php if (!empty($match['referee']) || !empty($match['referee_team'])): ?>
             <div class="match-section-card">
@@ -196,6 +302,62 @@ include(__DIR__ . '/includes/header.php');
                 </a>
             </div>
             <?php endif; ?>
+            
+            <!-- Comments Section -->
+            <div class="match-section-card comments-section">
+                <h5 class="section-title"><i class="fas fa-comments me-2"></i>Comentarii meci</h5>
+                
+                <?php if ($commentMessage): ?>
+                <div class="alert alert-success mb-3">
+                    <i class="fas fa-check-circle me-2"></i><?= $commentMessage ?>
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($commentError): ?>
+                <div class="alert alert-danger mb-3">
+                    <i class="fas fa-exclamation-circle me-2"></i><?= $commentError ?>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Comment Form -->
+                <form method="post" class="comment-form mb-4">
+                    <div class="mb-3">
+                        <input type="text" name="author_name" class="form-control" placeholder="Numele tău" required maxlength="50" value="<?= htmlspecialchars($_POST['author_name'] ?? '') ?>">
+                    </div>
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" placeholder="Ce părere ai despre meci? Scrie un comentariu..." required rows="3" maxlength="1000"><?= htmlspecialchars($_POST['content'] ?? '') ?></textarea>
+                        <small class="text-muted">Maxim 1000 caractere</small>
+                    </div>
+                    <button type="submit" name="submit_comment" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Trimite comentariu
+                    </button>
+                </form>
+                
+                <!-- Comments List -->
+                <?php if (!empty($matchComments)): ?>
+                <div class="comments-list">
+                    <?php foreach ($matchComments as $comment): ?>
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-author">
+                                <i class="fas fa-user me-1"></i><?= htmlspecialchars($comment['author_name']) ?>
+                            </span>
+                            <span class="comment-date">
+                                <?= date('j M Y, H:i', strtotime($comment['created_at'])) ?>
+                            </span>
+                        </div>
+                        <div class="comment-content">
+                            <?= nl2br(htmlspecialchars($comment['content'])) ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php else: ?>
+                <div class="no-comments text-muted text-center py-3">
+                    <i class="fas fa-comment-slash me-2"></i>Nu sunt încă comentarii. Fii primul care comentează!
+                </div>
+                <?php endif; ?>
+            </div>
             
             <!-- Back Link -->
             <div class="text-center mt-4">
@@ -458,6 +620,135 @@ include(__DIR__ . '/includes/header.php');
     color: #2d3748;
 }
 
+/* Substitutions Grid */
+.subs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.subs-team .team-name-subs {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+}
+
+.subs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.sub-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #4a5568;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sub-item:last-child {
+    border-bottom: none;
+}
+
+.sub-item i {
+    font-size: 0.75rem;
+}
+
+/* Comments Section */
+.comments-section {
+    margin-top: 1rem;
+}
+
+.comment-form .form-control {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+.comment-form .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.comment-form .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.comment-form .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.comment-item {
+    background: #f7fafc;
+    border-radius: 10px;
+    padding: 1rem;
+    border-left: 3px solid #667eea;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.9rem;
+}
+
+.comment-date {
+    font-size: 0.75rem;
+    color: #a0aec0;
+}
+
+.comment-content {
+    color: #4a5568;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.no-comments {
+    padding: 2rem;
+    background: #f7fafc;
+    border-radius: 10px;
+}
+
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.alert-success {
+    background: #c6f6d5;
+    color: #276749;
+}
+
+.alert-danger {
+    background: #fed7d7;
+    color: #c53030;
+}
+
 /* Related Article Link */
 .related-article-link {
     display: block;
@@ -491,7 +782,7 @@ include(__DIR__ . '/includes/header.php');
         order: 2;
     }
     
-    .cards-grid {
+    .cards-grid, .subs-grid {
         grid-template-columns: 1fr;
     }
 }

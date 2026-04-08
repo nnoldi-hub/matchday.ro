@@ -45,7 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'yellow_cards_home' => array_filter(array_map('trim', explode(',', $_POST['yellow_cards_home'] ?? ''))),
             'yellow_cards_away' => array_filter(array_map('trim', explode(',', $_POST['yellow_cards_away'] ?? ''))),
             'red_cards_home' => array_filter(array_map('trim', explode(',', $_POST['red_cards_home'] ?? ''))),
-            'red_cards_away' => array_filter(array_map('trim', explode(',', $_POST['red_cards_away'] ?? '')))
+            'red_cards_away' => array_filter(array_map('trim', explode(',', $_POST['red_cards_away'] ?? ''))),
+            'substitutions_home' => array_filter(array_map('trim', explode(',', $_POST['substitutions_home'] ?? ''))),
+            'substitutions_away' => array_filter(array_map('trim', explode(',', $_POST['substitutions_away'] ?? '')))
         ];
         
         $id = LiveScores::saveManualMatch($matchData);
@@ -408,6 +410,23 @@ require_once('admin-header.php');
                                    placeholder="ex: Popa 55'">
                         </div>
                         
+                        <div class="col-12 mt-3">
+                            <h6 class="text-muted"><i class="bi bi-arrow-left-right me-1"></i>Schimburi</h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">🔄 Schimburi Acasă</label>
+                            <textarea class="form-control" name="substitutions_home" id="substitutionsHome" rows="2"
+                                      placeholder="ex: Iese Popescu, Intră Ionescu 60'"></textarea>
+                            <div class="form-text">Format: Iese X, Intră Y minut' (câte unul pe linie sau separați cu virgulă)</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">🔄 Schimburi Deplasare</label>
+                            <textarea class="form-control" name="substitutions_away" id="substitutionsAway" rows="2"
+                                      placeholder="ex: Iese Georgescu, Intră Nicolae 75'"></textarea>
+                        </div>
+                        
                         <div class="col-md-12 mt-3">
                             <label class="form-label"><i class="bi bi-newspaper me-1"></i>Articol asociat</label>
                             <select class="form-select" name="article_id" id="articleId">
@@ -475,6 +494,13 @@ function editMatch(matchData) {
     
     const redAway = match.red_cards_away ? JSON.parse(match.red_cards_away) : [];
     document.getElementById('redCardsAway').value = redAway.join(', ');
+    
+    // Schimburi
+    const subsHome = match.substitutions_home ? JSON.parse(match.substitutions_home) : [];
+    document.getElementById('substitutionsHome').value = subsHome.join(', ');
+    
+    const subsAway = match.substitutions_away ? JSON.parse(match.substitutions_away) : [];
+    document.getElementById('substitutionsAway').value = subsAway.join(', ');
     
     if (match.kickoff) {
         const dt = new Date(match.kickoff);

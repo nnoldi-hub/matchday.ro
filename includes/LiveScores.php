@@ -285,7 +285,7 @@ class LiveScores {
         }
         
         // Decode JSON fields
-        $jsonFields = ['home_scorers', 'away_scorers', 'referee_team', 'yellow_cards_home', 'yellow_cards_away', 'red_cards_home', 'red_cards_away'];
+        $jsonFields = ['home_scorers', 'away_scorers', 'referee_team', 'yellow_cards_home', 'yellow_cards_away', 'red_cards_home', 'red_cards_away', 'substitutions_home', 'substitutions_away'];
         foreach ($jsonFields as $field) {
             if (!empty($match[$field])) {
                 $match[$field] = json_decode($match[$field], true) ?: [];
@@ -327,6 +327,8 @@ class LiveScores {
                     yellow_cards_away = :yellow_cards_away,
                     red_cards_home = :red_cards_home,
                     red_cards_away = :red_cards_away,
+                    substitutions_home = :substitutions_home,
+                    substitutions_away = :substitutions_away,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = :id",
                 [
@@ -348,16 +350,18 @@ class LiveScores {
                     'yellow_cards_home' => !empty($data['yellow_cards_home']) ? json_encode($data['yellow_cards_home']) : null,
                     'yellow_cards_away' => !empty($data['yellow_cards_away']) ? json_encode($data['yellow_cards_away']) : null,
                     'red_cards_home' => !empty($data['red_cards_home']) ? json_encode($data['red_cards_home']) : null,
-                    'red_cards_away' => !empty($data['red_cards_away']) ? json_encode($data['red_cards_away']) : null
+                    'red_cards_away' => !empty($data['red_cards_away']) ? json_encode($data['red_cards_away']) : null,
+                    'substitutions_home' => !empty($data['substitutions_home']) ? json_encode($data['substitutions_home']) : null,
+                    'substitutions_away' => !empty($data['substitutions_away']) ? json_encode($data['substitutions_away']) : null
                 ]
             );
             return $data['id'];
         } else {
             return Database::insert(
                 "INSERT INTO live_matches 
-                    (competition, home_team, away_team, home_score, away_score, status, minute, kickoff, home_scorers, away_scorers, article_id, venue, referee, referee_team, yellow_cards_home, yellow_cards_away, red_cards_home, red_cards_away, created_at) 
+                    (competition, home_team, away_team, home_score, away_score, status, minute, kickoff, home_scorers, away_scorers, article_id, venue, referee, referee_team, yellow_cards_home, yellow_cards_away, red_cards_home, red_cards_away, substitutions_home, substitutions_away, created_at) 
                 VALUES 
-                    (:competition, :home_team, :away_team, :home_score, :away_score, :status, :minute, :kickoff, :home_scorers, :away_scorers, :article_id, :venue, :referee, :referee_team, :yellow_cards_home, :yellow_cards_away, :red_cards_home, :red_cards_away, CURRENT_TIMESTAMP)",
+                    (:competition, :home_team, :away_team, :home_score, :away_score, :status, :minute, :kickoff, :home_scorers, :away_scorers, :article_id, :venue, :referee, :referee_team, :yellow_cards_home, :yellow_cards_away, :red_cards_home, :red_cards_away, :substitutions_home, :substitutions_away, CURRENT_TIMESTAMP)",
                 [
                     'competition' => $data['competition'] ?? '',
                     'home_team' => $data['home_team'],
@@ -376,7 +380,9 @@ class LiveScores {
                     'yellow_cards_home' => !empty($data['yellow_cards_home']) ? json_encode($data['yellow_cards_home']) : null,
                     'yellow_cards_away' => !empty($data['yellow_cards_away']) ? json_encode($data['yellow_cards_away']) : null,
                     'red_cards_home' => !empty($data['red_cards_home']) ? json_encode($data['red_cards_home']) : null,
-                    'red_cards_away' => !empty($data['red_cards_away']) ? json_encode($data['red_cards_away']) : null
+                    'red_cards_away' => !empty($data['red_cards_away']) ? json_encode($data['red_cards_away']) : null,
+                    'substitutions_home' => !empty($data['substitutions_home']) ? json_encode($data['substitutions_home']) : null,
+                    'substitutions_away' => !empty($data['substitutions_away']) ? json_encode($data['substitutions_away']) : null
                 ]
             );
         }
