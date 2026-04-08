@@ -34,33 +34,36 @@ $endDate = date('Y-m-d');
 // Gather KPI Data
 // ==========================================
 
-$db = Database::getInstance();
-
 // Content KPIs
-$articlesThisPeriod = $db->query(
-    "SELECT COUNT(*) as count FROM posts WHERE status = 'published' AND created_at >= ?",
-    [$startDate]
-)->fetch()['count'] ?? 0;
+$row = Database::fetchOne(
+    "SELECT COUNT(*) as count FROM posts WHERE status = 'published' AND created_at >= :start",
+    ['start' => $startDate]
+);
+$articlesThisPeriod = $row['count'] ?? 0;
 
-$articlesPreviousPeriod = $db->query(
-    "SELECT COUNT(*) as count FROM posts WHERE status = 'published' AND created_at >= ? AND created_at < ?",
-    [date('Y-m-d', strtotime("-" . ($period * 2) . " days")), $startDate]
-)->fetch()['count'] ?? 0;
+$row = Database::fetchOne(
+    "SELECT COUNT(*) as count FROM posts WHERE status = 'published' AND created_at >= :prev AND created_at < :start",
+    ['prev' => date('Y-m-d', strtotime("-" . ($period * 2) . " days")), 'start' => $startDate]
+);
+$articlesPreviousPeriod = $row['count'] ?? 0;
 
-$totalViews = $db->query(
+$row = Database::fetchOne(
     "SELECT SUM(views) as total FROM posts WHERE status = 'published'"
-)->fetch()['total'] ?? 0;
+);
+$totalViews = $row['total'] ?? 0;
 
-$avgViewsPerPost = $db->query(
-    "SELECT AVG(views) as avg FROM posts WHERE status = 'published' AND created_at >= ?",
-    [$startDate]
-)->fetch()['avg'] ?? 0;
+$row = Database::fetchOne(
+    "SELECT AVG(views) as avg FROM posts WHERE status = 'published' AND created_at >= :start",
+    ['start' => $startDate]
+);
+$avgViewsPerPost = $row['avg'] ?? 0;
 
 // Engagement KPIs
-$commentsThisPeriod = $db->query(
-    "SELECT COUNT(*) as count FROM comments WHERE created_at >= ?",
-    [$startDate]
-)->fetch()['count'] ?? 0;
+$row = Database::fetchOne(
+    "SELECT COUNT(*) as count FROM comments WHERE created_at >= :start",
+    ['start' => $startDate]
+);
+$commentsThisPeriod = $row['count'] ?? 0;
 
 $commentsPerArticle = 0;
 if ($articlesThisPeriod > 0) {
@@ -82,14 +85,16 @@ if (is_dir($pollsDir)) {
     }
 }
 
-$newsletterSubscribers = $db->query(
+$row = Database::fetchOne(
     "SELECT COUNT(*) as count FROM newsletter_subscribers WHERE status = 'active'"
-)->fetch()['count'] ?? 0;
+);
+$newsletterSubscribers = $row['count'] ?? 0;
 
-$newSubscribersThisPeriod = $db->query(
-    "SELECT COUNT(*) as count FROM newsletter_subscribers WHERE created_at >= ?",
-    [$startDate]
-)->fetch()['count'] ?? 0;
+$row = Database::fetchOne(
+    "SELECT COUNT(*) as count FROM newsletter_subscribers WHERE created_at >= :start",
+    ['start' => $startDate]
+);
+$newSubscribersThisPeriod = $row['count'] ?? 0;
 
 // Technical KPIs
 $logsDir = __DIR__ . '/../data/logs';
