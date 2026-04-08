@@ -788,6 +788,152 @@ img[loading="lazy"] {
   50% { opacity: 0.8; transform: scale(1.05); }
 }
 
+/* Live Matches Widget */
+.live-matches-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(229, 62, 62, 0.15);
+  border: 2px solid #e53e3e;
+}
+
+.live-matches-header {
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.live-matches-header .live-badge {
+  background: #fff;
+  color: #e53e3e;
+}
+
+.live-matches-body {
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.live-match {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.live-match:last-child {
+  border-bottom: none;
+}
+
+.live-match:hover {
+  background-color: #fef2f2;
+}
+
+.live-match.is-live {
+  background: linear-gradient(90deg, #fef2f2 0%, #fff 100%);
+  border-left: 3px solid #e53e3e;
+}
+
+.live-match-teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.live-team {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.live-team.away {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.live-team .team-name {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+}
+
+.live-team .team-score {
+  background: #e2e8f0;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  min-width: 24px;
+  text-align: center;
+}
+
+.live-team .team-score.winning {
+  background: #48bb78;
+  color: #fff;
+}
+
+.live-match-status {
+  flex-shrink: 0;
+  text-align: center;
+  min-width: 40px;
+}
+
+.live-match-status .match-minute {
+  background: #e53e3e;
+  color: #fff;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  animation: live-pulse 1.5s ease-in-out infinite;
+}
+
+.live-match-status .match-time {
+  color: #718096;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.live-match-status .match-final {
+  color: #a0aec0;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.live-match-competition {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #a0aec0;
+  margin-top: 0.25rem;
+}
+
+.live-matches-footer {
+  display: block;
+  text-align: center;
+  padding: 0.6rem;
+  background: #f7fafc;
+  color: #e53e3e;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.live-matches-footer:hover {
+  background: #fef2f2;
+  color: #c53030;
+}
+
 .results-card-body {
   padding: 0;
 }

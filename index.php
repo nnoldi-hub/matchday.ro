@@ -308,10 +308,70 @@ if (isset($_GET['created'])) {
       
       <!-- Coloana laterală: Rezultate + Clasament -->
       <div class="col-lg-4">
+        <!-- Card Meciuri Live -->
+        <?php
+        require_once(__DIR__ . '/includes/LiveScores.php');
+        require_once(__DIR__ . '/includes/Settings.php');
+        
+        // Preia meciurile de azi
+        $todayMatches = LiveScores::getTodayMatches();
+        $liveMatches = array_filter($todayMatches, fn($m) => in_array($m['status'] ?? '', ['live', '1H', '2H', 'HT', 'ET', 'P']));
+        $scheduledMatches = array_filter($todayMatches, fn($m) => ($m['status'] ?? '') === 'scheduled');
+        ?>
+        
+        <?php if (!empty($todayMatches)): ?>
+        <div class="live-matches-card mb-3">
+          <div class="live-matches-header">
+            <?php if (!empty($liveMatches)): ?>
+            <span class="live-badge pulse"><i class="fas fa-circle"></i> LIVE</span>
+            <?php endif; ?>
+            <i class="fas fa-broadcast-tower me-2"></i>Meciuri Azi
+          </div>
+          <div class="live-matches-body">
+            <?php foreach ($todayMatches as $match): 
+              $isLive = in_array($match['status'] ?? '', ['live', '1H', '2H', 'HT', 'ET', 'P']);
+              $isScheduled = ($match['status'] ?? '') === 'scheduled';
+              $kickoffTime = isset($match['kickoff']) ? date('H:i', strtotime($match['kickoff'])) : '';
+            ?>
+            <div class="live-match <?= $isLive ? 'is-live' : '' ?>">
+              <div class="live-match-teams">
+                <div class="live-team home">
+                  <span class="team-name"><?= htmlspecialchars($match['home_team']) ?></span>
+                  <?php if (!$isScheduled): ?>
+                  <span class="team-score <?= ($match['home_score'] ?? 0) > ($match['away_score'] ?? 0) ? 'winning' : '' ?>"><?= $match['home_score'] ?? 0 ?></span>
+                  <?php endif; ?>
+                </div>
+                <div class="live-match-status">
+                  <?php if ($isLive): ?>
+                    <span class="match-minute"><?= $match['minute'] ?? '' ?>'</span>
+                  <?php elseif ($isScheduled): ?>
+                    <span class="match-time"><?= $kickoffTime ?></span>
+                  <?php else: ?>
+                    <span class="match-final">Final</span>
+                  <?php endif; ?>
+                </div>
+                <div class="live-team away">
+                  <?php if (!$isScheduled): ?>
+                  <span class="team-score <?= ($match['away_score'] ?? 0) > ($match['home_score'] ?? 0) ? 'winning' : '' ?>"><?= $match['away_score'] ?? 0 ?></span>
+                  <?php endif; ?>
+                  <span class="team-name"><?= htmlspecialchars($match['away_team']) ?></span>
+                </div>
+              </div>
+              <div class="live-match-competition">
+                <?= htmlspecialchars($match['competition'] ?? '') ?>
+              </div>
+            </div>
+            <?php endforeach; ?>
+          </div>
+          <a href="live.php" class="live-matches-footer">
+            <i class="fas fa-external-link-alt me-1"></i> Vezi toate meciurile
+          </a>
+        </div>
+        <?php endif; ?>
+        
         <!-- Card Rezultate Importante -->
         <?php
         // Preia setarea pentru nr. de rezultate (default 5)
-        require_once(__DIR__ . '/includes/Settings.php');
         $resultsCount = (int) Settings::get('featured_results_count', '5');
         
         // Preia rezultatele featured din tabelul dedicat
