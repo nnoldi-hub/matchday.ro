@@ -1,0 +1,181 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-version: ['8.1', '8.2', '8.3']
+    
+    name: PHP ${{ matrix.php-version }} Tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, pdo, pdo_sqlite, pdo_mysql, json, xml
+          coverage: xdebug
+          tools: composer:v2
+      
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+      
+      - name: Create data directories
+        run: |
+          mkdir -p data/logs
+          mkdir -p data/cache
+          mkdir -p data/polls
+          mkdir -p data/comments
+          chmod -R 777 data/
+      
+      - name: Initialize SQLite database
+        run: |
+          sqlite3 data/matchday.db "CREATE TABLE IF NOT EXISTS posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            content TEXT,
+            excerpt TEXT,
+            category_slug TEXT,
+            cover_image TEXT,
+            tags TEXT,
+            status TEXT DEFAULT 'draft',
+            author TEXT,
+            views INTEGER DEFAULT 0,
+            published_at DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME,
+            is_match_result INTEGER DEFAULT 0,
+            home_team TEXT,
+            away_team TEXT,
+            home_score INTEGER,
+            away_score INTEGER,
+            match_competition TEXT
+          );"
+          
+          sqlite3 data/matchday.db "CREATE TABLE IF NOT EXISTS categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            slug TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            color TEXT DEFAULT '#6c757d',
+            description TEXT
+          );"
+          
+          sqlite3 data/matchday.db "CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT,
+            password_hash TEXT NOT NULL,
+            role TEXT DEFAULT 'editor',
+            last_login DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          );"
+          
+          sqlite3 data/matchday.db "CREATE TABLE IF NOT EXISTS comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_slug TEXT NOT NULL,
+            author_name TEXT NOT NULL,
+            author_email TEXT,
+            content TEXT NOT NULL,
+            ip_hash TEXT,
+            approved INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            parent_id INTEGER REFERENCES comments(id),
+            likes INTEGER DEFAULT 0
+          );"
+          
+          sqlite3 data/matchday.db "CREATE TABLE IF NOT EXISTS comment_likes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            comment_id INTEGER NOT NULL,
+            ip_hash TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(comment_id, ip_hash)
+          );"
+          
+          sqlite3 data/matchday.db "CREATE TABLE IF NOT EXISTS polls (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            slug TEXT UNIQUE NOT NULL,
+            question TEXT NOT NULL,
+            description TEXT,
+            active INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME
+          );"
+          
+          sqlite3 data/matchday.db "CREATE TABLE IF NOT EXISTS poll_options (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            poll_id INTEGER NOT NULL,
+            option_text TEXT NOT NULL,
+            votes INTEGER DEFAULT 0,
+            sort_order INTEGER DEFAULT 0,
+            FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE
+          );"
+          
+          sqlite3 data/matchday.db "CREATE TABLE IF NOT EXISTS poll_votes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            poll_id INTEGER NOT NULL,
+            option_id INTEGER NOT NULL,
+            ip_hash TEXT NOT NULL,
+            voted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE
+          );"
+          
+          sqlite3 data/matchday.db "CREATE INDEX IF NOT EXISTS idx_poll_votes_ip ON poll_votes(poll_id, ip_hash);"
+          
+          # Create default admin user for tests
+          sqlite3 data/matchday.db "INSERT OR IGNORE INTO users (username, email, password_hash, role) VALUES ('admin', 'admin@test.com', '\$argon2id\$v=19\$m=65536,t=4,p=3\$test', 'admin');"
+      
+      - name: Run PHPUnit tests
+        run: vendor/bin/phpunit --colors=always --testdox
+      
+      - name: Run PHPUnit with coverage (PHP 8.3 only)
+        if: matrix.php-version == '8.3'
+        run: |
+          vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+      
+      - name: Upload coverage to Codecov
+        if: matrix.php-version == '8.3'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+        continue-on-error: true
+
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: phpstan, php-cs-fixer
+      
+      - name: Check PHP syntax
+        run: find . -name "*.php" -not -path "./vendor/*" | xargs -n1 php -l
