@@ -26,9 +26,18 @@ class Comment {
         }
         
         try {
-            // Try to query with new columns
-            Database::fetchValue("SELECT COUNT(*) FROM comments WHERE parent_id IS NULL LIMIT 1");
-            self::$hasNewColumns = true;
+            // Check if parent_id column exists using information_schema (MySQL) or pragma (SQLite)
+            if (Database::isMySQL()) {
+                $result = Database::fetchOne(
+                    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+                     WHERE TABLE_NAME = 'comments' AND COLUMN_NAME = 'parent_id'"
+                );
+                self::$hasNewColumns = ($result !== null);
+            } else {
+                // SQLite - just try the query
+                Database::fetchValue("SELECT COUNT(*) FROM comments WHERE parent_id IS NULL LIMIT 1");
+                self::$hasNewColumns = true;
+            }
         } catch (Exception $e) {
             self::$hasNewColumns = false;
         }

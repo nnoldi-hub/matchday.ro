@@ -448,6 +448,13 @@ class Database {
     }
     
     /**
+     * Alias for fetchOne - returns single row
+     */
+    public static function fetch(string $sql, array $params = []): ?array {
+        return self::fetchOne($sql, $params);
+    }
+    
+    /**
      * Query helper - returns single value
      */
     public static function fetchValue(string $sql, array $params = []) {
