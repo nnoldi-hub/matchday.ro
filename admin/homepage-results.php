@@ -63,10 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception('Echipele sunt obligatorii');
                 }
                 
-                // Check if we already have 3 results
+                // Check if we already reached the limit
+                require_once(__DIR__ . '/../includes/Settings.php');
+                $maxResults = (int) Settings::get('featured_results_count', '5');
                 $count = Database::fetchValue("SELECT COUNT(*) FROM featured_results WHERE active = 1");
-                if ($count >= 3) {
-                    throw new Exception('Poți avea maxim 3 rezultate pe homepage. Dezactivează unul pentru a adăuga altul.');
+                if ($count >= $maxResults) {
+                    throw new Exception("Poți avea maxim {$maxResults} rezultate pe homepage. Dezactivează unul pentru a adăuga altul.");
                 }
                 
                 $sortOrder = Database::fetchValue("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM featured_results");

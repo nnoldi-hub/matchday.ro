@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 case 'content':
                     Settings::saveMultiple([
                         'posts_per_page' => max(1, min(50, (int) ($_POST['posts_per_page'] ?? 10))),
+                        'featured_results_count' => max(1, min(10, (int) ($_POST['featured_results_count'] ?? 5))),
                         'comments_enabled' => isset($_POST['comments_enabled']) ? '1' : '0',
                         'comments_moderation' => isset($_POST['comments_moderation']) ? '1' : '0',
                         'polls_enabled' => isset($_POST['polls_enabled']) ? '1' : '0',
@@ -237,6 +238,13 @@ require_once(__DIR__ . '/admin-header.php');
                     <label class="form-label">Articole pe pagină</label>
                     <input type="number" name="posts_per_page" class="form-control" style="max-width: 100px;"
                            value="<?= (int) $settings['posts_per_page'] ?>" min="1" max="50">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-futbol text-success me-2"></i>Rezultate importante pe homepage</label>
+                    <input type="number" name="featured_results_count" class="form-control" style="max-width: 100px;"
+                           value="<?= (int) ($settings['featured_results_count'] ?? 5) ?>" min="1" max="10">
+                    <div class="form-text">Câte meciuri să apară în widget-ul "Rezultate importante" (1-10)</div>
                 </div>
                 
                 <div class="mb-4">

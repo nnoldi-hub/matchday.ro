@@ -310,6 +310,10 @@ if (isset($_GET['created'])) {
       <div class="col-lg-4">
         <!-- Card Rezultate Importante -->
         <?php
+        // Preia setarea pentru nr. de rezultate (default 5)
+        require_once(__DIR__ . '/includes/Settings.php');
+        $resultsCount = (int) Settings::get('featured_results_count', '5');
+        
         // Preia rezultatele featured din tabelul dedicat
         $featuredResults = Database::fetchAll(
             "SELECT fr.*, p.slug as post_slug 
@@ -317,12 +321,13 @@ if (isset($_GET['created'])) {
              LEFT JOIN posts p ON fr.post_id = p.id 
              WHERE fr.active = 1 
              ORDER BY fr.sort_order ASC 
-             LIMIT 3"
+             LIMIT " . $resultsCount
         );
         ?>
         
-        <div class="results-card mb-3">
+        <div class="results-card results-card-live mb-3">
           <div class="results-card-header">
+            <span class="live-badge pulse"><i class="fas fa-circle"></i> LIVE</span>
             <i class="fas fa-futbol me-2"></i>Rezultate importante
           </div>
           <div class="results-card-body">

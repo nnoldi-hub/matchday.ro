@@ -15,6 +15,7 @@ class Settings {
         'site_keywords' => 'fotbal, sport, știri, Liga 1, Champions League',
         'contact_email' => 'contact@matchday.ro',
         'posts_per_page' => '10',
+        'featured_results_count' => '5',
         'comments_enabled' => '1',
         'comments_moderation' => '1',
         'polls_enabled' => '1',
