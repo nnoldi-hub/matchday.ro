@@ -17,7 +17,7 @@ Transformarea MatchDay.ro dintr-un CMS funcțional într-o **platformă profesio
 | Faza 10: KPIs & Analytics | 1 săptămână | 🟡 Medie | ✅ 100% |
 | Faza 11: Strategie Editorială | 1 săptămână | 🟡 Medie | ✅ 100% |
 | Faza 12: Monetizare | 1-2 săptămâni | 🟢 Normală | ✅ 100% |
-| Faza 13: Documentație Arhitectură | 1 săptămână | 🟢 Normală | ⬜ 0% |
+| Faza 13: Documentație Arhitectură | 1 săptămână | 🟢 Normală | ✅ 100% |
 | Faza 14: Plan Scalare | 1 săptămână | 🟢 Normală | ⬜ 0% |
 
 **Total estimat: 10-14 săptămâni**
@@ -1015,10 +1015,10 @@ function imageUrl($path) {
 - [x] Disclaimer articole sponsorizate (`/includes/sponsored-disclaimer.php`)
 
 ### Faza 13 - Documentație
-- [ ] ERD diagram
-- [ ] Flow diagrams
-- [ ] Architecture diagram
-- [ ] API documentation
+- [x] ERD diagram (ARCHITECTURE.md)
+- [x] Flow diagrams (ARCHITECTURE.md)
+- [x] Architecture diagram (ARCHITECTURE.md)
+- [x] API documentation (API.md)
 
 ### Faza 14 - Scalare
 - [ ] Monitoring setup
