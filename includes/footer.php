@@ -151,6 +151,7 @@ if (!$admin && !class_exists('AdWidget')) {
     <script src="<?= BASE_URL ?>/assets/js/comments.js"></script>
     <script src="<?= BASE_URL ?>/assets/js/polls.js"></script>
     <script src="<?= BASE_URL ?>/assets/js/social.js"></script>
+    <script src="<?= BASE_URL ?>/assets/js/gamification.js"></script>
     
     <!-- Service Worker Registration -->
     <script>

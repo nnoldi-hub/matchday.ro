@@ -1,26 +1,53 @@
 <?php
 /**
- * Comment Model
- * MatchDay.ro - Comments Management
+ * Comment Model - Enhanced
+ * MatchDay.ro - Comments with replies, reactions, moderation
  */
 
 require_once(__DIR__ . '/../config/database.php');
 
 class Comment {
     
+    // Banned words for auto-moderation
+    private static $bannedWords = [
+        'viagra', 'casino', 'porn', 'xxx', 'cheap', 'free money', 
+        'bitcoin', 'crypto scam', 'click here', 'buy now'
+    ];
+    
     /**
-     * Get approved comments for a post
+     * Get approved comments for a post (with replies nested)
      */
     public static function getByPost(string $postSlug, int $page = 1, int $perPage = 20): array {
         $offset = ($page - 1) * $perPage;
         
-        return Database::fetchAll(
-            "SELECT id, author_name, content, created_at 
+        // Get top-level comments
+        $comments = Database::fetchAll(
+            "SELECT id, author_name, content, created_at, likes, parent_id
              FROM comments 
-             WHERE post_slug = :slug AND approved = 1 
+             WHERE post_slug = :slug AND approved = 1 AND parent_id IS NULL
              ORDER BY created_at DESC 
              LIMIT :limit OFFSET :offset",
             ['slug' => $postSlug, 'limit' => $perPage, 'offset' => $offset]
+        );
+        
+        // Get replies for each comment
+        foreach ($comments as &$comment) {
+            $comment['replies'] = self::getReplies($comment['id']);
+        }
+        
+        return $comments;
+    }
+    
+    /**
+     * Get replies for a comment
+     */
+    public static function getReplies(int $parentId): array {
+        return Database::fetchAll(
+            "SELECT id, author_name, content, created_at, likes
+             FROM comments 
+             WHERE parent_id = :parent_id AND approved = 1
+             ORDER BY created_at ASC",
+            ['parent_id' => $parentId]
         );
     }
     
@@ -99,23 +126,89 @@ class Comment {
     }
     
     /**
-     * Create new comment
+     * Create new comment with auto-moderation
      */
     public static function create(array $data): int {
         $ipHash = hash('sha256', ($data['ip'] ?? '') . 'matchday_salt_2026');
         
+        // Auto-moderation: check for spam
+        $content = strtolower($data['content'] . ' ' . $data['author_name']);
+        $autoApprove = true;
+        
+        foreach (self::$bannedWords as $word) {
+            if (strpos($content, $word) !== false) {
+                $autoApprove = false;
+                break;
+            }
+        }
+        
+        // Check if this IP has approved comments before (trusted commenter)
+        $trustedCommenter = self::isTrustedCommenter($ipHash);
+        
+        // Auto-approve if trusted or no spam detected
+        $approved = ($trustedCommenter || $autoApprove) ? 1 : 0;
+        
+        // Allow manual override
+        if (isset($data['approved'])) {
+            $approved = $data['approved'];
+        }
+        
+        $parentId = isset($data['parent_id']) && $data['parent_id'] > 0 ? (int)$data['parent_id'] : null;
+        
         return Database::insert(
-            "INSERT INTO comments (post_slug, author_name, author_email, content, ip_hash, approved, created_at) 
-             VALUES (:slug, :name, :email, :content, :ip, :approved, CURRENT_TIMESTAMP)",
+            "INSERT INTO comments (post_slug, author_name, author_email, content, ip_hash, approved, parent_id, likes, created_at) 
+             VALUES (:slug, :name, :email, :content, :ip, :approved, :parent_id, 0, CURRENT_TIMESTAMP)",
             [
                 'slug' => $data['post_slug'],
                 'name' => Security::sanitizeInput($data['author_name']),
                 'email' => $data['author_email'] ?? null,
                 'content' => Security::sanitizeInput($data['content']),
                 'ip' => $ipHash,
-                'approved' => $data['approved'] ?? 0
+                'approved' => $approved,
+                'parent_id' => $parentId
             ]
         );
+    }
+    
+    /**
+     * Check if commenter has previous approved comments
+     */
+    public static function isTrustedCommenter(string $ipHash): bool {
+        $count = Database::fetchValue(
+            "SELECT COUNT(*) FROM comments WHERE ip_hash = :ip AND approved = 1",
+            ['ip' => $ipHash]
+        );
+        return $count >= 2; // At least 2 approved comments
+    }
+    
+    /**
+     * Like a comment
+     */
+    public static function like(int $id, string $ip): bool {
+        $ipHash = hash('sha256', $ip . 'matchday_like_salt');
+        
+        // Check if already liked
+        $existing = Database::fetchValue(
+            "SELECT COUNT(*) FROM comment_likes WHERE comment_id = :id AND ip_hash = :ip",
+            ['id' => $id, 'ip' => $ipHash]
+        );
+        
+        if ($existing > 0) {
+            return false; // Already liked
+        }
+        
+        // Add like
+        Database::execute(
+            "INSERT INTO comment_likes (comment_id, ip_hash, created_at) VALUES (:id, :ip, CURRENT_TIMESTAMP)",
+            ['id' => $id, 'ip' => $ipHash]
+        );
+        
+        Database::execute(
+            "UPDATE comments SET likes = likes + 1 WHERE id = :id",
+            ['id' => $id]
+        );
+        
+        return true;
     }
     
     /**
@@ -139,9 +232,21 @@ class Comment {
     }
     
     /**
-     * Delete comment
+     * Delete comment and its replies
      */
     public static function delete(int $id): bool {
+        // Delete replies first
+        Database::execute(
+            "DELETE FROM comments WHERE parent_id = :id",
+            ['id' => $id]
+        );
+        
+        // Delete likes
+        Database::execute(
+            "DELETE FROM comment_likes WHERE comment_id = :id",
+            ['id' => $id]
+        );
+        
         return Database::execute(
             "DELETE FROM comments WHERE id = :id",
             ['id' => $id]

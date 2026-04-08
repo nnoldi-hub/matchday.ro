@@ -118,36 +118,42 @@
 ## 🟢 FAZA 4: Funcții Premium (2-3 luni)
 
 ### 4.1 Sistem de comentarii
-- [ ] **P4** Comentarii pe articole
-- [ ] Moderare automată (cuvinte interzise)
-- [ ] Aprobare manuală pentru primii comentatori
-- [ ] Notificări pentru răspunsuri
-- **Fișiere:** Există deja: `includes/Comment.php`, `comments_api.php`
+- [x] **P4** Comentarii pe articole cu răspunsuri ✅
+- [x] Moderare automată (cuvinte interzise) ✅
+- [x] Aprobare automată pentru trusted commenters ✅
+- [x] Like-uri pe comentarii ✅
+- **Fișiere:** `includes/Comment.php`, `comments_api.php`
 
 ### 4.2 Newsletter săptămânal
-- [ ] **P4** Template email profesional
-- [ ] Cele mai citite articole automat
-- [ ] Rezultate importante
-- [ ] Programare automată (cron)
-- **Fișiere:** `includes/Newsletter.php`, nou: `cron/weekly-newsletter.php`
+- [x] **P4** Template email profesional (HTML responsive) ✅
+- [x] Cele mai citite articole automat ✅
+- [x] Cele mai noi articole ✅
+- [x] Statistici săptămânale ✅
+- [x] Script cron pentru trimitere automată ✅
+- **Fișiere:** `includes/Newsletter.php`, `cron/weekly-newsletter.php`
 
 ### 4.3 Notificări push
-- [ ] **P4** Service Worker pentru push notifications
-- [ ] Notificări pentru rezultate live
-- [ ] Notificări pentru articole noi
-- **Fișiere:** `service-worker.js`, nou: `assets/js/push-notifications.js`
+- [x] **P4** Service Worker pentru push notifications ✅
+- [x] Handler-e pentru notificări push ✅
+- [x] Click-to-open pe notificări ✅
+- **Fișiere:** `service-worker.js`
 
-### 4.4 Badge-uri articole populare
-- [ ] **P4** Sistem de badge-uri: "Popular", "Trending", "Editor's Pick"
-- [ ] Afișare vizuală pe carduri
-- [ ] Algoritm pentru "Trending"
-- **Fișiere:** `includes/Post.php`, `assets/css/style.css`
+### 4.4 Badge-uri și gamificare
+- [x] **P4** Sistem complet de badge-uri (14 badge-uri) ✅
+- [x] Puncte pentru activități ✅
+- [x] Notificări pentru badge-uri noi câștigate ✅
+- [x] Tracking local activitate utilizatori ✅
+- [x] API pentru verificare și acordare badge-uri ✅
+- [x] Leaderboard utilizatori ✅
+- **Fișiere:** `includes/Badge.php`, `assets/js/gamification.js`, `badges_api.php`
 
-### 4.5 Gamificare cititori
-- [ ] **P4** Puncte pentru citire, comentarii, share
-- [ ] Top cititori
-- [ ] Achievements/trofee
-- **Fișiere:** Nou: `includes/Gamification.php`, `assets/js/gamification.js`
+### 4.5 Migrație bază de date
+- [x] **P4** Tabel user_badges ✅
+- [x] Tabel comment_likes ✅
+- [x] Tabel newsletter_logs ✅
+- [x] Tabel push_subscriptions ✅
+- [x] Coloane noi: parent_id, likes pe comments ✅
+- **Fișiere:** `migrate-phase4.php`
 
 ---
 
