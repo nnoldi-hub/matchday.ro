@@ -40,6 +40,7 @@ $menuItems = [
     ['divider' => true],
     ['page' => 'users', 'icon' => 'fa-users', 'label' => 'Utilizatori', 'admin_only' => true],
     ['page' => 'stats', 'icon' => 'fa-chart-line', 'label' => 'Statistici', 'admin_only' => true],
+    ['page' => 'kpis', 'icon' => 'fa-bullseye', 'label' => 'KPIs', 'admin_only' => true],
     ['page' => 'newsletter', 'icon' => 'fa-envelope', 'label' => 'Newsletter', 'admin_only' => true],
     ['page' => 'ads', 'icon' => 'fa-ad', 'label' => 'Reclame', 'admin_only' => true],
     ['divider' => true],
