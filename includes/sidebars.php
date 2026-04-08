@@ -275,3 +275,59 @@ function renderRightSidebar() {
     
     <?php
 }
+
+/**
+ * Live Scores Widget - Real-time match scores
+ * Can be embedded anywhere on the site
+ */
+function renderLiveScoresWidget($options = []) {
+    $containerId = $options['containerId'] ?? 'live-scores-widget';
+    $showFilter = $options['showFilter'] ?? true;
+    $maxMatches = $options['maxMatches'] ?? 8;
+    $competition = $options['competition'] ?? null;
+    ?>
+    
+    <!-- Widget: Scoruri Live -->
+    <div class="sidebar-widget live-scores-sidebar-widget">
+        <div id="<?= htmlspecialchars($containerId) ?>"></div>
+    </div>
+    
+    <script src="/assets/js/live-scores.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new LiveScoresWidget('<?= htmlspecialchars($containerId) ?>', {
+            showCompetitionFilter: <?= $showFilter ? 'true' : 'false' ?>,
+            maxMatches: <?= (int)$maxMatches ?>,
+            <?php if ($competition): ?>
+            competition: '<?= htmlspecialchars($competition) ?>',
+            <?php endif; ?>
+            autoRefresh: true,
+            refreshInterval: 60000
+        });
+    });
+    </script>
+    
+    <?php
+}
+
+/**
+ * Contribute CTA Widget - Encourages external contributions
+ */
+function renderContributeCTA() {
+    ?>
+    
+    <!-- Widget: Contribuie -->
+    <div class="sidebar-widget">
+        <div class="sidebar-widget-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <i class="fas fa-pen-nib me-2"></i>Scrie pentru noi
+        </div>
+        <div class="sidebar-widget-body text-center py-4">
+            <p class="mb-3">Ai o opinie sau o analiză despre fotbal? Alătură-te echipei de contributori MatchDay.ro!</p>
+            <a href="/contribute.php" class="btn btn-success">
+                <i class="fas fa-paper-plane me-1"></i>Trimite Articol
+            </a>
+        </div>
+    </div>
+    
+    <?php
+}

@@ -160,16 +160,29 @@
 ## 🎯 FAZA 5: Integrări Externe (3+ luni)
 
 ### 5.1 API Scoruri Live
-- [ ] **P4** Integrare API-Football sau LiveScore
-- [ ] Widget scoruri live pe homepage
-- [ ] Update automat rezultate
-- **Estimare cost:** ~$10-50/lună pentru API
+- [x] **P4** Widget scoruri live pe homepage ✅
+- [x] Suport API-Football sau Football-Data.org ✅
+- [x] Mod manual pentru introducere scoruri ✅
+- [x] Update automat rezultate cu cache ✅
+- [x] Admin panel pentru scoruri manuale ✅
+- **Fișiere:** `includes/LiveScores.php`, `assets/js/live-scores.js`, `livescores_api.php`, `admin/livescores.php`
 
 ### 5.2 "Scrie un articol" - Onboarding
-- [ ] **P4** Formular pentru contribuții externe
-- [ ] Workflow de aprobare
-- [ ] Ghid pentru tineri jurnaliști
-- **Fișiere:** Nou: `contribute.php`, `admin/submissions.php`
+- [x] **P4** Formular pentru contribuții externe ✅
+- [x] Model complet Submission cu status workflow ✅
+- [x] Pagină de verificare status cu token ✅
+- [x] Notificări email pentru contributori ✅
+- [x] Admin panel pentru review articole ✅
+- [x] Workflow de aprobare/respingere/publicare ✅
+- [x] Ghid pentru tineri jurnaliști (pe pagina contribute) ✅
+- [x] Rate limiting pentru spam protection ✅
+- **Fișiere:** `contribute.php`, `submission-status.php`, `includes/Submission.php`, `admin/submissions.php`
+
+### 5.3 Migrație bază de date Faza 5
+- [x] **P4** Tabel live_matches ✅
+- [x] Tabel submissions ✅
+- [x] Indexuri pentru performanță ✅
+- **Fișiere:** `migrate-phase5.php`
 
 ---
 
