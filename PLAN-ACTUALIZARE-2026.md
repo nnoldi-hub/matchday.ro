@@ -46,34 +46,35 @@
 ## 🟠 FAZA 2: Îmbunătățiri Core (2-4 săptămâni)
 
 ### 2.1 Imagini consistente
-- [ ] **P2** Placeholder default pentru articole fără imagine
-- [ ] Optimizare imagini existente (compresie, lazy loading)
-- [ ] Dimensiuni uniforme pentru thumbnail-uri
+- [x] **P2** Placeholder default pentru articole fără imagine ✅
+- [x] Optimizare imagini existente (compresie, lazy loading) ✅
+- [x] Dimensiuni uniforme pentru thumbnail-uri ✅
 - **Fișiere:** `includes/Post.php`, `assets/css/style.css`
 
 ### 2.2 Sidebar echilibrat
-- [ ] **P2** Redesign sidebar stâng
-- [ ] Adăugare widget-uri utile (autori, taguri populare)
-- [ ] Echilibrare vizuală cu sidebar-ul drept
+- [x] **P2** Redesign sidebar stâng ✅
+- [x] Adăugare widget-uri utile (autori, taguri populare) ✅
+- [x] Echilibrare vizuală cu sidebar-ul drept ✅
 - **Fișiere:** `includes/sidebars.php`, `index.php`
 
 ### 2.3 Secțiunea "Despre"
-- [ ] **P2** Pagină completă: misiune, echipă, valori
-- [ ] Prezentare autori (inclusiv profiluri)
-- [ ] Povestea site-ului
+- [x] **P2** Pagină completă: misiune, echipă, valori ✅
+- [x] Prezentare autori (inclusiv profiluri) ✅
+- [x] Povestea site-ului ✅
 - **Fișiere:** `despre.php`
 
 ### 2.4 Formular Contact îmbunătățit
-- [ ] **P2** Formular complet cu validare
-- [ ] Integrare reCAPTCHA (dacă nu există)
-- [ ] Confirmare vizuală la trimitere
+- [x] **P2** Formular complet cu validare ✅
+- [x] Dropdown subiect și FAQ ✅
+- [x] Confirmare vizuală la trimitere ✅
 - **Fișiere:** `contact.php`, `send_contact.php`
 
 ### 2.5 Disclaimer și politici
-- [ ] **P2** Adăugare disclaimer pentru știri/surse
-- [ ] Politică de confidențialitate
-- [ ] Termeni și condiții
-- **Fișiere:** Pagini noi: `disclaimer.php`, `privacy.php`, `terms.php`
+- [x] **P2** Adăugare disclaimer pentru știri/surse ✅
+- [x] Politică de confidențialitate (GDPR) ✅
+- [x] Termeni și condiții ✅
+- [x] Link-uri în footer către pagini legale ✅
+- **Fișiere:** `disclaimer.php`, `privacy.php`, `termeni.php`, `includes/footer.php`
 
 ---
 

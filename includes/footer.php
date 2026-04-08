@@ -134,7 +134,11 @@ if (!$admin && !class_exists('AdWidget')) {
               <span class="text-light opacity-50 mx-2">|</span>
               <a href="/despre.php" class="footer-bottom-link">Despre</a>
               <span class="text-light opacity-50 mx-2">|</span>
-              <a href="/sitemap.php" class="footer-bottom-link">Sitemap</a>
+              <a href="/termeni.php" class="footer-bottom-link">Termeni</a>
+              <span class="text-light opacity-50 mx-2">|</span>
+              <a href="/privacy.php" class="footer-bottom-link">Confidențialitate</a>
+              <span class="text-light opacity-50 mx-2">|</span>
+              <a href="/disclaimer.php" class="footer-bottom-link">Disclaimer</a>
             </div>
           </div>
         </div>

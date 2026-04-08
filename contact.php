@@ -85,26 +85,103 @@ if (isset($_GET['error'])) {
 
       <!-- Formular de contact -->
       <div class="card shadow-sm">
-        <div class="card-header">
+        <div class="card-header bg-primary text-white">
           <h3 class="h5 mb-0"><i class="fas fa-paper-plane me-2"></i>Trimite-ne un mesaj</h3>
         </div>
         <div class="card-body">
-
-<div class="container my-4"><div class="row justify-content-center"><div class="col-lg-8">
-  <form method="post" action="send_contact.php" class="card p-3 shadow-sm">
-    <input type="hidden" name="csrf_token" value="<?php echo Security::generateCSRFToken(); ?>">
-    <div class="mb-3"><label class="form-label">Nume</label><input type="text" name="name" class="form-control" required maxlength="50"></div>
-    <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required></div>
-    <div class="mb-3"><label class="form-label">Mesaj</label><textarea name="message" rows="5" class="form-control" required maxlength="1000"></textarea></div>
-    <div class="d-none"><input name="website" placeholder="Leave empty" tabindex="-1" autocomplete="off"></div>
-    <button class="btn btn-brand" type="submit">Trimite</button>
-    <div class="small text-muted mt-2">
-      <i class="fas fa-shield-alt me-1"></i>Formularul este securizat cu protecție CSRF și anti-spam.
-    </div>
-  </form>
+          <form method="post" action="send_contact.php" id="contactForm">
+            <input type="hidden" name="csrf_token" value="<?php echo Security::generateCSRFToken(); ?>">
+            
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label"><i class="fas fa-user me-1 text-muted"></i>Nume *</label>
+                <input type="text" name="name" class="form-control" required maxlength="50" placeholder="Numele tău">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label"><i class="fas fa-envelope me-1 text-muted"></i>Email *</label>
+                <input type="email" name="email" class="form-control" required placeholder="email@exemplu.ro">
+              </div>
+              <div class="col-12">
+                <label class="form-label"><i class="fas fa-tag me-1 text-muted"></i>Subiect</label>
+                <select name="subject" class="form-select">
+                  <option value="general">Întrebare generală</option>
+                  <option value="sugestie">Sugestie articol</option>
+                  <option value="colaborare">Propunere colaborare</option>
+                  <option value="eroare">Raportare eroare</option>
+                  <option value="altele">Altele</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label"><i class="fas fa-comment me-1 text-muted"></i>Mesaj *</label>
+                <textarea name="message" rows="5" class="form-control" required maxlength="1000" placeholder="Scrie mesajul tău aici..."></textarea>
+                <div class="form-text">Maxim 1000 caractere</div>
+              </div>
+            </div>
+            
+            <!-- Honeypot anti-spam -->
+            <div class="d-none"><input name="website" placeholder="Leave empty" tabindex="-1" autocomplete="off"></div>
+            
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              <button class="btn btn-primary btn-lg" type="submit">
+                <i class="fas fa-paper-plane me-2"></i>Trimite mesajul
+              </button>
+              <small class="text-muted">
+                <i class="fas fa-shield-alt me-1"></i>Securizat cu protecție CSRF
+              </small>
+            </div>
+          </form>
         </div>
       </div>
+      
+      <!-- FAQ rapid -->
+      <div class="card mt-4 shadow-sm">
+        <div class="card-header">
+          <h3 class="h5 mb-0"><i class="fas fa-question-circle me-2"></i>Întrebări frecvente</h3>
+        </div>
+        <div class="card-body">
+          <div class="accordion accordion-flush" id="faqAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                  Cât durează până primesc răspuns?
+                </button>
+              </h2>
+              <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                  Încercăm să răspundem la toate mesajele în maxim 24-48 de ore. Pentru urgențe, te rugăm să menționezi în subiect.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                  Pot propune un subiect pentru articol?
+                </button>
+              </h2>
+              <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                  Absolut! Ne bucurăm să primim sugestii de la cititori. Selectează "Sugestie articol" în formularul de mai sus.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                  Acceptați colaborări sau guest posts?
+                </button>
+              </h2>
+              <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                  Suntem deschiși la colaborări cu pasionați de fotbal. Trimite-ne o propunere cu ideile tale și portofoliul (dacă ai).
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
     </div>
   </div>
 </div>
+
 <?php include(__DIR__ . '/includes/footer.php'); ?>

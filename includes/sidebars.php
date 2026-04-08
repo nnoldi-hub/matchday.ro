@@ -206,6 +206,47 @@ function renderRightSidebar() {
         </div>
     </div>
     
+    <!-- Widget: Autor -->
+    <div class="sidebar-widget">
+        <div class="sidebar-widget-header" style="background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);">
+            <i class="fas fa-pen-fancy me-2"></i>Autorul
+        </div>
+        <div class="sidebar-widget-body">
+            <div class="author-spotlight">
+                <div class="author-avatar">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <div class="author-info">
+                    <h5 class="author-name">David Nyikora</h5>
+                    <p class="author-role">Jurnalist Sportiv</p>
+                    <p class="author-bio">Pasionat de fotbal din copilărie. Scriu despre Liga 1, Champions League și tot ce mișcă în lumea fotbalului.</p>
+                    <a href="despre.php" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-info-circle me-1"></i>Despre mine
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Widget: Taguri Populare -->
+    <div class="sidebar-widget">
+        <div class="sidebar-widget-header" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);">
+            <i class="fas fa-tags me-2"></i>Teme populare
+        </div>
+        <div class="sidebar-widget-body">
+            <div class="popular-tags">
+                <a href="search.php?q=champions+league" class="popular-tag">Champions League</a>
+                <a href="search.php?q=liga+1" class="popular-tag">Liga 1</a>
+                <a href="search.php?q=transferuri" class="popular-tag">Transferuri</a>
+                <a href="search.php?q=real+madrid" class="popular-tag">Real Madrid</a>
+                <a href="search.php?q=barcelona" class="popular-tag">Barcelona</a>
+                <a href="search.php?q=fcsb" class="popular-tag">FCSB</a>
+                <a href="search.php?q=cfr+cluj" class="popular-tag">CFR Cluj</a>
+                <a href="search.php?q=rapid" class="popular-tag">Rapid</a>
+            </div>
+        </div>
+    </div>
+    
     <!-- Widget: Social -->
     <div class="sidebar-widget">
         <div class="sidebar-widget-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">

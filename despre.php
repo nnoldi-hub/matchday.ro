@@ -98,6 +98,55 @@ include(__DIR__ . '/includes/header.php');
           <p class="mb-0">Fiecare cititor este important pentru dezvoltarea acestei comunități. Dacă îți place ce citești, te invit să lași un comentariu, să împărtășești articolele cu prietenii și să îmi spui ce teme te-ar interesa în viitor!</p>
         </div>
         
+        <h2 class="h4 mb-3 mt-5">Valorile noastre</h2>
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="text-center p-3 border rounded-3 h-100">
+              <i class="fas fa-shield-alt fa-2x text-primary mb-2"></i>
+              <h6 class="mb-1">Integritate</h6>
+              <small class="text-muted">Conținut onest, fără influențe comerciale ascunse</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center p-3 border rounded-3 h-100">
+              <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+              <h6 class="mb-1">Rapiditate</h6>
+              <small class="text-muted">Știri și analize la timp pentru fanii fotbalului</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center p-3 border rounded-3 h-100">
+              <i class="fas fa-users fa-2x text-success mb-2"></i>
+              <h6 class="mb-1">Comunitate</h6>
+              <small class="text-muted">Dialog deschis cu cititorii prin comentarii</small>
+            </div>
+          </div>
+        </div>
+        
+        <h2 class="h4 mb-3">Urmărește-ne</h2>
+        <div class="d-flex gap-2 mb-4">
+          <a href="#" class="btn btn-outline-primary" title="Facebook">
+            <i class="fab fa-facebook-f me-1"></i> Facebook
+          </a>
+          <a href="#" class="btn btn-outline-info" title="Twitter/X">
+            <i class="fab fa-x-twitter me-1"></i> Twitter
+          </a>
+          <a href="#" class="btn btn-outline-danger" title="Instagram">
+            <i class="fab fa-instagram me-1"></i> Instagram
+          </a>
+        </div>
+        
+        <div class="card bg-light border-0 mb-4">
+          <div class="card-body">
+            <h5><i class="fas fa-info-circle me-2 text-secondary"></i>Disclaimer</h5>
+            <p class="small text-muted mb-0">
+              MatchDay.ro este un proiect personal de jurnalism sportiv. Toate opiniile exprimate sunt ale autorului și nu reprezintă 
+              poziția oficială a niciunui club sau organizație sportivă. Informațiile sunt preluate din surse publice și verificate 
+              pe cât posibil. Pentru corecții sau clarificări, ne poți contacta oricând.
+            </p>
+          </div>
+        </div>
+        
         <div class="text-center mt-5">
           <a href="/index.php" class="btn btn-primary btn-lg">
             <i class="fas fa-newspaper me-2"></i>
