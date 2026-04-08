@@ -760,6 +760,43 @@ footer .brand-band{display:inline-flex;align-items:center;gap:.5rem;background:#
   color: #718096;
 }
 
+/* Match Scorers */
+.match-scorers {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  background: #f7fafc;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.scorers-home,
+.scorers-away {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.scorers-home {
+  text-align: left;
+}
+
+.scorers-away {
+  text-align: right;
+}
+
+.scorer {
+  color: #2d3748;
+}
+
+.scorer small {
+  color: #718096;
+  font-weight: 500;
+}
+
 /* UCL Program Card */
 .ucl-program-card {
   background: #fff;

@@ -33,6 +33,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $competition = trim($_POST['competition'] ?? '');
                 $postId = !empty($_POST['post_id']) ? (int)$_POST['post_id'] : null;
                 
+                // Process goal scorers
+                $homeScorers = [];
+                $awayScorers = [];
+                
+                if (!empty($_POST['home_scorer_name'])) {
+                    foreach ($_POST['home_scorer_name'] as $i => $name) {
+                        if (!empty(trim($name))) {
+                            $homeScorers[] = [
+                                'name' => trim($name),
+                                'minute' => (int)($_POST['home_scorer_minute'][$i] ?? 0)
+                            ];
+                        }
+                    }
+                }
+                
+                if (!empty($_POST['away_scorer_name'])) {
+                    foreach ($_POST['away_scorer_name'] as $i => $name) {
+                        if (!empty(trim($name))) {
+                            $awayScorers[] = [
+                                'name' => trim($name),
+                                'minute' => (int)($_POST['away_scorer_minute'][$i] ?? 0)
+                            ];
+                        }
+                    }
+                }
+                
                 if (empty($homeTeam) || empty($awayTeam)) {
                     throw new Exception('Echipele sunt obligatorii');
                 }
@@ -46,8 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sortOrder = Database::fetchValue("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM featured_results");
                 
                 Database::insert(
-                    "INSERT INTO featured_results (home_team, away_team, home_score, away_score, competition, post_id, sort_order, active) 
-                     VALUES (:home_team, :away_team, :home_score, :away_score, :competition, :post_id, :sort_order, 1)",
+                    "INSERT INTO featured_results (home_team, away_team, home_score, away_score, competition, post_id, sort_order, active, home_scorers, away_scorers) 
+                     VALUES (:home_team, :away_team, :home_score, :away_score, :competition, :post_id, :sort_order, 1, :home_scorers, :away_scorers)",
                     [
                         'home_team' => $homeTeam,
                         'away_team' => $awayTeam,
@@ -55,7 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'away_score' => $awayScore,
                         'competition' => $competition,
                         'post_id' => $postId,
-                        'sort_order' => $sortOrder
+                        'sort_order' => $sortOrder,
+                        'home_scorers' => !empty($homeScorers) ? json_encode($homeScorers) : null,
+                        'away_scorers' => !empty($awayScorers) ? json_encode($awayScorers) : null
                     ]
                 );
                 $success = 'Rezultat adăugat cu succes!';
@@ -70,10 +98,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $competition = trim($_POST['competition'] ?? '');
                 $postId = !empty($_POST['post_id']) ? (int)$_POST['post_id'] : null;
                 
+                // Process goal scorers
+                $homeScorers = [];
+                $awayScorers = [];
+                
+                if (!empty($_POST['home_scorer_name'])) {
+                    foreach ($_POST['home_scorer_name'] as $i => $name) {
+                        if (!empty(trim($name))) {
+                            $homeScorers[] = [
+                                'name' => trim($name),
+                                'minute' => (int)($_POST['home_scorer_minute'][$i] ?? 0)
+                            ];
+                        }
+                    }
+                }
+                
+                if (!empty($_POST['away_scorer_name'])) {
+                    foreach ($_POST['away_scorer_name'] as $i => $name) {
+                        if (!empty(trim($name))) {
+                            $awayScorers[] = [
+                                'name' => trim($name),
+                                'minute' => (int)($_POST['away_scorer_minute'][$i] ?? 0)
+                            ];
+                        }
+                    }
+                }
+                
                 Database::execute(
                     "UPDATE featured_results SET home_team = :home_team, away_team = :away_team, 
                      home_score = :home_score, away_score = :away_score, competition = :competition, 
-                     post_id = :post_id, updated_at = CURRENT_TIMESTAMP WHERE id = :id",
+                     post_id = :post_id, home_scorers = :home_scorers, away_scorers = :away_scorers, 
+                     updated_at = CURRENT_TIMESTAMP WHERE id = :id",
                     [
                         'id' => $id,
                         'home_team' => $homeTeam,
@@ -81,7 +136,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'home_score' => $homeScore,
                         'away_score' => $awayScore,
                         'competition' => $competition,
-                        'post_id' => $postId
+                        'post_id' => $postId,
+                        'home_scorers' => !empty($homeScorers) ? json_encode($homeScorers) : null,
+                        'away_scorers' => !empty($awayScorers) ? json_encode($awayScorers) : null
                     ]
                 );
                 $success = 'Rezultat actualizat!';
@@ -212,6 +269,26 @@ require_once(__DIR__ . '/admin-header.php');
                     <span class="badge bg-warning text-dark ms-2">Inactiv</span>
                     <?php endif; ?>
                 </div>
+                <?php 
+                $homeScorers = !empty($result['home_scorers']) ? json_decode($result['home_scorers'], true) : [];
+                $awayScorers = !empty($result['away_scorers']) ? json_decode($result['away_scorers'], true) : [];
+                ?>
+                <?php if (!empty($homeScorers) || !empty($awayScorers)): ?>
+                <div class="small text-success mb-1">
+                    <i class="fas fa-futbol me-1"></i>
+                    <?php if (!empty($homeScorers)): ?>
+                        <?php foreach ($homeScorers as $i => $s): ?>
+                            <?= htmlspecialchars($s['name']) ?><?= !empty($s['minute']) ? " ({$s['minute']}')" : '' ?><?= $i < count($homeScorers) - 1 ? ', ' : '' ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <?php if (!empty($homeScorers) && !empty($awayScorers)): ?> | <?php endif; ?>
+                    <?php if (!empty($awayScorers)): ?>
+                        <?php foreach ($awayScorers as $i => $s): ?>
+                            <?= htmlspecialchars($s['name']) ?><?= !empty($s['minute']) ? " ({$s['minute']}')" : '' ?><?= $i < count($awayScorers) - 1 ? ', ' : '' ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
                 <div class="small text-muted">
                     <?php if ($result['competition']): ?>
                     <i class="fas fa-trophy me-1"></i><?= htmlspecialchars($result['competition']) ?>
@@ -299,6 +376,29 @@ require_once(__DIR__ . '/admin-header.php');
                             <input type="text" name="competition" class="form-control" 
                                    placeholder="Ex: Liga 1 • Etapa 3 Play-off">
                         </div>
+                        
+                        <!-- Home Team Scorers -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label"><i class="fas fa-futbol me-1"></i>Marcatori gazdă</label>
+                            <div id="add_home_scorers_list">
+                                <!-- Scorers will be added here dynamically -->
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addScorer('add_home_scorers_list', 'home')">
+                                <i class="fas fa-plus me-1"></i>Adaugă marcator
+                            </button>
+                        </div>
+                        
+                        <!-- Away Team Scorers -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label"><i class="fas fa-futbol me-1"></i>Marcatori oaspete</label>
+                            <div id="add_away_scorers_list">
+                                <!-- Scorers will be added here dynamically -->
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addScorer('add_away_scorers_list', 'away')">
+                                <i class="fas fa-plus me-1"></i>Adaugă marcator
+                            </button>
+                        </div>
+                        
                         <div class="col-12">
                             <label class="form-label">Legă cu un articol (opțional)</label>
                             <select name="post_id" class="form-select">
@@ -363,6 +463,29 @@ require_once(__DIR__ . '/admin-header.php');
                             <label class="form-label">Competiție</label>
                             <input type="text" name="competition" id="edit_competition" class="form-control">
                         </div>
+                        
+                        <!-- Home Team Scorers -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label"><i class="fas fa-futbol me-1"></i>Marcatori gazdă</label>
+                            <div id="edit_home_scorers_list">
+                                <!-- Scorers will be loaded dynamically -->
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addScorer('edit_home_scorers_list', 'home')">
+                                <i class="fas fa-plus me-1"></i>Adaugă marcator
+                            </button>
+                        </div>
+                        
+                        <!-- Away Team Scorers -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label"><i class="fas fa-futbol me-1"></i>Marcatori oaspete</label>
+                            <div id="edit_away_scorers_list">
+                                <!-- Scorers will be loaded dynamically -->
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addScorer('edit_away_scorers_list', 'away')">
+                                <i class="fas fa-plus me-1"></i>Adaugă marcator
+                            </button>
+                        </div>
+                        
                         <div class="col-12">
                             <label class="form-label">Legă cu un articol</label>
                             <select name="post_id" id="edit_post_id" class="form-select">
@@ -404,9 +527,63 @@ require_once(__DIR__ . '/admin-header.php');
     -webkit-appearance: none;
     margin: 0;
 }
+/* Scorer row styling */
+.scorer-row {
+    animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>
 
 <script>
+// Add scorer input row
+function addScorer(containerId, team) {
+    const container = document.getElementById(containerId);
+    const row = document.createElement('div');
+    row.className = 'scorer-row d-flex align-items-center gap-2 mb-2';
+    row.innerHTML = `
+        <input type="text" name="${team}_scorer_name[]" class="form-control form-control-sm" 
+               placeholder="Nume jucător" style="flex: 1;">
+        <input type="number" name="${team}_scorer_minute[]" class="form-control form-control-sm text-center" 
+               placeholder="Min" min="1" max="120" style="width: 70px;">
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.scorer-row').remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    container.appendChild(row);
+}
+
+// Load scorers into container
+function loadScorers(containerId, team, scorers) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    if (scorers && Array.isArray(scorers)) {
+        scorers.forEach(scorer => {
+            const row = document.createElement('div');
+            row.className = 'scorer-row d-flex align-items-center gap-2 mb-2';
+            row.innerHTML = `
+                <input type="text" name="${team}_scorer_name[]" class="form-control form-control-sm" 
+                       placeholder="Nume jucător" value="${escapeHtml(scorer.name || '')}" style="flex: 1;">
+                <input type="number" name="${team}_scorer_minute[]" class="form-control form-control-sm text-center" 
+                       placeholder="Min" min="1" max="120" value="${scorer.minute || ''}" style="width: 70px;">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.scorer-row').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(row);
+        });
+    }
+}
+
+// Escape HTML function
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function editResult(data) {
     document.getElementById('edit_id').value = data.id;
     document.getElementById('edit_home_team').value = data.home_team;
@@ -416,8 +593,21 @@ function editResult(data) {
     document.getElementById('edit_competition').value = data.competition || '';
     document.getElementById('edit_post_id').value = data.post_id || '';
     
+    // Load scorers
+    const homeScorers = data.home_scorers ? (typeof data.home_scorers === 'string' ? JSON.parse(data.home_scorers) : data.home_scorers) : [];
+    const awayScorers = data.away_scorers ? (typeof data.away_scorers === 'string' ? JSON.parse(data.away_scorers) : data.away_scorers) : [];
+    
+    loadScorers('edit_home_scorers_list', 'home', homeScorers);
+    loadScorers('edit_away_scorers_list', 'away', awayScorers);
+    
     new bootstrap.Modal(document.getElementById('editResultModal')).show();
 }
+
+// Clear add modal when opened
+document.getElementById('addResultModal').addEventListener('show.bs.modal', function() {
+    document.getElementById('add_home_scorers_list').innerHTML = '';
+    document.getElementById('add_away_scorers_list').innerHTML = '';
+});
 
 // Simple drag & drop reordering
 document.addEventListener('DOMContentLoaded', function() {

@@ -333,6 +333,10 @@ if (isset($_GET['created'])) {
               </div>
             <?php else: ?>
               <?php foreach ($featuredResults as $match): ?>
+              <?php 
+                $homeScorers = !empty($match['home_scorers']) ? json_decode($match['home_scorers'], true) : [];
+                $awayScorers = !empty($match['away_scorers']) ? json_decode($match['away_scorers'], true) : [];
+              ?>
               <?php if ($match['post_slug']): ?>
               <a href="post.php?slug=<?= htmlspecialchars($match['post_slug']) ?>" class="match-result-link">
               <?php else: ?>
@@ -350,6 +354,24 @@ if (isset($_GET['created'])) {
                       <span class="team-name"><?= htmlspecialchars($match['away_team']) ?></span>
                     </div>
                   </div>
+                  <?php if (!empty($homeScorers) || !empty($awayScorers)): ?>
+                  <div class="match-scorers">
+                    <?php if (!empty($homeScorers)): ?>
+                    <div class="scorers-home">
+                      <?php foreach ($homeScorers as $scorer): ?>
+                        <span class="scorer"><?= htmlspecialchars($scorer['name']) ?><?= !empty($scorer['minute']) ? " <small>({$scorer['minute']}')</small>" : '' ?></span>
+                      <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($awayScorers)): ?>
+                    <div class="scorers-away">
+                      <?php foreach ($awayScorers as $scorer): ?>
+                        <span class="scorer"><?= htmlspecialchars($scorer['name']) ?><?= !empty($scorer['minute']) ? " <small>({$scorer['minute']}')</small>" : '' ?></span>
+                      <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+                  </div>
+                  <?php endif; ?>
                   <div class="match-info">
                     <span class="match-league"><?= htmlspecialchars($match['competition'] ?? '') ?></span>
                   </div>
