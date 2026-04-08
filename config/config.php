@@ -34,6 +34,12 @@ define('LOGIN_LOCKOUT_TIME', 900); // 15 minutes
 define('CACHE_ENABLED', true);
 define('CACHE_TTL', 3600); // 1 hour
 
+// Alert configuration (email notifications for critical errors)
+define('ALERT_ENABLED', true);
+define('ALERT_EMAIL', 'contact@matchday.ro'); // Email for critical error alerts
+define('ALERT_RATE_LIMIT_MINUTES', 15); // Don't send more than one alert per type every X minutes
+define('ALERT_MIN_LEVEL', 'ERROR'); // Minimum level to trigger alert (ERROR, CRITICAL)
+
 // Upload configuration
 define('MAX_UPLOAD_SIZE', 5 * 1024 * 1024); // 5MB
 define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/png', 'image/webp', 'image/gif']);

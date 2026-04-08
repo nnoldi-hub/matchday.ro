@@ -423,4 +423,285 @@ class Logger {
         
         return $deleted;
     }
+    
+    // ====== Email Alerting ======
+    
+    /**
+     * Send email alert for critical errors
+     * Rate-limited to prevent flooding
+     */
+    public static function alert(string $subject, string $message, array $context = []): bool {
+        // Check if alerting is enabled
+        if (!defined('ALERT_ENABLED') || !ALERT_ENABLED) {
+            return false;
+        }
+        
+        $alertEmail = defined('ALERT_EMAIL') ? ALERT_EMAIL : 'contact@matchday.ro';
+        $rateLimitMinutes = defined('ALERT_RATE_LIMIT_MINUTES') ? ALERT_RATE_LIMIT_MINUTES : 15;
+        
+        // Check rate limit
+        if (!self::canSendAlert($subject, $rateLimitMinutes)) {
+            return false;
+        }
+        
+        // Build email content
+        $html = self::buildAlertEmail($subject, $message, $context);
+        
+        // Send email
+        $success = self::sendAlertEmail($alertEmail, "[MatchDay Alert] {$subject}", $html);
+        
+        if ($success) {
+            self::markAlertSent($subject);
+        }
+        
+        return $success;
+    }
+    
+    /**
+     * Check if we can send an alert (rate limiting)
+     */
+    private static function canSendAlert(string $type, int $limitMinutes): bool {
+        self::init();
+        
+        $rateLimitFile = self::$logsDir . '/alert_rate_limits.json';
+        
+        if (!file_exists($rateLimitFile)) {
+            return true;
+        }
+        
+        $limits = json_decode(file_get_contents($rateLimitFile), true) ?? [];
+        $typeHash = md5($type);
+        
+        if (isset($limits[$typeHash])) {
+            $lastSent = $limits[$typeHash];
+            $minsSinceLastAlert = (time() - $lastSent) / 60;
+            
+            if ($minsSinceLastAlert < $limitMinutes) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Mark that an alert was sent
+     */
+    private static function markAlertSent(string $type): void {
+        self::init();
+        
+        $rateLimitFile = self::$logsDir . '/alert_rate_limits.json';
+        
+        $limits = [];
+        if (file_exists($rateLimitFile)) {
+            $limits = json_decode(file_get_contents($rateLimitFile), true) ?? [];
+        }
+        
+        $typeHash = md5($type);
+        $limits[$typeHash] = time();
+        
+        // Clean old entries (older than 24 hours)
+        $oneDayAgo = time() - 86400;
+        $limits = array_filter($limits, fn($ts) => $ts > $oneDayAgo);
+        
+        file_put_contents($rateLimitFile, json_encode($limits, JSON_PRETTY_PRINT), LOCK_EX);
+    }
+    
+    /**
+     * Build HTML email content for alert
+     */
+    private static function buildAlertEmail(string $subject, string $message, array $context): string {
+        $timestamp = date('Y-m-d H:i:s');
+        $serverName = $_SERVER['SERVER_NAME'] ?? 'Unknown';
+        $requestUri = $_SERVER['REQUEST_URI'] ?? 'CLI';
+        $ip = self::getClientIP();
+        
+        $contextHtml = '';
+        if (!empty($context)) {
+            $contextHtml = '<h3 style="color:#333;margin-top:20px;">Context</h3>';
+            $contextHtml .= '<table style="width:100%;border-collapse:collapse;">';
+            foreach ($context as $key => $value) {
+                $valueStr = is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : htmlspecialchars((string)$value);
+                $contextHtml .= "<tr><td style='padding:8px;border:1px solid #ddd;font-weight:bold;width:150px;'>{$key}</td><td style='padding:8px;border:1px solid #ddd;'><pre style='margin:0;white-space:pre-wrap;'>{$valueStr}</pre></td></tr>";
+            }
+            $contextHtml .= '</table>';
+        }
+        
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+        </head>
+        <body style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;'>
+            <div style='background:#dc3545;color:white;padding:15px;border-radius:5px 5px 0 0;'>
+                <h2 style='margin:0;'>⚠️ {$subject}</h2>
+            </div>
+            <div style='background:#f8f9fa;padding:20px;border:1px solid #ddd;border-top:none;border-radius:0 0 5px 5px;'>
+                <p style='font-size:16px;color:#333;'><strong>Mesaj:</strong></p>
+                <p style='background:#fff;padding:15px;border-left:4px solid #dc3545;margin:0;'>{$message}</p>
+                
+                <h3 style='color:#333;margin-top:20px;'>Detalii</h3>
+                <table style='width:100%;border-collapse:collapse;'>
+                    <tr><td style='padding:8px;border:1px solid #ddd;font-weight:bold;width:150px;'>Data/Ora</td><td style='padding:8px;border:1px solid #ddd;'>{$timestamp}</td></tr>
+                    <tr><td style='padding:8px;border:1px solid #ddd;font-weight:bold;'>Server</td><td style='padding:8px;border:1px solid #ddd;'>{$serverName}</td></tr>
+                    <tr><td style='padding:8px;border:1px solid #ddd;font-weight:bold;'>URI</td><td style='padding:8px;border:1px solid #ddd;'>{$requestUri}</td></tr>
+                    <tr><td style='padding:8px;border:1px solid #ddd;font-weight:bold;'>IP Client</td><td style='padding:8px;border:1px solid #ddd;'>{$ip}</td></tr>
+                </table>
+                
+                {$contextHtml}
+                
+                <p style='margin-top:20px;font-size:12px;color:#666;'>
+                    Acest email a fost trimis automat de sistemul de alertare MatchDay.ro.<br>
+                    Verifică <a href='" . (defined('BASE_URL') ? BASE_URL : 'https://matchday.ro') . "/admin/logs.php'>logurile din admin</a> pentru mai multe detalii.
+                </p>
+            </div>
+        </body>
+        </html>";
+    }
+    
+    /**
+     * Send alert email via SMTP or mail()
+     */
+    private static function sendAlertEmail(string $to, string $subject, string $htmlContent): bool {
+        // Try SMTP first if configured
+        if (defined('SMTP_ENABLED') && SMTP_ENABLED && defined('SMTP_PASSWORD') && SMTP_PASSWORD !== '') {
+            return self::sendViaSMTP($to, $subject, $htmlContent);
+        }
+        
+        // Fallback to PHP mail()
+        $headers = [
+            'MIME-Version: 1.0',
+            'Content-Type: text/html; charset=UTF-8',
+            'From: MatchDay Alerts <' . (defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'alerts@matchday.ro') . '>',
+            'X-Priority: 1',
+            'X-Mailer: PHP/' . phpversion()
+        ];
+        
+        return @mail($to, $subject, $htmlContent, implode("\r\n", $headers));
+    }
+    
+    /**
+     * Send email via SMTP
+     */
+    private static function sendViaSMTP(string $to, string $subject, string $htmlContent): bool {
+        $host = SMTP_HOST;
+        $port = SMTP_PORT;
+        $secure = SMTP_SECURE ?? 'ssl';
+        $username = SMTP_USERNAME;
+        $password = SMTP_PASSWORD;
+        $fromEmail = SMTP_FROM_EMAIL;
+        $fromName = 'MatchDay Alerts';
+        
+        try {
+            $context = stream_context_create([
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                ]
+            ]);
+            
+            $prefix = ($secure === 'ssl') ? 'ssl://' : '';
+            $socket = @stream_socket_client(
+                $prefix . $host . ':' . $port,
+                $errno, $errstr, 30,
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
+            
+            if (!$socket) {
+                return false;
+            }
+            
+            // Read greeting
+            fgets($socket, 512);
+            
+            // EHLO
+            fwrite($socket, "EHLO " . gethostname() . "\r\n");
+            while ($line = fgets($socket, 512)) {
+                if (substr($line, 3, 1) == ' ') break;
+            }
+            
+            // AUTH LOGIN
+            fwrite($socket, "AUTH LOGIN\r\n");
+            fgets($socket, 512);
+            
+            fwrite($socket, base64_encode($username) . "\r\n");
+            fgets($socket, 512);
+            
+            fwrite($socket, base64_encode($password) . "\r\n");
+            $authResponse = fgets($socket, 512);
+            
+            if (substr($authResponse, 0, 3) !== '235') {
+                fclose($socket);
+                return false;
+            }
+            
+            // MAIL FROM
+            fwrite($socket, "MAIL FROM:<{$fromEmail}>\r\n");
+            fgets($socket, 512);
+            
+            // RCPT TO
+            fwrite($socket, "RCPT TO:<{$to}>\r\n");
+            fgets($socket, 512);
+            
+            // DATA
+            fwrite($socket, "DATA\r\n");
+            fgets($socket, 512);
+            
+            // Headers and body
+            $boundary = md5(uniqid(time()));
+            $headers = "From: {$fromName} <{$fromEmail}>\r\n";
+            $headers .= "To: {$to}\r\n";
+            $headers .= "Subject: {$subject}\r\n";
+            $headers .= "MIME-Version: 1.0\r\n";
+            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $headers .= "X-Priority: 1\r\n";
+            $headers .= "\r\n";
+            
+            fwrite($socket, $headers . $htmlContent . "\r\n.\r\n");
+            fgets($socket, 512);
+            
+            // QUIT
+            fwrite($socket, "QUIT\r\n");
+            fclose($socket);
+            
+            return true;
+            
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Trigger alert for critical error and log it
+     */
+    public static function criticalWithAlert(string $message, array $context = []): bool {
+        // Log the error
+        $logged = self::critical($message, $context);
+        
+        // Send alert email
+        self::alert('Eroare Critică', $message, $context);
+        
+        return $logged;
+    }
+    
+    /**
+     * Trigger alert for error and optionally send email
+     */
+    public static function errorWithAlert(string $message, array $context = [], bool $sendAlert = true): bool {
+        // Log the error
+        $logged = self::error($message, $context);
+        
+        // Check if we should send alert based on config
+        if ($sendAlert) {
+            $minLevel = defined('ALERT_MIN_LEVEL') ? ALERT_MIN_LEVEL : 'ERROR';
+            if ($minLevel === 'ERROR' || $minLevel === 'CRITICAL') {
+                self::alert('Eroare în Aplicație', $message, $context);
+            }
+        }
+        
+        return $logged;
+    }
 }

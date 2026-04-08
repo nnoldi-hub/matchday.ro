@@ -110,6 +110,16 @@ class ErrorHandler {
             ]);
         }
         
+        // Send alert for critical exceptions (not security ones - those are expected)
+        if (!in_array(get_class($exception), $securityExceptions)) {
+            Logger::alert('Excepție Neprinsă', $exception->getMessage(), [
+                'exception_class' => get_class($exception),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => substr($exception->getTraceAsString(), 0, 1000)
+            ]);
+        }
+        
         // Show error page
         $detail = null;
         if (!self::$isProduction) {
@@ -136,6 +146,14 @@ class ErrorHandler {
             
             // Log fatal error
             Logger::critical($error['message'], [
+                'severity' => $severityName,
+                'file' => $error['file'],
+                'line' => $error['line'],
+                'type' => 'shutdown_error'
+            ]);
+            
+            // Send alert for fatal errors
+            Logger::alert('Eroare Fatală PHP', $error['message'], [
                 'severity' => $severityName,
                 'file' => $error['file'],
                 'line' => $error['line'],
