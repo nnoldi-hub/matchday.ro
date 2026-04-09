@@ -1152,6 +1152,8 @@ https://matchday.ro/migrate-match-subs.php        # substitutions + match_commen
 
 | Data | Fix | Fișier |
 |------|-----|--------|
+| 09.04.2026 | Badge categorie suprascris de header.php foreach - redenumit $category → $postCategory | `post.php` |
+| 09.04.2026 | Script bulk fix categorii cu auto-detectare | `fix-categories.php` |
 | 08.04.2026 | KPIs: Health check face HTTP request în loc de include direct | `admin/kpis.php` |
 | 08.04.2026 | KPIs: Folosește Database::fetchOne() în loc de PDO::query() | `admin/kpis.php` |
 | 08.04.2026 | Sondaje: API acceptă atât ID numeric cât și slug pentru votare | `polls_api.php` |
