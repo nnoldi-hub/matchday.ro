@@ -49,9 +49,10 @@ Stats::trackView($post['id'], 'post');
 Post::incrementViews($post['id']);
 
 // Build category data from database (not static config)
-$category = null;
+// Use $postCategory to avoid being overwritten by header.php's foreach loop
+$postCategory = null;
 if (!empty($post['category_slug']) && !empty($post['category_name'])) {
-    $category = [
+    $postCategory = [
         'name' => $post['category_name'],
         'color' => $post['category_color'] ?? '#6c757d',
         'icon' => $post['category_icon'] ?? 'fas fa-newspaper'
@@ -84,8 +85,8 @@ $articleTags = $tags;
 $breadcrumbs = [
     ['name' => 'Acasă', 'url' => '/index.php'],
 ];
-if ($category) {
-    $breadcrumbs[] = ['name' => $category['name'], 'url' => SEOManager::getCategoryUrl($post['category_slug'])];
+if ($postCategory) {
+    $breadcrumbs[] = ['name' => $postCategory['name'], 'url' => SEOManager::getCategoryUrl($post['category_slug'])];
 }
 $breadcrumbs[] = ['name' => $post['title'], 'url' => SEOManager::getArticleUrl($post['slug'])];
 
@@ -115,10 +116,10 @@ include(__DIR__ . '/includes/header.php');
         <div class="col-lg-8">
             <!-- Article Header -->
             <header class="mb-4">
-                <?php if ($category): ?>
+                <?php if ($postCategory): ?>
                 <a href="<?= SEOManager::getCategoryUrl($post['category_slug']) ?>" class="text-decoration-none">
-                    <span class="badge mb-2" style="background: <?= $category['color'] ?>; color: white;">
-                        <i class="<?= $category['icon'] ?> me-1"></i><?= $category['name'] ?>
+                    <span class="badge mb-2" style="background: <?= $postCategory['color'] ?>; color: white;">
+                        <i class="<?= $postCategory['icon'] ?> me-1"></i><?= $postCategory['name'] ?>
                     </span>
                 </a>
                 <?php endif; ?>
