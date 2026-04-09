@@ -165,8 +165,12 @@ if (isset($_GET['created'])) {
       <?php 
       $heroItems = array_slice($itemsPage, 0, 3);
       foreach ($heroItems as $index => $item): 
-        $categories = require(__DIR__ . '/config/categories.php');
-        $category = isset($item['category']) && isset($categories[$item['category']]) ? $categories[$item['category']] : null;
+        // Use category data from DB (via JOIN)
+        $category = !empty($item['category_name']) ? [
+          'name' => $item['category_name'],
+          'color' => $item['category_color'] ?? '#6c757d',
+          'icon' => $item['category_icon'] ?? 'fas fa-newspaper'
+        ] : null;
       ?>
       <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
         <div class="hero-slide position-relative" style="height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -249,9 +253,12 @@ if (isset($_GET['created'])) {
           // Fetch latest 6 published articles
           $latestNews = Post::getLatest(6, true);
           foreach ($latestNews as $newsIndex => $newsItem): 
-            $categories = require(__DIR__ . '/config/categories.php');
-            $newsCat = isset($newsItem['category_slug']) && isset($categories[$newsItem['category_slug']]) 
-                       ? $categories[$newsItem['category_slug']] : null;
+            // Use category data from DB (via JOIN)
+            $newsCat = !empty($newsItem['category_name']) ? [
+              'name' => $newsItem['category_name'],
+              'color' => $newsItem['category_color'] ?? '#6c757d',
+              'icon' => $newsItem['category_icon'] ?? 'fas fa-newspaper'
+            ] : null;
             $newsUrl = SEOManager::getArticleUrl($newsItem['slug']);
             $newsDate = $newsItem['published_at'] ?? $newsItem['created_at'];
           ?>
@@ -705,10 +712,14 @@ if (isset($_GET['created'])) {
                       <span class="text-muted ms-2"><?php echo ceil($item['word_count'] / 200); ?> min</span>
                     <?php endif; ?>
                   </div>
-                  <?php if (!empty($item['category'])): 
-                    $categories = require(__DIR__ . '/config/categories.php');
-                    if (isset($categories[$item['category']])):
-                      $cat = $categories[$item['category']];
+                  <?php if (!empty($item['category_slug'])): 
+                    // Use category data from DB (already in $item via JOIN)
+                    $cat = !empty($item['category_name']) ? [
+                      'name' => $item['category_name'],
+                      'color' => $item['category_color'] ?? '#6c757d',
+                      'icon' => $item['category_icon'] ?? 'fas fa-newspaper'
+                    ] : null;
+                    if ($cat):
                   ?>
                   <span class="badge" style="background: <?= $cat['color'] ?>; color: white; font-size: 0.7rem;">
                     <i class="<?= $cat['icon'] ?> me-1"></i><?= $cat['name'] ?>

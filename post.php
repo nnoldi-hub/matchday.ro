@@ -48,11 +48,15 @@ if ($post['status'] !== 'published' && empty($_SESSION['david_logged'])) {
 Stats::trackView($post['id'], 'post');
 Post::incrementViews($post['id']);
 
-// Load categories for styling
-$categories = require(__DIR__ . '/config/categories.php');
-$category = isset($post['category_slug']) && isset($categories[$post['category_slug']]) 
-    ? $categories[$post['category_slug']] 
-    : null;
+// Build category data from database (not static config)
+$category = null;
+if (!empty($post['category_slug']) && !empty($post['category_name'])) {
+    $category = [
+        'name' => $post['category_name'],
+        'color' => $post['category_color'] ?? '#6c757d',
+        'icon' => $post['category_icon'] ?? 'fas fa-newspaper'
+    ];
+}
 
 // Parse tags
 $tags = !empty($post['tags']) ? explode(',', $post['tags']) : [];

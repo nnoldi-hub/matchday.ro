@@ -15,7 +15,7 @@ class Post {
         $offset = ($page - 1) * $perPage;
         $params = [];
         
-        $sql = "SELECT p.*, c.name as category_name, c.color as category_color 
+        $sql = "SELECT p.*, c.name as category_name, c.color as category_color, c.icon as category_icon 
                 FROM posts p 
                 LEFT JOIN categories c ON p.category_slug = c.slug 
                 WHERE p.status = 'published'";
@@ -111,7 +111,7 @@ class Post {
      */
     public static function getBySlug(string $slug): ?array {
         return Database::fetchOne(
-            "SELECT p.*, c.name as category_name, c.color as category_color 
+            "SELECT p.*, c.name as category_name, c.color as category_color, c.icon as category_icon 
              FROM posts p 
              LEFT JOIN categories c ON p.category_slug = c.slug 
              WHERE p.slug = :slug",
@@ -124,7 +124,7 @@ class Post {
      */
     public static function getById(int $id): ?array {
         return Database::fetchOne(
-            "SELECT p.*, c.name as category_name, c.color as category_color 
+            "SELECT p.*, c.name as category_name, c.color as category_color, c.icon as category_icon 
              FROM posts p 
              LEFT JOIN categories c ON p.category_slug = c.slug 
              WHERE p.id = :id",
@@ -260,12 +260,14 @@ class Post {
      * Get latest posts
      */
     public static function getLatest(int $limit = 5, bool $onlyPublished = false): array {
-        $where = $onlyPublished ? "WHERE status = 'published'" : '';
+        $where = $onlyPublished ? "WHERE p.status = 'published'" : '';
         return Database::fetchAll(
-            "SELECT id, title, slug, excerpt, cover_image, category_slug, status, published_at, created_at 
-             FROM posts 
+            "SELECT p.id, p.title, p.slug, p.excerpt, p.cover_image, p.category_slug, p.status, p.published_at, p.created_at,
+                    c.name as category_name, c.color as category_color, c.icon as category_icon 
+             FROM posts p
+             LEFT JOIN categories c ON p.category_slug = c.slug
              $where
-             ORDER BY COALESCE(published_at, created_at) DESC 
+             ORDER BY COALESCE(p.published_at, p.created_at) DESC 
              LIMIT :limit",
             ['limit' => $limit]
         );
